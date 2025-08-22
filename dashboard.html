@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grow System - Dashboard</title>
+    <style>
+      :root {
+    /* Gradiente de fundo (azuis claros) */
+    --bg-gradient-start: #00C6FF; /* Azul claro vibrante */
+    --bg-gradient-end: #0072FF;   /* Azul mais profundo */
+
+    /* Cores predominantes dos cards */
+    --card-bg: #0D1E31; /* Azul grafite escuro */
+    --card-header-bg: #0A0F24; /* Fundo sólido escuro */
+    --border-color: rgba(255, 255, 255, 0.1);
+
+    /* Texto */
+    --text-primary: #FFFFFF;
+    --text-secondary: #B3B9C5;
+
+    /* Medalhas */
+    --medal-gold: #FFB800;
+    --medal-silver: #B0B9C6;
+    --medal-bronze: #D07C3D;
+}
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(180deg, var(--bg-gradient-start), var(--bg-gradient-end));
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            background-color: var(--card-header-bg);
+            color: var(--text-primary);
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .profile {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .profile-info h2 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        .xp-badge {
+            background-color: rgba(0, 0, 0, 0.3);
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .xp-badge img {
+            width: 16px;
+            height: 16px;
+        }
+
+        .nav-icons {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-icon {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .nav-icon:hover {
+            transform: scale(1.1);
+        }
+
+        .nav-icon img {
+            width: 40px;
+            height: 40px;
+            margin-bottom: 5px;
+        }
+
+        .nav-icon span {
+            font-size: 0.9rem;
+        }
+
+        .main-content {
+            margin-top: 30px;
+        }
+
+        .home-section, .ranking-section, .fun-section, .ponto-section, .learn-section {
+            text-align: center;
+            padding: 40px 20px;
+            background-color: var(--card-bg);
+            border-radius: 15px;
+            margin-bottom: 30px;
+            display: none;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .home-section {
+            display: block;
+        }
+
+        .home-section h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
+        }
+
+        .home-section p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto 30px;
+            color: var(--text-secondary);
+        }
+
+        .section-title {
+            font-size: 2rem;
+            margin-top: 0;
+            margin-bottom: 30px;
+            text-align: center;
+            color: var(--text-primary);
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        /* --- Ranking Section --- */
+        .ranking-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .ranking-table th, .ranking-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .ranking-table th {
+            background-color: var(--card-header-bg);
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+        }
+
+        .ranking-table tr:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .user-cell {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .medal {
+            width: 25px;
+            height: 25px;
+            margin-left: 10px;
+        }
+
+        .position-1 {
+            background-color: rgba(255, 184, 0, 0.1);
+        }
+
+        .position-2 {
+            background-color: rgba(176, 185, 198, 0.1);
+        }
+
+        .position-3 {
+            background-color: rgba(208, 124, 61, 0.1);
+        }
+
+        .xp-cell {
+            font-weight: bold;
+        }
+
+        .xp-coins {
+            color: var(--medal-gold);
+        }
+
+        /* --- Fun Section --- */
+        .fun-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--card-bg);
+            border-radius: 15px;
+            padding: 40px 20px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .fun-section .section-title {
+            font-size: 2.2rem;
+            margin-bottom: 30px;
+            color: var(--text-primary);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .memory-game-container, .fire-game-container, .quiz-game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .memory-game-icon, .fire-game-icon, .quiz-gamer-container {
+            width: 120px;
+            height: 120px;
+            cursor: pointer;
+            transition: transform 0.3s ease-in-out;
+            filter: drop-shadow(4px 4px 6px rgba(0, 0, 0, 0.3));
+        }
+
+        .memory-game-icon:hover, .fire-game-icon:hover, .quiz-gamer-container {
+            transform: scale(1.1);
+            filter: drop-shadow(6px 6px 8px rgba(0, 0, 0, 0.4));
+        }
+
+        .play-button {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            background-color: var(--medal-gold);
+            color: var(--card-header-bg);
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease-in-out, transform 0.2s ease-in-out;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .play-button:hover {
+            background-color: #0d1012;
+            transform: translateY(-3px);
+            box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.4);
+        }
+
+        .play-button:active {
+            transform: translateY(1px);
+            box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            margin-top: 40px;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .nav-icons {
+                width: 100%;
+                justify-content: space-around;
+            }
+        }
+
+        .trophy-icon {
+            width: 40px;
+            height: 40px;
+        }
+
+        .fun-icon {
+            width: 40px;
+            height: 40px;
+        }
+
+        .gold-coin {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Styles for the History Table */
+        .history-table-container {
+            max-width: 900px;
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 0 auto;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .history-table-container h3 {
+            color: var(--text-primary);
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+            text-align: center;
+        }
+
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        .history-table th, .history-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+            color: var(--text-primary);
+        }
+
+        .history-table th {
+            background-color: var(--card-header-bg);
+            font-weight: bold;
+            color: var(--text-secondary);
+        }
+
+        .history-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .history-table .no-data {
+            text-align: center;
+            color: var(--medal-gold);
+            font-weight: bold;
+        }
+
+        /* New styles for the Learn Section */
+        .learn-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            text-align: left;
+        }
+
+        .learn-topic {
+            width: 100%;
+            max-width: 800px;
+            padding: 20px;
+            background-color: var(--card-header-bg);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .learn-topic:hover {
+            background-color: rgba(10, 15, 36, 0.8);
+        }
+
+        .topic-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .topic-arrow {
+            transition: transform 0.3s;
+        }
+
+        .topic-arrow.rotate {
+            transform: rotate(90deg);
+        }
+
+        .topic-content {
+            display: none;
+            margin-top: 20px;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: var(--text-secondary);
+        }
+
+        .topic-content.show {
+            display: block;
+        }
+
+        .topic-content h4 {
+            color: var(--medal-gold);
+            margin-bottom: 10px;
+        }
+        .topic-content ul {
+            list-style-type: disc;
+            padding-left: 20px;
+        }
+        .topic-content li {
+            margin-bottom: 10px;
+        }
+        .learn-quiz-button {
+            margin-top: 20px;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            background-color: var(--medal-gold);
+            color: var(--card-header-bg);
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease-in-out, transform 0.2s ease-in-out;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .learn-quiz-button:hover {
+            background-color: #0d1012;
+            transform: translateY(-3px);
+            box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.4);
+        }
+        
+        /* Novos estilos para a seção de Início (Home) */
+        .home-content {
+            display: grid;
+            gap: 25px;
+            grid-template-columns: 1fr;
+            text-align: left;
+        }
+
+        @media (min-width: 768px) {
+            .home-content {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .home-card {
+            background-color: var(--card-header-bg);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .home-card h3 {
+            margin-top: 0;
+            font-size: 1.5rem;
+            color: var(--text-primary);
+            border-bottom: 2px solid var(--medal-gold);
+            padding-bottom: 10px;
+        }
+
+        .user-stats {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--medal-gold);
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: var(--text-secondary);
+        }
+
+        .ranking-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        .ranking-item img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--medal-gold);
+        }
+
+        .ranking-item span {
+            font-size: 1.1rem;
+        }
+
+        .ranking-item .rank-number {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--medal-gold);
+        }
+
+        .quiz-highlight {
+            text-align: center;
+        }
+
+        .quiz-highlight .cta-button {
+            background-color: var(--medal-gold);
+            color: var(--card-header-bg);
+            font-weight: bold;
+            text-decoration: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            transition: background-color 0.3s;
+        }
+
+        .quiz-highlight .cta-button:hover {
+            background-color: #ffc94d;
+        }
+
+        .fact-of-day {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="profile">
+                <img id="user-avatar" class="avatar" alt="Avatar">
+                <div class="profile-info">
+                    <h2 id="username">Usuário</h2>
+                    <div class="xp-badge">
+                        <svg class="gold-coin" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="12" cy="12" r="10" fill="#FFB74D"/>
+                            <circle cx="12" cy="12" r="8" fill="#FFD28C"/>
+                            <text x="12" y="16" text-anchor="middle" font-size="10" font-weight="bold" fill="#8B4513">BIP</text>
+                        </svg>
+                        <span id="user-xp">0 BIP</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="nav-icons">
+                <div class="nav-icon" onclick="showSection('home')">
+                    <img src="assets/resources/house.png" alt="Home">
+                    <span>Início</span>
+                </div>
+                <div class="nav-icon" onclick="showSection('learn')">
+                    <img src="assets/resources/learn.png" alt="Aprenda">
+                    <span>Saiba mais</span>
+                </div>
+                <div class="nav-icon" onclick="showSection('ponto')">
+                    <img src="assets/resources/clock.png" alt="Ponto">
+                    <span>Ponto</span>
+                </div>
+                <div class="nav-icon" onclick="showSection('fun')">
+                    <img src="assets/resources/gamer.png" alt="Diversão">
+                    <span>Diversão</span>
+                </div>
+                <div class="nav-icon" onclick="showSection('ranking')">
+                    <svg class="trophy-icon" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M97.12 59.35c2.22-1.83 15.04-9.76 22.06-16.44c5.48-5.22 7.6-18.85-.83-25.48c-10.96-8.61-21.48.43-21.48.43s-.92-5.11-7.32-8.11c-8.06-3.78-18.27-5.19-27.66-5.07c-9.1.11-17.48 1.21-24.92 4.86c-6.66 3.27-7.06 7.93-7.06 7.93s-8.74-8.35-19.45-1.57C-.24 22.69 2.83 36.29 7.98 42c6.71 7.44 14.77 11.23 18.43 13.97c3.65 2.74 7.15 5.35 7.15 7.7c0 2.35-1.04 2.87-1.44 2.74c-.39-.13-1.08-2.42-2.87-1.44c-2.44 1.35-1.7 6.79 3.39 7.31c4.93.51 5.87-4.7 5.87-4.7l.78-5.09l8.09 5.61l8.87 7.31l-.26 6.26s-.39 4.83-2.74 9.01s-6.13 8.35-6.13 8.35l-.12 3.78l32.89-.78l-1.04-3.65s-4.24-4.66-6.79-9.66c-1.82-3.58-2.11-7.19-2.11-7.19l-.08-8.98l17.07-10.46s1.83 1.44 1.57 1.96s-.32 5.85 3.78 7.83c4.05 1.96 7.31-.52 6.92-3.92c-.39-3.39-2.48-2.22-3.13-1.7c-.65.52-2.09.65-2.48-1.31c-.4-1.94 1.3-3.77 3.52-5.6zM13.09 40.89l-3.91-11.9l4.73-6.19l5.3-1.55s6.77 5.05 7.01 5.46c.24.41 4.32 8.8 4.32 8 14.11z" fill="#FFB74D"></path>
+                        <path d="M119.92 30.64c-.78-9.32-10-11.55-13.79-10.2s-6.25 3.88-7.09 7.48c-.68 2.91-1.36 4.85-2.14 5.15c-.86.32-1.65.19-1.65.19s-.14-6.3-.1-8.84c.1-5.24 1.7-6.58 1.7-6.58s-.34-1.77-1.02-2.75c-.68-.97-1.94-2.23-1.94-2.23s.29 2.52-.97 3.11s-2.62-.29-2.62-.29l1.26 5.24s-2.04 26.12-2.23 26.7c-.19.58-7.86 13.88-7.86 13.88s-4.47 4.18-6.6 5.15c-2.14.97-3.98 3.5-12.23 3.59c-8.25.1-15.34-6.41-15.34-6.41l-7.09-6.8l-5.24-15.44l-.78-15.73l.33-5.72l.23-2.39l-.37-1.21s-.68.68-1.94.39c-1.26-.29-1.75-1.94-1.75-1.94s-.49.78-.58 1.17c-.1.39-.2 1.29-.2 1.29s1.36 1.43 1.65 3.47c.29 2.04-.1 10.49-1.55 10.29c-1.46-.19-.98-7.28-6.51-10c-4.79-2.36-11.94-1.65-14.86 4.27c-2.91 5.92-.78 12.91 8.35 19.42s18.85 11.98 20.39 17.2c1.84 6.21-2.33 9.9-2.33 9.9s3.03-.42 4.52-3.67c.48-1.05.66-2.58.73-3.49c3.45 4.5 8.04 8.31 14.12 10.15c2.3.79 4.89 1.19 8.49 1.19c.52 0 1.03-.02 1.54-.04c4.21-.15 7.81-.94 11.3-2.67c4.71-2.18 8.36-5.51 11.18-9.29c-.08.9.47 3.14 1.52 4.91c1.84 3.11 4.95 3.3 4.95 3.3s-4.27-2.52-3.4-8.54c.87-6.02 4.85-8.16 10.87-12.04c6.04-3.89 19.82-11.85 19.05-21.17zM21.27 43.85c-2.71-1.91-7.46-4.46-9.42-8.35c-2.61-5.19-.49-11.46 4.47-12.23c10.3-1.62 10.49 11.17 11.17 12.72c.68 1.55 2.62 1.65 2.62 1.65s.07.86.35 2.52c.01.05.02.09.02.14l.03.15c.19 1.13.46 2.54.84 4.15l.03.12c.21.91.43 1.77.66 2.56c.46 1.66 1.02 3.45 1.71 5.29c-1-.68-6.73-4.65-12.48-8.72zm93.31-7.19c-2.15 3.48-6.5 6.07-9.71 8.25c-4.14 2.81-10.3 7.03-12.04 8.21c.4-1.06.75-2.11 1.07-3.14c.52-1.36 1.07-3.02 1.45-4.81c1-4.7 1.17-8.81 1.17-8.81s2.04.58 3.3-.78c1.26-1.36 1.73-5.58 2.91-7.57c1.84-3.11 5.53-6.31 11.07-2.43c3.2 2.25 3.32 6.96.78 11.08z" fill="#FFD700"></path>
+                        <path d="M60.52 79.31l5.65-.07s.15 6.17 1.04 10.77c.89 4.61 2.08 9.73 2.08 9.73s-11.51 3.86-11.44-.3s1.78-12.26 1.78-12.26s1.04-9.65.89-7.87z" fill="#FFB74D"></path>
+                        <path d="M51.04 15.19s6.29-.71 12.14-.62s11.87 1.24 11.87 1.24s-.35 19.58-1.42 30.57c-1.06 10.99-5.22 19.22-6.33 21.55c-1.07 2.26-1.85 3.47-1.85 3.47l-5.64-.66l-9.75-19.58l.98-35.97z" fill="#FFB74D"></path>
+                        <path d="M43.51 18.12s1.77-.89 4.34-1.86c2.33-.88 4.43-1.15 4.43-1.15s.06 12.98.27 22.24c.18 7.89 3.1 20.82 4.52 24.28c1.42 3.46 3.98 8.74 3.98 8.74s-5.15-.74-8.32-4.76c-1.67-2.12-9.48-18.52-9.75-29.33s.79-18.43.53-18.16z" fill="#ffefab"></path>
+                        <path d="M40.58 19.62c-.18.53-1.59 11.7.62 22.06s5.48 17.45 7.64 20.26c1.92 2.49 3.17 3.67 3.88 3.67s-2.92-8.59-4.61-15.33c-1.68-6.73-2.57-14.8-2.75-18.78c-.18-3.99-.35-14.27-.35-14.27s-1.95.89-2.39 1.15c-.44.27-2.04 1.24-2.04 1.24z" fill="#fffcfd"></path>
+                        <path d="M53.34 99.01s3.81-6.2 4.61-10.9c.8-4.7 1.24-8.86 1.24-8.86l2.36.1s-.23 6.81-.5 11.42s-1.06 9.13-1.06 9.13l-6.65-.89z" fill="#ffefab"></path>
+                        <path d="M56.27 75.41s1.77-1.73 6.64-1.73s6.96 1.87 6.96 1.87l.13 6.01s-3.24-1.01-7.18-1.06c-3.28-.04-6.81 1.18-6.81 1.18l.26-6.27z" fill="#d1701c"></path>
+                        <path d="M35 15.72c.82-.76 8.68-6.66 27.29-6.82c20.02-.18 27.53 5.62 28 5.94c.53.35 1.15 1.95.89 2.66c-.27.71-.8.97-2.3.35c-1.51-.62-8.95-6.05-26.85-5.49c-17.19.53-24.48 5.76-25.25 6.2c-.62.35-1.77.44-2.3-.27c-.54-.7-.01-2.07.52-2.57z" fill="#d1701c"></path>
+                        <path d="M91.18 19.89c-2.3.18-.71 18.7-5.58 30.3c-5.22 12.41-11.88 15.95-11.61 16.66c.27.71 6.79-1.26 10.9-7.09c3.81-5.4 6.11-10.19 7.18-16.57c1.05-6.38 1.67-23.5-.89-23.3z" fill="#d1701c"></path>
+                        <path d="M34.51 22.01c-.58-.03.01 9.21-.93 13.27c-.36 1.56-1.24 1.88-1.33 2.23c-.09.35 1.93 12.24 5.32 17.46c3.28 5.05 9.75 11.34 10.81 10.28c1.06-1.06-4.7-4.61-8.59-12.32c-2.24-4.42-4.52-11.08-4.61-18.7c-.06-5.04.57-12.15-.67-12.22z" fill="#d1701c"></path>
+                        <path d="M86.77 112.71l-.01-14.29H40.89c.14 0 .03 11.62.01 14.34h-6.52v10.35h58.25v-10.35l-5.86-.05z" fill="#865c50"></path>
+                        <path d="M55.59 105.93c-1.13-.05-2.43.18-2.48 1.58s-.05 5.45-.05 6.22c0 .77.63 1.44 2.21 1.49c1.58.05 16.41 0 17.45 0c1.04 0 1.58-.9 1.62-1.8c.05-.9-.05-4.69-.05-5.72c0-1.71-1.53-1.71-2.57-1.71c-1.12-.02-16.13-.06-16.13-.06z" fill="#FFB74D"></path>
+                    </svg>
+                    <span>Ranking</span>
+                </div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <section class="home-section" id="home-section">
+                <div class="home-content">
+                    <div class="home-card">
+                        <h3>Seu Progresso</h3>
+                        <div class="user-stats">
+                            <div class="stat-item">
+                                <span class="stat-value" id="user-bips-home">0</span>
+                                <span class="stat-label">BIPs Acumulados</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-value" id="user-rank-home">--</span>
+                                <span class="stat-label">Posição no Ranking</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="home-card quiz-highlight">
+                        <h3>Novo Desafio!</h3>
+                        <p>Teste seus conhecimentos com nosso novo quiz e ganhe até 5 BIPs.</p>
+                        <a href="quizlgbt.html" class="cta-button">Jogar Quiz Agora</a>
+                    </div>
+
+                   <div class="home-card">
+    <h3>Ranking Top 3</h3>
+    <ul id="home-ranking-list">
+        <li class="rank-item">
+            <img src="assets/resources/gold-medal.png" alt="Medalha Ouro" class="medal">
+            <span>#1 Mayara Santos</span>
+        </li>
+        <li class="rank-item">
+            <img src="assets/resources/silver-medal.png" alt="Medalha Prata" class="medal">
+            <span>#2 Isac Batista</span>
+        </li>
+        <li class="rank-item">
+            <img src="assets/medal3.png" alt="Medalha Bronze" class="medal">
+            <span>#3 Yulkedsley</span>
+        </li>
+    </ul>
+</div>
+
+                    
+                    <div class="home-card fact-of-day">
+                        <h3>Fato do Dia</h3>
+                        <p><b>"A gamificação aumenta o engajamento em 60% e a retenção de conhecimento em 40%."</b></p>
+                    </div>
+                </div>
+            </section>
+            
+            <section class="learn-section" id="learn-section">
+                <h2 class="section-title">Aprenda</h2>
+                <div class="learn-topic" onclick="toggleTopic('lgbt-topic')">
+                    <div class="topic-header">
+                        Conscientização contra a LGBTQIA+ fobia
+                        <span class="topic-arrow">&#9654;</span>
+                    </div>
+                </div>
+                <div id="lgbt-topic-content" class="topic-content">
+                    <h4>O que é a Comunidade LGBT?</h4>
+                    <p>História : A homossexualidade não é um fenômeno moderno: registros de relações e afetos entre pessoas do mesmo sexo existem desde as primeiras civilizações. O que mudou ao longo da história foi a forma como cada sociedade a interpretou, aceitou ou reprimiu.
+                    A homossexualidade passou a ser estudada pela medicina e psicologia, mas classificada como desvio ou doença. Apesar disso, intelectuais, artistas e escritores — como Oscar Wilde — desafiaram as normas, tornando-se símbolos de resistência.
+                    A homossexualidade é reconhecida como parte natural da diversidade humana por instituições científicas e de direitos humanos, mas ainda enfrenta resistência cultural e política em muitos lugares..</p>
+                    <p>Aqui estão alguns conceitos importantes:</p>
+                    <ul>
+                        <li>🌈 Diversidade e inclusão: A comunidade LGBT reúne pessoas lésbicas, gays, bissexuais, trans e outras identidades de gênero e orientações sexuais.</li>
+                        <li>🤝 Direitos e visibilidade: Luta por igualdade, respeito e oportunidades, promovendo a conscientização e combatendo a discriminação.</li>
+                        <li>🎉 Cultura e representatividade: Valoriza a expressão individual, celebrações e movimentos que fortalecem a presença LGBT na sociedade.</li>
+                        <li>🚀 Conquistas e avanços: Movimentos sociais têm garantido direitos, fortalecendo a diversidade e a liberdade de ser quem cada um é.</li>
+                    </ul>
+                    <button class="learn-quiz-button" onclick="window.location.href='quizlgbt.html'">Jogar o Quiz</button>
+                </div>
+
+                <div class="learn-topic" onclick="toggleTopic('inclusao-topic')">
+                    <div class="topic-header">
+                        Pessoas Surdas
+                        <span class="topic-arrow">&#9654;</span>
+                    </div>
+                </div>
+                <div id="inclusao-topic-content" class="topic-content">
+                    <h4>INFORMAÇÕES IMPORTANTES SOBRE PESSOAS SURDAS</h4>
+                    <p>A Língua Brasileira de Sinais (Libras) surgiu no século XIX, com a fundação do Instituto Nacional de Educação de Surdos (1857), a partir da mistura de sinais já usados no Brasil e da Língua de Sinais Francesa. Em 2002, foi reconhecida por lei como meio oficial de comunicação, consolidando-se como parte essencial da inclusão e identidade da comunidade surda.</p>
+                    <p>Pontos importantes sobre a comunidade surda:</p>
+                    <ul>
+                        <li>🗣️ Surdo não é mudo: muitas pessoas surdas falam; outras preferem Libras.</li>
+                        <li>📌 Cultura Surda existe: envolve valores, formas próprias de comunicação, arte e identidade.</li>
+                        <li>✨ Orgulho Surdo: ser surdo é uma identidade cultural, não uma deficiência.</li>
+                        <li>📖 Libras é língua oficial no Brasil (Lei 10.436/2002): tem o mesmo status que o português.</li>
+                        <li>🚨 Desafios: falta de intérpretes e acessibilidade em escolas, hospitais e eventos.</li>
+                        <li>✅ Respeito: Libras não é acessório; pessoas surdas devem ser respeitadas em sua forma de comunicação.</li>
+                    </ul>
+                    <button class="learn-quiz-button" onclick="window.location.href='quizlibras.html'">Jogar o Quiz</button>
+                </div>
+
+                <div class="learn-topic" onclick="toggleTopic('pcd-topic')">
+                    <div class="topic-header">
+                        História do Senai
+                        <span class="topic-arrow">&#9654;</span>
+                    </div>
+                </div>
+                <div id="pcd-topic-content" class="topic-content">
+                    <h4>História do SENAI</h4>
+                    <p>O Serviço Nacional de Aprendizagem Industrial (SENAI) foi criado em 1942 para formar profissionais qualificados e apoiar o desenvolvimento da indústria brasileira. Desde então, tornou-se uma das maiores instituições de educação profissional da América Latina, oferecendo cursos técnicos, de qualificação, graduação e pós-graduação voltados para diferentes áreas da indústria.</p>
+                    <p>Pontos importantes sobre o SENAI::</p>
+                    <ul>
+                        <li>🏭 Fundado em 1942, durante o governo de Getúlio Vargas, para atender à demanda de mão de obra da indústria.</li>
+                        <li>🎓 É referência em educação profissional e tecnológica no Brasil.</li>
+                        <li>🌎 Está presente em todos os estados, com escolas, faculdades, institutos de inovação e tecnologia.</li>
+                        <li>🤝 Atua em parceria com empresas, desenvolvendo soluções e capacitando trabalhadores.</li>
+                        <li>🚀 Contribui para a inovação e competitividade da indústria brasileira.</li>
+                    </ul>
+                    <button class="learn-quiz-button" onclick="window.location.href='Quiz.html'">Jogar o Quiz</button>
+                </div>
+            </section>
+
+            <section class="ponto-section" id="ponto-section">
+                <h2 class="section-title">Histórico de Pontos</h2>
+                <div class="history-table-container">
+                    <table class="history-table">
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Hora</th>
+                                <th>Moedas Ganhas</th>
+                            </tr>
+                        </thead>
+                        <tbody id="history-table-body">
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section class="fun-section" id="fun-section">
+                <h2 class="section-title">Diversão</h2>
+                <div class="memory-game-container">
+                    <img src="assets/resources/memoria.png" alt="Ícone Jogo da Memória" class="memory-game-icon">
+                    <button class="play-button" onclick="window.location.href='memoria.html'">Jogo da Memória</button>
+                </div>
+
+                <hr style="width: 80%; border: 1px solid rgba(255, 255, 255, 0.2); margin: 30px auto;">
+
+                <div class="fire-game-container">
+                    <img src="assets/Fire/fire-extinguisher.png" alt="Ícone Jogo de Incêndio" class="fire-game-icon">
+                    <button class="play-button" onclick="window.location.href='fire.html'">Jogo Combate ao Fogo</button>
+                </div>
+
+                <div class="quiz-game-container">
+                    <img src="assets/resources/th (9).jpeg" alt="Ícone Quiz" class="fire-game-icon">
+                    <button class="play-button" onclick="window.location.href='Quiz.html'">Jogo do Quiz</button>
+                </div>
+            </section>
+
+            <section class="ranking-section" id="ranking-section">
+                <h2 class="section-title">Ranking da Semana</h2>
+                <table class="ranking-table">
+                    <thead>
+                        <tr>
+                            <th>Posição</th>
+                            <th>Usuário</th>
+                            <th>BIP</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ranking-body">
+                    </tbody>
+                </table>
+            </section>
+        </main>
+
+        <footer>
+            <p>Gamificação &copy; 2025 - Todos os direitos reservados</p>
+        </footer>
+    </div>
+
+    <script>
+        // Carrega o ranking completo do localStorage ou inicia vazio
+        let rankingData = JSON.parse(localStorage.getItem('rankingData')) || [];
+        
+        // Carrega os dados do usuário logado
+        let usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado')) || {
+            id: null,
+            nome: "Usuário",
+            avatar: "https://via.placeholder.com/60",
+            moedas: 0
+        };
+
+        async function fetchAndUpdateUserData() {
+            if (usuarioLogado.id) {
+                try {
+                    const moedasResponse = await fetch(`http://localhost:3000/api/moedas/${usuarioLogado.id}`);
+                    const moedasData = await moedasResponse.json();
+
+                    if (moedasData.status === 'sucesso' && moedasData.moedas !== undefined) {
+                        usuarioLogado.moedas = moedasData.moedas;
+                        localStorage.setItem('usuarioLogado', JSON.stringify(usuarioLogado));
+                    } else {
+                        console.error('Erro ao buscar moedas:', moedasData.mensagem);
+                    }
+                } catch (error) {
+                    console.error('Erro na requisição para atualizar dados do usuário:', error);
+                }
+            }
+            loadUserData();
+        }
+
+        function syncUserAndRanking() {
+            if (usuarioLogado.id) {
+                const usuarioExistenteNoRanking = rankingData.find(user => user.id === usuarioLogado.id);
+                if (usuarioExistenteNoRanking) {
+                    usuarioExistenteNoRanking.bip = usuarioLogado.moedas;
+                    usuarioExistenteNoRanking.avatar = usuarioLogado.avatar;
+                    usuarioExistenteNoRanking.nome = usuarioLogado.nome;
+                } else {
+                    rankingData.push({
+                        id: usuarioLogado.id,
+                        nome: usuarioLogado.nome,
+                        avatar: usuarioLogado.avatar,
+                        bip: usuarioLogado.moedas || 0
+                    });
+                }
+                localStorage.setItem('rankingData', JSON.stringify(rankingData));
+            }
+        }
+
+        const usernameElement = document.getElementById('username');
+        const userAvatarElement = document.getElementById('user-avatar');
+        const userXpElement = document.getElementById('user-xp');
+        const rankingBody = document.getElementById('ranking-body');
+        const historyTableBody = document.getElementById('history-table-body');
+        const userBipsHomeElement = document.getElementById('user-bips-home');
+        const userRankHomeElement = document.getElementById('user-rank-home');
+        const homeRankingList = document.getElementById('home-ranking-list');
+
+        function loadUserData() {
+            usernameElement.textContent = usuarioLogado.nome || "Usuário";
+            userAvatarElement.src = usuarioLogado.avatar || "https://via.placeholder.com/60";
+            userXpElement.textContent = `${usuarioLogado.moedas || 0} BIP`;
+            
+            // Atualiza os dados na seção "Início"
+            userBipsHomeElement.textContent = usuarioLogado.moedas || 0;
+
+            syncUserAndRanking();
+            rankingData.sort((a, b) => b.bip - a.bip);
+            const userRankIndex = rankingData.findIndex(user => user.id === usuarioLogado.id);
+            if (userRankIndex !== -1) {
+                userRankHomeElement.textContent = `#${userRankIndex + 1}`;
+            } else {
+                userRankHomeElement.textContent = '--';
+            }
+
+            // Carrega o ranking rápido na home
+            loadHomeRanking();
+        }
+
+function loadHomeRanking() {
+    homeRankingList.innerHTML = '';
+    const top3 = rankingData.slice(0, 3);
+    
+    // Create a lookup array for medal images
+    const medals = [
+        { src: '/assets/resources/gold-medal.png', alt: 'Medalha de Ouro' },
+        { src: '/assets/resources/silver-medal.png', alt: 'Medalha de Prata' },
+        { src: '/assets/resources/bronze-medal.png', alt: 'Medalha de Bronze' }
+    ];
+
+    top3.forEach((user, index) => {
+        const li = document.createElement('li');
+        li.className = 'ranking-item';
+
+        // Get the medal data from the array based on the index
+        const medal = medals[index];
+
+        // Use a single line to generate the medal HTML
+        const medalHtml = medal ? `<img src="${medal.src}" alt="${medal.alt}" class="medal-icon">` : '';
+
+        li.innerHTML = `
+            <span class="rank-number">${medalHtml}#${index + 1}</span>
+            <img src="${user.avatar}" alt="${user.nome}" class="user-avatar">
+            <span>${user.nome}</span>
+        `;
+        homeRankingList.appendChild(li);
+    });
+}
+
+        function showSection(sectionId) {
+            const mainContentSections = document.querySelectorAll('.main-content > section');
+            mainContentSections.forEach(section => {
+                section.style.display = 'none';
+            });
+
+            const sectionToShow = document.getElementById(`${sectionId}-section`);
+            if (sectionToShow) {
+                sectionToShow.style.display = 'block';
+            }
+
+            if (sectionId === 'home') {
+                loadUserData();
+            } else if (sectionId === 'ranking') {
+                updateRanking();
+            } else if (sectionId === 'ponto') {
+                updatePontoHistory();
+            }
+        }
+        
+        function toggleTopic(topicId) {
+            const content = document.getElementById(topicId + '-content');
+            const arrow = document.querySelector(`#${topicId} .topic-arrow`);
+            
+            content.classList.toggle('show');
+            arrow.classList.toggle('rotate');
+        }
+
+        function updateRanking() {
+            rankingBody.innerHTML = '';
+            syncUserAndRanking();
+            rankingData.sort((a, b) => b.bip - a.bip);
+
+            rankingData.forEach((user, index) => {
+                const row = document.createElement('tr');
+                if (index === 0) row.classList.add('position-1');
+                if (index === 1) row.classList.add('position-2');
+                if (index === 2) row.classList.add('position-3');
+
+                let medal = '';
+                if (index === 0) {
+                    medal = `<svg class="medal" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="12" cy="12" r="10" fill="#FFD700"/>
+                        <circle cx="12" cy="12" r="8" fill="#FFEC8B"/>
+                        <text x="12" y="15" text-anchor="middle" font-size="8" font-weight="bold" fill="#8B7500">1°</text>
+                    </svg>`;
+                } else if (index === 1) {
+                    medal = `<svg class="medal" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="12" cy="12" r="10" fill="#C0C0C0"/>
+                        <circle cx="12" cy="12" r="8" fill="#E6E6E6"/>
+                        <text x="12" y="15" text-anchor="middle" font-size="8" font-weight="bold" fill="#505050">2°</text>
+                    </svg>`;
+                } else if (index === 2) {
+                    medal = `<svg class="medal" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="12" cy="12" r="10" fill="#CD7F32"/>
+                        <circle cx="12" cy="12" r="8" fill="#E6C39A"/>
+                        <text x="12" y="15" text-anchor="middle" font-size="8" font-weight="bold" fill="#5E3A00">3°</text>
+                    </svg>`;
+                }
+
+                row.innerHTML = `
+                    <td>${index + 1} ${medal}</td>
+                    <td class="user-cell">
+                        <img src="${user.avatar}" alt="${user.nome}" class="user-avatar">
+                        ${user.nome}
+                    </td>
+                    <td class="xp-cell">
+                        <span class="xp-coins">${user.bip} BIP</span>
+                    </td>
+                `;
+                rankingBody.appendChild(row);
+            });
+        }
+
+        async function updatePontoHistory() {
+            if (!usuarioLogado || !usuarioLogado.id) {
+                historyTableBody.innerHTML = '<tr><td colspan="3" class="no-data">Por favor, faça login para ver o histórico.</td></tr>';
+                return;
+            }
+
+            try {
+                const res = await fetch(`http://localhost:3000/api/pontos/${usuarioLogado.id}`);
+                if (!res.ok) {
+                    if (res.status === 404) {
+                        historyTableBody.innerHTML = '<tr><td colspan="3" class="no-data">Nenhum ponto registrado para este usuário.</td></tr>';
+                        return;
+                    }
+                    throw new Error(`HTTP error! status: ${res.status}`);
+                }
+                const data = await res.json();
+
+                historyTableBody.innerHTML = '';
+                if (data.pontos && data.pontos.length > 0) {
+                    data.pontos.forEach(record => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${record.data}</td>
+                            <td>${record.hora}</td>
+                            <td>${record.moedas}</td>
+                        `;
+                        historyTableBody.appendChild(row);
+                    });
+                } else {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `<td colspan="3" class="no-data">Nenhum ponto registrado.</td>`;
+                    historyTableBody.appendChild(row);
+                }
+            } catch (error) {
+                console.error('Erro ao buscar histórico de pontos:', error);
+                historyTableBody.innerHTML = `<tr><td colspan="3" class="no-data">Erro ao carregar dados. Tente novamente.</td></tr>`;
+            }
+        }
+
+        // Chama as funções iniciais quando a página é carregada
+        window.onload = () => {
+            fetchAndUpdateUserData();
+            showSection('home');
+        };
+    </script>
+</body>
+</html>

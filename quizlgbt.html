@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz LGBTQIA+ - Conscientização</title>
+<style>
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        background-color: #f7e0f0;
+        margin: 0;
+        padding: 20px;
+        box-sizing: border-box;
+    }
+    .quiz-container {
+        background-color: #ffffff;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        width: 100%;
+        max-width: 600px;
+        text-align: center;
+        animation: fadeIn 0.8s ease-out;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    h1 { color: #8a2be2; margin-bottom: 25px; font-size: 2.2em; }
+    .question-section { margin-bottom: 25px; }
+    .question-text { font-size: 1.6em; color: #333; margin-bottom: 20px; line-height: 1.4; }
+    .options-container { display: flex; flex-direction: column; gap: 12px; margin-bottom: 25px; }
+    .option-button {
+        background-color: #f0f0f0; color: #333; border: 2px solid #ccc;
+        padding: 15px 20px; border-radius: 8px; font-size: 1.1em; cursor: pointer;
+        transition: all 0.3s ease; text-align: left; width: 100%; box-sizing: border-box;
+    }
+    .option-button:hover:not(.correct):not(.incorrect):not(.disabled) {
+        background-color: #e0e0e0; border-color: #a0a0a0;
+    }
+    .option-button.correct { background-color: #d4edda; border-color: #28a745; color: #155724; font-weight: bold; }
+    .option-button.incorrect { background-color: #f8d7da; border-color: #dc3545; color: #721c24; font-weight: bold; }
+    .option-button.disabled { cursor: not-allowed; opacity: 0.8; }
+    .feedback-message { margin-top: 15px; font-size: 1.2em; font-weight: bold; min-height: 30px; }
+    .score-timer-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; font-size: 1.1em; color: #555; padding: 0 10px; }
+    #score-display, #timer-display { font-weight: bold; color: #8a2be2; font-size: 1.2em; }
+    #timer-display { color: #d32f2f; }
+    #next-button {
+        background-color: #8a2be2; color: white; border: none; padding: 12px 25px;
+        border-radius: 8px; font-size: 1.2em; cursor: pointer; transition: background-color 0.3s ease;
+        margin-top: 20px;
+    }
+    #next-button:hover:not(:disabled) { background-color: #6a1ba3; }
+    #next-button:disabled { background-color: #cccccc; cursor: not-allowed; }
+    .progress-indicator { margin-top: 20px; font-size: 0.9em; color: #777; }
+    #robot-container {
+        display: none;
+        margin-top: 20px;
+        animation: fadeIn 0.8s ease-in-out;
+    }
+    #robot-container img {
+        width: 120px;
+        margin-bottom: 10px;
+    }
+    .final-buttons {
+        margin-top: 20px;
+    }
+    .final-buttons button {
+        padding: 12px 25px;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.2em;
+        cursor: pointer;
+        margin: 0 5px;
+    }
+    .final-buttons #play-again-btn {
+        background-color: #28a745;
+        color: white;
+    }
+    .final-buttons #exit-btn {
+        background-color: #dc3545;
+        color: white;
+    }
+</style>
+</head>
+<body>
+<div class="quiz-container">
+    <h1>Quiz de Conscientização LGBTQIA+ 🏳️‍🌈</h1>
+
+    <div class="score-timer-container">
+        <div id="score-display">BIPs: 0</div>
+        <div id="timer-display">Tempo: 30s</div>
+    </div>
+
+    <div class="question-section">
+        <p class="question-text" id="question-text">Carregando pergunta...</p>
+        <div class="options-container" id="options-container"></div>
+    </div>
+
+    <div id="robot-container">
+        <img src="assets/resources/growlgbt.png" alt="Bandeira do Orgulho LGBTQIA+">
+        <p id="info-text"></p>
+    </div>
+
+    <div class="feedback-message" id="feedback-message"></div>
+
+    <button id="next-button" disabled>Próxima Pergunta</button>
+
+    <div class="progress-indicator" id="progress-indicator">
+        Questão 1 de 7
+    </div>
+    
+    <div class="final-buttons" style="display: none;">
+        <button id="play-again-btn">Jogar Novamente</button>
+        <button id="exit-btn">Sair</button>
+    </div>
+</div>
+
+<script>
+const questions = [
+    { question: "O que significa a sigla LGBTQIA+?", options: ["Lésbicas, Gays, Bissexuais, Transgêneros, Queer, Intersexuais, Assexuais e mais", "Liberdade, Gênero, Bisexualidade, Transição, Qualidade, Inclusão, Amor e mais", "Lésbicas, Gays, Bisexuais, Transgêneros, Questionadores, Interligados, Aliados e mais"], correctAnswer: "Lésbicas, Gays, Bissexuais, Transgêneros, Queer, Intersexuais, Assexuais e mais", info: "A sigla LGBTQIA+ representa a diversidade da comunidade, incluindo Lésbicas, Gays, Bissexuais, Transgêneros, Queer, Intersexuais, Assexuais e 'mais', que abrange outras identidades de gênero e orientações sexuais." },
+    { question: "Qual foi o ano e local do assassinato de Dandara dos Santos?", options: ["2017, Fortaleza (CE)", "2015, São Paulo (SP)", "2019, Belo Horizonte (MG)"], correctAnswer: "2017, Fortaleza (CE)", info: "Dandara dos Santos, uma mulher transexual, foi brutalmente assassinada em 2017, em Fortaleza, Ceará. Seu caso chocou o país e se tornou um símbolo da violência transfóbica no Brasil." },
+    { question: "Qual decisão importante o STF tomou em 2019 para proteção da comunidade LGBTQIA+?", options: ["Legalizou o casamento igualitário", "Criminalizou a LGBTfobia equiparando-a ao crime de racismo", "Criou cotas obrigatórias para pessoas trans no ensino superior"], correctAnswer: "Criminalizou a LGBTfobia equiparando-a ao crime de racismo", info: "Em 2019, o Supremo Tribunal Federal (STF) decidiu que a LGBTfobia (homofobia e transfobia) deve ser punida como crime, equiparando-a ao crime de racismo. Essa decisão é um marco na luta por direitos e proteção." },
+    { question: "Segundo pesquisas, qual o risco de tentativa de suicídio em jovens LGBTQIA+ rejeitados pela família, comparado a jovens aceitos?", options: ["2 vezes maior", "5 vezes maior", "8 vezes maior"], correctAnswer: "8 vezes maior", info: "A rejeição familiar é um fator de risco enorme. Estudos mostram que jovens LGBTQIA+ que são rejeitados por suas famílias têm um risco de tentativa de suicídio até 8 vezes maior. O apoio familiar é vital para a saúde mental." },
+    { question: "Qual foi a principal contribuição de Gilbert Baker para a comunidade LGBTQIA+?", options: ["Criou o primeiro aplicativo de denúncia de LGBTfobia", "Desenhou a bandeira do arco-íris", "Liderou a Revolta de Stonewall"], correctAnswer: "Desenhou a bandeira do arco-íris", info: "O artista e ativista Gilbert Baker desenhou a icônica bandeira do arco-íris em 1978. A bandeira se tornou um símbolo universal de orgulho, diversidade e direitos da comunidade LGBTQIA+." },
+    { question: "Qual lei estadual de São Paulo, criada em 2001, pune discriminação por orientação sexual e identidade de gênero?", options: ["Lei Estadual 12.403", "Lei Estadual 10.948", "Lei Estadual 9.605"], correctAnswer: "Lei Estadual 10.948", info: "A Lei Estadual 10.948, de 2001, foi pioneira em São Paulo, punindo a discriminação em razão de orientação sexual ou identidade de gênero. Essa lei é uma importante ferramenta jurídica contra o preconceito." },
+    { question: "Em que mês é celebrado mundialmente o Mês do Orgulho LGBTQIA+?", options: ["Maio", "Junho", "Julho"], correctAnswer: "Junho", info: "O Mês do Orgulho é celebrado em junho em memória da Revolta de Stonewall, que ocorreu em Nova York em 1969. Esse evento é considerado um marco no início do movimento moderno de libertação gay." }
+];
+
+let currentQuestionIndex = 0;
+let userScore = 0;
+const pointsPerCorrectAnswer = 5;
+const timePerQuestion = 30;
+let questionTimer;
+
+const questionText = document.getElementById('question-text');
+const optionsContainer = document.getElementById('options-container');
+const feedbackMessage = document.getElementById('feedback-message');
+const nextButton = document.getElementById('next-button');
+const scoreDisplay = document.getElementById('score-display');
+const timerDisplay = document.getElementById('timer-display');
+const progressIndicator = document.getElementById('progress-indicator');
+const robotContainer = document.getElementById('robot-container');
+const infoText = document.getElementById('info-text');
+const finalButtonsContainer = document.querySelector('.final-buttons');
+const playAgainButton = document.getElementById('play-again-btn');
+const exitButton = document.getElementById('exit-btn');
+
+function startTimer() {
+    let timeLeft = timePerQuestion;
+    timerDisplay.textContent = `Tempo: ${String(timeLeft).padStart(2, '0')}s`;
+    clearInterval(questionTimer);
+    questionTimer = setInterval(() => {
+        timeLeft--;
+        timerDisplay.textContent = `Tempo: ${String(timeLeft).padStart(2, '0')}s`;
+        if (timeLeft <= 0) {
+            clearInterval(questionTimer);
+            feedbackMessage.textContent = "Tempo esgotado!";
+            feedbackMessage.style.color = "#dc3545";
+            disableOptions(true);
+            nextButton.disabled = false;
+        }
+    }, 1000);
+}
+
+function loadQuestion() {
+    // Esconder a seção de botões finais
+    finalButtonsContainer.style.display = 'none';
+    // Reexibir o botão 'Próxima' e o progresso
+    nextButton.style.display = 'inline-block';
+    progressIndicator.style.display = 'block';
+
+    robotContainer.style.display = "none";
+    if (currentQuestionIndex >= questions.length) return endQuiz();
+    
+    const q = questions[currentQuestionIndex];
+    questionText.textContent = q.question;
+    optionsContainer.innerHTML = '';
+    feedbackMessage.textContent = '';
+    nextButton.disabled = true;
+    
+    // Embaralha as opções para que a ordem não seja sempre a mesma
+    const shuffledOptions = [...q.options].sort(() => Math.random() - 0.5);
+
+    shuffledOptions.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.classList.add('option-button');
+        btn.textContent = opt;
+        btn.onclick = () => checkAnswer(opt, q.correctAnswer, btn, q.info);
+        optionsContainer.appendChild(btn);
+    });
+    
+    progressIndicator.textContent = `Questão ${currentQuestionIndex + 1} de ${questions.length}`;
+    startTimer();
+}
+
+function disableOptions(disable) {
+    Array.from(optionsContainer.children).forEach(btn => {
+        btn.disabled = disable;
+        btn.classList.toggle('disabled', disable);
+    });
+}
+
+function checkAnswer(selected, correct, btn, info) {
+    clearInterval(questionTimer);
+    disableOptions(true);
+    if (selected === correct) {
+        userScore += pointsPerCorrectAnswer;
+        scoreDisplay.textContent = `BIPs: ${userScore}`;
+        feedbackMessage.textContent = "Correto! ✅";
+        feedbackMessage.style.color = "#28a745";
+        btn.classList.add('correct');
+    } else {
+        feedbackMessage.textContent = "Incorreto! ❌";
+        feedbackMessage.style.color = "#dc3545";
+        btn.classList.add('incorrect');
+        // Mostrar a resposta correta
+        Array.from(optionsContainer.children).forEach(b => {
+            if (b.textContent === correct) {
+                b.classList.add('correct');
+            }
+        });
+    }
+    showRobot(info);
+    nextButton.disabled = false;
+}
+
+function showRobot(info) {
+    infoText.textContent = info;
+    robotContainer.style.display = "block";
+    // Tenta usar a API de fala do navegador, se disponível
+    if ('speechSynthesis' in window) {
+        let speech = new SpeechSynthesisUtterance(info);
+        speech.lang = "pt-BR";
+        speech.rate = 1;
+        speech.pitch = 1;
+        window.speechSynthesis.speak(speech);
+    }
+}
+
+function nextQuestion() {
+    // Interrompe qualquer fala em andamento antes de ir para a próxima pergunta
+    window.speechSynthesis.cancel();
+    currentQuestionIndex++;
+    loadQuestion();
+}
+
+function endQuiz() {
+    clearInterval(questionTimer);
+    questionText.textContent = "Quiz Finalizado!";
+    optionsContainer.innerHTML = `<p>Você ganhou ${userScore} BIPs!</p>`;
+    feedbackMessage.textContent = "Parabéns!";
+    
+    // Esconder os botões e elementos do quiz
+    nextButton.style.display = 'none';
+    progressIndicator.style.display = 'none';
+    robotContainer.style.display = 'none';
+    
+    // Mostrar os botões finais
+    finalButtonsContainer.style.display = 'block';
+}
+
+function restartQuiz() {
+    // Resetar as variáveis de estado
+    currentQuestionIndex = 0;
+    userScore = 0;
+    scoreDisplay.textContent = `BIPs: ${userScore}`;
+    
+    // Voltar para a primeira pergunta
+    loadQuestion();
+}
+
+// Adicionando os event listeners aos novos botões
+playAgainButton.addEventListener('click', restartQuiz);
+exitButton.addEventListener('click', () => {
+    window.location.href = "dashboard.html"; // Redireciona para outra página
+});
+
+nextButton.addEventListener('click', nextQuestion);
+
+// Inicia o quiz ao carregar a página
+loadQuestion();
+</script>
+</body>
+</html>

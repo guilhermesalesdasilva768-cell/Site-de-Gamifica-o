@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Mini Game: Tipos de Incêndios e Extintores</title>
+    <style>
+        /* Estilos do mini game */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+       :root {
+    --bg-color: #1c1d24; /* Amarelo pálido muito suave */
+    --container-bg: #FFCC80; /* Laranja pastel */
+    --header-bg: #fff; /* Branco para o título */
+    --fire-zone-bg: #FFF8E1; /* Branco creme muito suave */
+    --font-color: #424242; /* Cinza escuro para o texto */
+    --green: #81C784; /* Verde mais claro */
+    --red: #E57373; /* Vermelho mais claro */
+}
+        body {
+            font-family: 'Poppins', sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            
+            /* Animação de fundo de chamas */
+            background: linear-gradient(270deg, #ff9a00, #ff0000, #ff9a00);
+            background-size: 100% 100%;
+            animation: fogo 4s ease infinite;
+        }
+
+        @keyframes fogo {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .game-container {
+            width: 100%;
+            max-width: 800px;
+            background: var(--container-bg);
+            border-radius: 20px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            padding: 30px;
+            box-sizing: border-box;
+            color: var(--header-bg);
+        }
+
+        h1 {
+            color: var(--header-bg);
+            margin-top: 0;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .instructions {
+            color: var(--header-bg);
+            font-size: 1rem;
+            margin-bottom: 20px;
+        }
+
+        .status-bar {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 2px solid #fdd835;
+            margin-bottom: 20px;
+        }
+
+        .status-item {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .status-item span {
+            font-weight: 400;
+            color: var(--header-bg);
+        }
+        
+        .question-text {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--header-bg);
+            margin-bottom: 20px;
+        }
+
+        /* MODIFICAÇÃO AQUI: */
+        .fire-zone-wrapper {
+            background-color: var(--fire-zone-bg);
+            border: none; /* Borda removida */
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 350px;
+            width: 100%;
+            margin-bottom: 30px;
+            /* Adicionado um box-shadow para um efeito de brilho */
+            box-shadow: 0 0 15px rgba(255, 87, 34, 0.6);
+        }
+
+        #fire {
+            width: 90%;
+            height: 90%;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            /* Adicionado um filtro de drop-shadow para a imagem do fogo */
+            filter: drop-shadow(0px 0px 8px rgba(255, 69, 0, 0.8));
+        }
+
+        .extintores-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .extintor {
+            width: 80px;
+            cursor: grab;
+            transition: transform 0.2s ease-in-out;
+            border-radius: 8px;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .extintor:active {
+            cursor: grabbing;
+            transform: scale(1.1);
+        }
+
+        #game-over, #info-popup, #parabens-popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            font-size: 32px;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+        
+        #game-over button, #info-popup button, #parabens-popup button {
+            font-size: 20px;
+            padding: 10px 20px;
+            margin-top: 20px;
+            cursor: pointer;
+            background-color: var(--header-bg);
+            color: var(--container-bg);
+            border: none;
+            border-radius: 8px;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+            transition: background-color 0.3s;
+        }
+        #game-over button:hover, #info-popup button:hover, #parabens-popup button:hover {
+            background-color: #fdd835;
+        }
+
+        /* Estilo do pop-up de informações */
+        .info-box {
+            background-color: var(--container-bg);
+            color: var(--header-bg);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            max-width: 600px;
+            animation: fadeIn 0.5s ease-in-out;
+            position: relative;
+        }
+
+        .info-box h2 {
+            margin-top: 0;
+            font-size: 2.2rem;
+            color: #fdd835;
+        }
+
+        .info-box p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            text-align: left;
+            margin-bottom: 20px;
+        }
+        
+        .info-box img.character {
+            width: 120px;
+            position: absolute;
+            top: -40px;
+            left: -40px;
+            border-radius: 50%;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .info-box button {
+            background-color: var(--header-bg);
+            color: var(--container-bg);
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .info-box button:hover {
+            background-color: #fdd835;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* Novo estilo para o pop-up de Parabéns */
+        .parabens-box {
+            background-color: var(--container-bg);
+            color: var(--header-bg);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            max-width: 600px;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        .parabens-box h2 {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            color: #fdd835;
+            margin-bottom: 20px;
+        }
+        .parabens-box h2 img.robot-character {
+            width: 80px;
+            height: auto;
+            margin-right: 15px;
+        }
+        .parabens-box p {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+        }
+        .parabens-box .button-group {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="game-container">
+    <h1>🔥 Mini Game: Tipos de Incêndios e Extintores 🔥</h1>
+    <p class="instructions"><b>Como jogar:</b> Arraste o extintor correto até o incêndio. Cada acerto: +4 BIP’s. Errar 3 vezes: Game Over!</p>
+
+    <div class="status-bar">
+        <div class="status-item">Fase: <span id="fase">1</span></div>
+        <div class="status-item">Moedas BIP’s: <span id="moedas">0</span></div>
+        <div class="status-item">Tentativas restantes: <span id="tentativas">3</span></div>
+    </div>
+    
+    <p class="question-text">Para a situação da imagem abaixo, qual seria o extintor ideal?</p>
+
+    <div class="fire-zone-wrapper" ondrop="drop(event)" ondragover="allowDrop(event)">
+        <div id="fire"></div>
+    </div>
+
+    <div class="extintores-container">
+        <img src="assets/Fire/Extintor A.jpeg" alt="Extintor A" class="extintor" draggable="true" ondragstart="drag(event)" data-tipo="A">
+        <img src="assets/Fire/Extintor B.jpeg" alt="Extintor B" class="extintor" draggable="true" ondragstart="drag(event)" data-tipo="B">
+        <img src="assets/Fire/Extintor C.jpeg" alt="Extintor C" class="extintor" draggable="true" ondragstart="drag(event)" data-tipo="C">
+        <img src="assets/Fire/Extintor D.jpeg" alt="Extintor D" class="extintor" draggable="true" ondragstart="drag(event)" data-tipo="D">
+        <img src="assets/Fire/Extintor K.jpeg" alt="Extintor K" class="extintor" draggable="true" ondragstart="drag(event)" data-tipo="K">
+    </div>
+</div>
+
+<div id="game-over">
+    <div>💀 GAME OVER 💀</div>
+    <button onclick="recomecar()">Recomeçar</button>
+</div>
+
+<div id="info-popup">
+    <div class="info-box">
+        <img id="character-img" class="character" src="assets/resources/grow png.png" alt="Personagem do Jogo">
+        <h2 id="info-title"></h2>
+        <p id="info-text"></p>
+        <button onclick="continuar()">Continuar</button>
+    </div>
+</div>
+
+<div id="parabens-popup">
+    <div class="parabens-box">
+        <h2><img src="assets/resources/grow png.png" alt="Robô" class="robot-character">🎉 Parabéns!</h2>
+        <p>Você concluiu todas as fases do jogo. Sua pontuação final é <span id="score-final">0</span> BIP's.</p>
+        <div class="button-group">
+            <button onclick="recomecar()">Jogar Novamente</button>
+            <button onclick="irParaDashboard()">Sair</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let fase = 1;
+    let moedas = 0;
+    let tentativas = 3;
+    let fasesEmbaralhadas = [];
+
+    const fasesOriginais = [
+        { incendio: "assets/Fire/papel-fogo.jpeg", correto: "A" },
+        { incendio: "assets/Fire/gasolina.jpeg", correto: "B" },
+        { incendio: "assets/Fire/tomada-fogo.jpeg", correto: "C" },
+        { incendio: "assets/Fire/metal-fogo.jpeg", correto: "D" },
+        { incendio: "assets/Fire/cozinha-fogo.jpeg", correto: "K" }
+    ];
+
+    const infosExtintores = {
+        A: {
+            titulo: "Classe A",
+            texto: "Incêndios que envolvem materiais sólidos como madeira e papel, queimam em profundidade e deixam resíduos. Para o seu combate, o ideal seria o extintor de água, pois ele resfria o ambiente de forma rápida."
+        },
+        B: {
+            titulo: "Classe B",
+            texto: "Incêndios que envolvem materiais líquidos, queimam em extensão (superfície) e não deixam resíduos, como álcool e gasolina. Podem ser combatidos com extintores de pó químico seco (BC ou ABC) ou extintores de gás carbônico."
+        },
+        C: {
+            titulo: "Classe C",
+            texto: "Refere-se a incêndios elétricos, como em máquinas elétricas, quadros de força, tomadas, computadores ou qualquer outro material que utiliza energia. Os tipos ideais para combater são extintor de pó químico seco à base de bicarbonato de sódio ou potássio ou fosfato monoamônico."
+        },
+        D: {
+            titulo: "Classe D",
+            texto: "Incêndios causados em metais pirofóricos como zinco, lítio e urânio. Para este tipo são utilizados extintores especiais carregados com pó químico classe D, formando uma camada fria extinguindo as chamas."
+        },
+        K: {
+            titulo: "Classe K",
+            texto: "São incêndios gerados por óleos e gorduras, geralmente em cozinhas industriais/comerciais, e são o tipo mais resistente de chamas, causando grandes danos. O tipo ideal para combater tal tipo é o extintor de acetato de potássio."
+        }
+    };
+
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        recomecar();
+    });
+
+    function allowDrop(ev) {
+        ev.preventDefault();
+    }
+
+    function drag(ev) {
+        ev.dataTransfer.setData("tipo", ev.target.getAttribute("data-tipo"));
+    }
+
+    function drop(ev) {
+        ev.preventDefault();
+        let tipo = ev.dataTransfer.getData("tipo");
+        let correto = fasesEmbaralhadas[fase - 1].correto;
+        let draggedExtintor = document.querySelector(`[data-tipo="${tipo}"]`);
+        
+        if (tipo === correto) {
+            moedas += 4;
+            mostrarInfo(tipo);
+        } else {
+            tentativas--;
+            alert("❌ Extintor errado! Tente novamente.");
+            if (tentativas <= 0) {
+                mostrarGameOver();
+            } else {
+                draggedExtintor.style.transition = 'transform 0.5s ease-in-out';
+                draggedExtintor.style.transform = 'translate(0, 0)';
+            }
+            atualizarTela();
+        }
+    }
+
+    function mostrarInfo(tipoExtintor) {
+        const info = infosExtintores[tipoExtintor];
+        document.getElementById("info-title").textContent = info.titulo;
+        document.getElementById("info-text").textContent = info.texto;
+        document.getElementById("info-popup").style.display = "flex";
+    }
+
+    function continuar() {
+        document.getElementById("info-popup").style.display = "none";
+
+        // Remove o extintor correto da fase que acabou de ser concluída
+        let extintorCorreto = document.querySelector(`[data-tipo="${fasesEmbaralhadas[fase - 1].correto}"]`);
+        if (extintorCorreto) {
+            extintorCorreto.style.display = 'none';
+        }
+        
+        // Verifica se a fase atual é a última
+        if (fase === fasesEmbaralhadas.length) {
+            mostrarParabens();
+            return; // Encerra o jogo
+        }
+        
+        // Se não for a última, avança para a próxima fase
+        fase++;
+        tentativas = 3;
+        
+        setTimeout(() => {
+            resetExtintores();
+            atualizarTela();
+        }, 500);
+    }
+    
+    function mostrarParabens() {
+        document.getElementById('score-final').textContent = moedas;
+        document.getElementById('parabens-popup').style.display = 'flex';
+    }
+    
+    function irParaDashboard() {
+        // Redireciona o usuário para o dashboard
+        // ATUALIZE ESTA LINHA COM A URL CORRETA DO SEU DASHBOARD
+        window.location.href = "dashboard.html";
+    }
+
+    function atualizarTela() {
+        if (fase > fasesEmbaralhadas.length) {
+              return;
+        }
+        document.getElementById("fase").textContent = fase;
+        document.getElementById("moedas").textContent = moedas;
+        document.getElementById("tentativas").textContent = tentativas;
+        document.getElementById("fire").style.backgroundImage = `url(${fasesEmbaralhadas[fase - 1].incendio})`;
+    }
+
+    function mostrarGameOver() {
+        document.getElementById("game-over").style.display = "flex";
+    }
+
+    function recomecar() {
+        fase = 1;
+        moedas = 0;
+        tentativas = 3;
+        document.getElementById("game-over").style.display = "none";
+        document.getElementById("parabens-popup").style.display = "none";
+        fasesEmbaralhadas = shuffleArray([...fasesOriginais]);
+        resetExtintores();
+        atualizarTela();
+    }
+    
+    function resetExtintores() {
+        const extintores = document.querySelectorAll('.extintor');
+        extintores.forEach(extintor => {
+            extintor.style.display = 'block';
+            extintor.style.transition = 'none';
+            extintor.style.transform = 'translate(0, 0)';
+        });
+    }
+</script>
+</body>
+</html>

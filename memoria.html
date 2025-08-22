@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Jogo da Memória - BIP</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to bottom right, #fdfbfb, #ebedee);
+            text-align: center;
+            padding: 20px;
+        }
+        h1 { color: #444; }
+        #startButton {
+            padding: 10px 20px;
+            font-size: 1rem;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+        #startButton:hover {
+            background-color: #0056b3;
+        }
+        #game-board {
+            display: grid;
+            grid-template-columns: repeat(4, 100px);
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .card {
+            width: 100px;
+            height: 100px;
+            background: #ddd;
+            border-radius: 10px;
+            font-size: 2rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .matched {
+            background: #9be7a7;
+            pointer-events: none;
+        }
+        #mensagem {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        #info {
+            margin-top: 15px;
+            font-size: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧠 Jogo da Memória</h1>
+    <button id="startButton">Começar</button>
+    <p>Complete o jogo para ganhar <strong>10 BIPs!</strong></p>
+    <div id="game-board"></div>
+    <div id="mensagem"></div>
+    <div id="info"></div>
+
+    <script>
+        let usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado')) || { nome: "Usuário", avatar: "", bip: 0 };
+        let rankingData = JSON.parse(localStorage.getItem('rankingData')) || [];
+
+        const emojis = ['🍎', '🍌', '🍇', '🍉', '🍊', '🥝', '🍓', '🍍'];
+        let cards = [...emojis, ...emojis].sort(() => 0.5 - Math.random());
+
+        const board = document.getElementById('game-board');
+        let firstCard = null;
+        let secondCard = null;
+        let lock = false;
+        let matches = 0;
+        let errors = 0;
+        const maxErrors = 3;
+
+        const mensagemDiv = document.getElementById('mensagem');
+        const infoDiv = document.getElementById('info');
+        const startButton = document.getElementById('startButton');
+
+        function displayInfo() {
+            infoDiv.textContent = `Erros: ${errors} / ${maxErrors}`;
+        }
+
+        function initGame() {
+            cards = [...emojis, ...emojis].sort(() => 0.5 - Math.random());
+            board.innerHTML = '';
+            firstCard = null;
+            secondCard = null;
+            lock = false;
+            matches = 0;
+            errors = 0;
+            mensagemDiv.textContent = '';
+            displayInfo();
+
+            cards.forEach((emoji, i) => {
+                const div = document.createElement('div');
+                div.classList.add('card');
+                div.dataset.emoji = emoji;
+                div.dataset.index = i;
+                div.addEventListener('click', () => flipCard(div));
+                board.appendChild(div);
+
+                // Revela temporariamente
+                setTimeout(() => {
+                    div.textContent = emoji;
+                }, 100); // Pequeno delay para não ser instantâneo
+
+                setTimeout(() => {
+                    div.textContent = ''; // Vira a carta novamente
+                }, 2000); // Tempo de revelação (ajuste conforme necessário)
+            });
+
+            // Desabilita o botão de começar após o início do jogo
+            startButton.disabled = true;
+        }
+
+        function flipCard(card) {
+            if (lock || card === firstCard || card.textContent || card.classList.contains('matched') || errors >= maxErrors || !startButton.disabled) return;
+
+            card.textContent = card.dataset.emoji;
+
+            if (!firstCard) {
+                firstCard = card;
+            } else {
+                secondCard = card;
+                lock = true;
+                if (firstCard.dataset.emoji === secondCard.dataset.emoji) {
+                    firstCard.classList.add('matched');
+                    secondCard.classList.add('matched');
+                    matches++;
+                    resetCards();
+                    if (matches === emojis.length) {
+                        setTimeout(win, 500);
+                    } else {
+                        lock = false;
+                    }
+                } else {
+                    setTimeout(() => {
+                        firstCard.textContent = '';
+                        secondCard.textContent = '';
+                        errors++;
+                        displayInfo();
+                        resetCards();
+                        if (errors >= maxErrors) {
+                            setTimeout(lose, 500);
+                        }
+                    }, 1000);
+                }
+            }
+        }
+
+        function resetCards() {
+            firstCard = null;
+            secondCard = null;
+            lock = false;
+        }
+
+        function win() {
+            mensagemDiv.textContent = "🎉 Parabéns! Você ganhou 10 BIPs!";
+            usuarioLogado.bip += 10;
+            updateRankingAndStorage();
+
+            // Redireciona para a aba de Diversão no dashboard após um breve delay (opcional)
+            setTimeout(() => {
+                window.location.href = 'dashboard.html#fun';
+            }, 1000); // Adicionei um pequeno delay de 1 segundo para o usuário ver a mensagem de vitória
+        }
+
+        function lose() {
+            mensagemDiv.textContent = `❌ Game Over! Você atingiu o limite de ${maxErrors} erros.`;
+            usuarioLogado.bip = Math.max(0, usuarioLogado.bip - 3); // Desconta 3 BIPs ao perder
+            updateRankingAndStorage(); // Chama a função para atualizar o ranking com a pontuação final
+
+            // Redireciona para a aba de Diversão no dashboard após um breve delay
+            setTimeout(() => {
+                window.location.href = 'dashboard.html#fun';
+            }, 2000);
+        }
+
+        function updateRankingAndStorage() {
+            const idx = rankingData.findIndex(u => u.nome === usuarioLogado.nome);
+            if (idx !== -1) {
+                rankingData[idx].bip = usuarioLogado.bip;
+            } else {
+                rankingData.push({
+                    nome: usuarioLogado.nome,
+                    avatar: usuarioLogado.avatar,
+                    bip: usuarioLogado.bip
+                });
+            }
+            localStorage.setItem('usuarioLogado', JSON.stringify(usuarioLogado));
+            localStorage.setItem('rankingData', JSON.stringify(rankingData.sort((a, b) => b.bip - a.bip)));
+        }
+
+        // Adiciona o event listener para iniciar o jogo
+        startButton.addEventListener('click', initGame);
+
+        // O jogo não inicia automaticamente agora
+        // initGame();
+    </script>
+</body>
+</html>

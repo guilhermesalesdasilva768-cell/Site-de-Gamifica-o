@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cadastro - Sistema de Bater Pontos</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to bottom, #ffffff, #b3e5fc);
+      color: black;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      overflow: hidden;
+    }
+
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: -1;
+    }
+
+    .form-container {
+      background: white;
+      padding: 40px 30px;
+      border-radius: 20px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+      max-width: 400px;
+      width: 100%;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    p {
+      text-align: center;
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+
+    a {
+      color: #007bff;
+      text-decoration: none;
+    }
+
+    form input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      font-size: 1rem;
+    }
+
+    .btn {
+      background-color: #ffd700;
+      color: black;
+      font-weight: bold;
+      border: none;
+      padding: 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 1rem;
+      width: 100%;
+      margin-top: 10px;
+    }
+
+    .btn:hover {
+      background-color: #e6c200;
+    }
+
+    .login-link {
+      margin-top: 15px;
+      display: block;
+      text-align: center;
+      font-size: 14px;
+    }
+
+    #mensagem {
+      text-align: center;
+      font-size: 16px;
+      margin-top: 20px;
+      padding: 10px;
+      border-radius: 10px;
+      display: none;
+    }
+
+    #mensagem.sucesso {
+      background-color: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    #mensagem.erro {
+      background-color: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+  </style>
+</head>
+<body>
+
+  <canvas id="background"></canvas>
+
+  <div class="form-container">
+    <h2>Cadastrar</h2>
+    <p>Já tem uma conta? <a href="index.html">Entrar</a></p>
+
+    <form id="cadastroForm">
+      <input type="text" id="nome" placeholder="Nome completo" required />
+      <input type="email" id="email" placeholder="E-mail" required />
+      <input type="text" id="usuario" placeholder="Usuário" required />
+      <input type="password" id="senha" placeholder="Senha" required />
+      <input type="password" id="confirmarSenha" placeholder="Confirmar senha" required />
+      <button class="btn" type="submit">Cadastrar</button>
+    </form>
+
+    <div id="mensagem"></div>
+  </div>
+
+  <script>
+    // Sistema de cadastro
+    document.addEventListener("DOMContentLoaded", function () {
+      const form = document.getElementById('cadastroForm');
+      const mensagem = document.getElementById('mensagem');
+
+      form.addEventListener('submit', function (event) {
+        event.preventDefault();
+
+        const nome = document.getElementById('nome').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const usuario = document.getElementById('usuario').value.trim();
+        const senha = document.getElementById('senha').value;
+        const confirmarSenha = document.getElementById('confirmarSenha').value;
+
+        mensagem.style.display = 'none';
+        mensagem.className = '';
+        mensagem.textContent = '';
+
+        // Validação de campos obrigatórios
+        if (!nome || !email || !usuario || !senha || !confirmarSenha) {
+          mostrarMensagem('Todos os campos são obrigatórios.', 'erro');
+          return;
+        }
+
+        // Verificar se as senhas coincidem
+        if (senha !== confirmarSenha) {
+          mostrarMensagem('As senhas não coincidem.', 'erro');
+          return;
+        }
+
+        // Verificar se o e-mail já está cadastrado
+        let usuarios = JSON.parse(localStorage.getItem('usuarios') || '[]');
+        const emailJaExiste = usuarios.some(u => u.email === email);
+        if (emailJaExiste) {
+          mostrarMensagem('E-mail já cadastrado.', 'erro');
+          return;
+        }
+
+        // Verificar se o nome de usuário já existe
+        const usuarioJaExiste = usuarios.some(u => u.usuario === usuario);
+        if (usuarioJaExiste) {
+          mostrarMensagem('Usuário já existente.', 'erro');
+          return;
+        }
+
+        // Salvar usuário no localStorage
+        usuarios.push({ nome, email, usuario, senha });
+        localStorage.setItem('usuarios', JSON.stringify(usuarios));
+
+        // Mensagem de sucesso
+        mostrarMensagem('Cadastro realizado com sucesso!', 'sucesso');
+
+        // Redirecionar após 1.5 segundos
+        setTimeout(() => {
+          window.location.href = 'index.html';
+        }, 1500);
+      });
+
+      // Função para exibir mensagens de sucesso ou erro
+      function mostrarMensagem(texto, tipo) {
+        mensagem.textContent = texto;
+        mensagem.className = tipo === 'sucesso' ? 'sucesso' : 'erro';
+        mensagem.style.display = 'block';
+      }
+    });
+
+    // Fundo animado com formas geométricas neon
+    const canvas = document.getElementById('background');
+    const ctx = canvas.getContext('2d');
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    const coresNeon = ['#FF00FF', '#00FFFF', '#00FF00', '#FFFF00', '#FF4500'];
+
+    let shapes = [];
+    for (let i = 0; i < 50; i++) {
+      shapes.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        size: Math.random() * 30 + 20,
+        speedX: (Math.random() - 0.5) * 0.8,
+        speedY: (Math.random() - 0.5) * 0.8,
+        type: ['circle', 'square', 'triangle'][Math.floor(Math.random() * 3)],
+        color: coresNeon[Math.floor(Math.random() * coresNeon.length)]
+      });
+    }
+
+    function drawShapes() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      shapes.forEach(s => {
+        ctx.beginPath();
+        ctx.strokeStyle = s.color;
+        ctx.lineWidth = 2;
+        ctx.shadowColor = s.color;
+        ctx.shadowBlur = 15;
+        ctx.fillStyle = 'transparent';
+
+        if (s.type === 'circle') {
+          ctx.arc(s.x, s.y, s.size / 2, 0, Math.PI * 2);
+        } else if (s.type === 'square') {
+          ctx.rect(s.x - s.size/2, s.y - s.size/2, s.size, s.size);
+        } else if (s.type === 'triangle') {
+          ctx.moveTo(s.x, s.y - s.size/2);
+          ctx.lineTo(s.x - s.size/2, s.y + s.size/2);
+          ctx.lineTo(s.x + s.size/2, s.y + s.size/2);
+          ctx.closePath();
+        }
+
+        ctx.stroke();
+
+        s.x += s.speedX;
+        s.y += s.speedY;
+
+        if (s.x < 0) s.x = canvas.width;
+        if (s.x > canvas.width) s.x = 0;
+        if (s.y < 0) s.y = canvas.height;
+        if (s.y > canvas.height) s.y = 0;
+      });
+
+      requestAnimationFrame(drawShapes);
+    }
+
+    drawShapes();
+  </script>
+</body>
+</html>
+
+
+  

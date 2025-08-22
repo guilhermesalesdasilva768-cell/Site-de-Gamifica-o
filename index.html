@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Grow System - Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js" defer></script>
+    <style>
+        /* Paleta de cores atualizada para a vibe tech */
+        :root {
+            --dark-background: #101534;
+            --deep-purple: #3A4A90;
+            --blue-glow: #59C9F5;
+            --bright-cyan: #4fffe8;
+            --white: #FFFFFF;
+            --dark-card-bg: rgba(58, 74, 144, 0.7);
+            --input-bg: #2d3b76;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--dark-background); /* Cor de fundo base escura */
+            color: var(--white);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 2rem;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Novo Canvas para o Fluxo de Dados */
+        canvas#bg-data-flow {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none; /* Permite clicar nos elementos por trás do canvas */
+        }
+
+        /* O resto do conteúdo fica acima do canvas */
+        .main-content {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .logo {
+            width: 180px;
+            height: 180px;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .logo lottie-player {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 0 15px var(--blue-glow));
+            transform: translateY(50px);
+            animation: logoLift 2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+        }
+
+        @keyframes logoLift {
+            from {
+                transform: translateY(50px);
+            }
+            to {
+                transform: translateY(0px);
+            }
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-align: center;
+            color: var(--white);
+            z-index: 1;
+            text-shadow: 0 0 10px var(--blue-glow);
+        }
+
+        .subtitle {
+            color: var(--bright-cyan);
+            text-align: center;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            z-index: 1;
+        }
+
+        p.description {
+            text-align: center;
+            color: #d1c8dd;
+            margin-bottom: 2rem;
+            z-index: 1;
+        }
+
+        .card {
+            background-color: var(--dark-card-bg);
+            border-radius: 1rem;
+            padding: 2rem;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInSlideUp 0.8s ease-out forwards;
+            animation-delay: 0.5s;
+            z-index: 1;
+        }
+
+        .card h2 {
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--white);
+        }
+
+        .card .register {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .card .register a {
+            color: var(--bright-cyan);
+            text-decoration: none;
+        }
+
+        .card .register a:hover {
+            text-decoration: underline;
+        }
+
+        input {
+            background-color: var(--input-bg);
+            border: 1px solid var(--deep-purple);
+            border-radius: 8px;
+            padding: 0.75rem;
+            color: var(--white);
+            width: 100%;
+            margin-bottom: 1rem;
+            font-size: 1rem;
+        }
+
+        input::placeholder {
+            color: #9995a7;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--bright-cyan);
+            box-shadow: 0 0 0 3px rgba(79, 255, 232, 0.3);
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        button {
+            background-color: var(--deep-purple);
+            color: var(--white);
+            border: none;
+            padding: 0.75rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            width: 100%;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #4A5B9C;
+        }
+
+        @keyframes fadeInSlideUp {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        #errorMessage {
+            color: #ff6b6b;
+            margin-top: -10px;
+            margin-bottom: 10px;
+            font-weight: 600;
+            display: none;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    
+    <canvas id="bg-data-flow"></canvas>
+
+    <div class="main-content">
+        <div class="logo">
+            <lottie-player
+                src="assets/animations/grow2.json"
+                background="transparent"
+                speed="1"
+                loop
+                autoplay
+            ></lottie-player>
+        </div>
+
+        <h1>GROW SYSTEM</h1>
+        <p class="subtitle">✨ Bem-vindo ao sistema! ✨</p>
+        <p class="description">Ganhe pontos, registre entradas e veja seu ranking.</p>
+
+        <div class="card">
+            <h2>Entrar</h2>
+            <div class="register">Novo por aqui? <a href="#" id="registerLink">Cadastre-se</a></div>
+            <form id="loginFormPonto">
+                <input type="email" id="email" placeholder="Seu e-mail" required />
+                <input type="password" id="senha" placeholder="Sua senha" required />
+                <p id="errorMessage"></p> <button type="submit">Login</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('bg-data-flow');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        const numParticles = 80;
+        const maxDistance = 120; // Distância máxima para conectar partículas
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2 + 1; // Tamanho entre 1 e 3
+                this.speedX = (Math.random() - 0.5) * 0.5; // Movimento lento
+                this.speedY = (Math.random() - 0.5) * 0.5;
+                this.color = 'rgba(79, 255, 232, 0.8)'; // Cor ciano brilhante
+            }
+
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+
+                if (this.x > canvas.width || this.x < 0) {
+                    this.speedX *= -1;
+                }
+                if (this.y > canvas.height || this.y < 0) {
+                    this.speedY *= -1;
+                }
+            }
+
+            draw() {
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function createParticles() {
+            particles = [];
+            for (let i = 0; i < numParticles; i++) {
+                particles.push(new Particle());
+            }
+        }
+
+        function connectParticles() {
+            for (let a = 0; a < particles.length; a++) {
+                for (let b = a; b < particles.length; b++) {
+                    const dx = particles[a].x - particles[b].x;
+                    const dy = particles[a].y - particles[b].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < maxDistance) {
+                        ctx.beginPath();
+                        ctx.strokeStyle = `rgba(79, 255, 232, ${1 - distance / maxDistance})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.moveTo(particles[a].x, particles[a].y);
+                        ctx.lineTo(particles[b].x, particles[b].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            connectParticles();
+            particles.forEach(particle => {
+                particle.update();
+                particle.draw();
+            });
+            requestAnimationFrame(animate);
+        }
+
+        resizeCanvas();
+        createParticles();
+        animate();
+
+        window.addEventListener('resize', () => {
+            resizeCanvas();
+            createParticles();
+        });
+
+        // --- Lógica de Login e Cadastro (Sem alterações) ---
+        document.getElementById('loginFormPonto').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const email = document.getElementById('email').value;
+            const senha = document.getElementById('senha').value;
+            const errorMessage = document.getElementById('errorMessage');
+            errorMessage.style.display = 'none';
+
+            fetch('http://localhost:3000/api/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email, senha })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'sucesso') {
+                    localStorage.setItem('usuarioLogado', JSON.stringify(data.usuario));
+                    window.location.href = 'dashboard.html';
+                } else {
+                    errorMessage.textContent = 'Erro no login: ' + data.mensagem;
+                    errorMessage.style.display = 'block';
+                }
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                errorMessage.textContent = 'Ocorreu um erro ao tentar fazer login. Verifique sua conexão com o servidor.';
+                errorMessage.style.display = 'block';
+            });
+        });
+
+        document.getElementById('registerLink').addEventListener('click', function(event) {
+            event.preventDefault();
+
+            const nome = prompt("Para criar uma conta, digite seu nome completo:");
+            if (!nome) {
+                alert("Nome é obrigatório para o cadastro.");
+                return;
+            }
+            const email = prompt("Agora, digite seu e-mail:");
+            if (!email) {
+                alert("E-mail é obrigatório para o cadastro.");
+                return;
+            }
+            const senha = prompt("Por fim, crie uma senha para seu acesso:");
+            if (!senha) {
+                alert("Senha é obrigatória para o cadastro.");
+                return;
+            }
+
+            fetch('http://localhost:3000/api/cadastrar', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ nome, email, senha })
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.mensagem);
+                if (data.status === 'sucesso') {
+                    localStorage.setItem('usuarioLogado', JSON.stringify({ id: data.usuario_id, nome: nome, email: email, moedas: 0 }));
+                    window.location.href = 'dashboard.html';
+                }
+            })
+            .catch(error => {
+                console.error('Erro ao cadastrar:', error);
+                alert('Ocorreu um erro ao tentar cadastrar. Verifique o console para mais detalhes.');
+            });
+        });
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+

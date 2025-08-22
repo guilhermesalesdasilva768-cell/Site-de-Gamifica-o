@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz SENAI - BIP</title>
+<style>
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        background-color: #e0f7fa;
+        margin: 0;
+        padding: 20px;
+        box-sizing: border-box;
+    }
+    .quiz-container {
+        background-color: #ffffff;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        width: 100%;
+        max-width: 600px;
+        text-align: center;
+        animation: fadeIn 0.8s ease-out;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    h1 { color: #00796b; margin-bottom: 25px; font-size: 2.2em; }
+    .question-section { margin-bottom: 25px; }
+    .question-text { font-size: 1.6em; color: #333; margin-bottom: 20px; line-height: 1.4; }
+    .options-container { display: flex; flex-direction: column; gap: 12px; margin-bottom: 25px; }
+    .option-button {
+        background-color: #f0f0f0; color: #333; border: 2px solid #ccc;
+        padding: 15px 20px; border-radius: 8px; font-size: 1.1em; cursor: pointer;
+        transition: all 0.3s ease; text-align: left; width: 100%; box-sizing: border-box;
+    }
+    .option-button:hover:not(.correct):not(.incorrect):not(.disabled) {
+        background-color: #e0e0e0; border-color: #a0a0a0;
+    }
+    .option-button.correct { background-color: #d4edda; border-color: #28a745; color: #155724; font-weight: bold; }
+    .option-button.incorrect { background-color: #f8d7da; border-color: #dc3545; color: #721c24; font-weight: bold; }
+    .option-button.disabled { cursor: not-allowed; opacity: 0.8; }
+    .feedback-message { margin-top: 15px; font-size: 1.2em; font-weight: bold; min-height: 30px; }
+    .score-timer-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; font-size: 1.1em; color: #555; padding: 0 10px; }
+    #score-display, #timer-display { font-weight: bold; color: #00796b; font-size: 1.2em; }
+    #timer-display { color: #d32f2f; }
+    #next-button {
+        background-color: #00796b; color: white; border: none; padding: 12px 25px;
+        border-radius: 8px; font-size: 1.2em; cursor: pointer; transition: background-color 0.3s ease;
+        margin-top: 20px;
+    }
+    #next-button:hover:not(:disabled) { background-color: #004d40; }
+    #next-button:disabled { background-color: #cccccc; cursor: not-allowed; }
+    .progress-indicator { margin-top: 20px; font-size: 0.9em; color: #777; }
+    #robot-container {
+        display: none;
+        margin-top: 20px;
+        animation: fadeIn 0.8s ease-in-out;
+    }
+    #robot-container img {
+        width: 120px;
+        margin-bottom: 10px;
+    }
+</style>
+</head>
+<body>
+<div class="quiz-container">
+    <h1>Quiz SENAI 🏭</h1>
+
+    <div class="score-timer-container">
+        <div id="score-display">BIPs: 0</div>
+        <div id="timer-display">Tempo: --:--</div>
+    </div>
+
+    <div class="question-section">
+        <p class="question-text" id="question-text">Carregando pergunta...</p>
+        <div class="options-container" id="options-container"></div>
+    </div>
+
+    <div id="robot-container">
+        <img src="assets/resources/grow png.png" alt="Robô">
+        <p id="info-text"></p>
+    </div>
+
+    <div class="feedback-message" id="feedback-message"></div>
+
+    <button id="next-button" disabled>Próxima Pergunta</button>
+
+    <div class="progress-indicator" id="progress-indicator">
+        Questão 1 de 7
+    </div>
+</div>
+
+<script>
+const questions = [
+    { question: "Em que ano o SENAI foi criado?", options: ["1945", "1942", "1944", "1943"], correctAnswer: "1942", info: "O SENAI foi criado em 22 de Janeiro de 1942, como parte do sistema integrado ao SESI, sob liderança de Roberto Cochrane Simonsen." },
+    { question: "Quantas unidades o SENAI possui no Ceará?", options: ["7", "2", "5", "6"], correctAnswer: "7", info: "O SENAI possui 7 unidades fixas no Ceará: Barra do Ceará, Parangaba, Juazeiro do Norte, Maracanaú, Sobral, Centro e CETAFR." },
+    { question: "Quantos diretores-gerais o SENAI já teve?", options: ["8", "13", "10", "11"], correctAnswer: "13", info: "O SENAI já teve 13 diretores-gerais: 3 do RJ, 2 do RS, 2 da BA, 1 do MA, 1 do SE e 4 de MG." },
+    { question: "Quantas unidades SENAI existem no Brasil?", options: ["300", "450", "583", "272"], correctAnswer: "583", info: "O SENAI conta com 583 unidades fixas no Brasil. Com as móveis, são 1027 unidades operacionais." },
+    { question: "Quantos anos o SENAI tem?", options: ["20", "65", "83", "74"], correctAnswer: "83", info: "Fundado em 22 de Janeiro de 1942, o SENAI atualmente tem 83 anos." },
+    { question: "Qual a maior unidade SENAI do Ceará?", options: ["Parangaba", "Barra do Ceará", "Juazeiro do Norte", "Maracanaú"], correctAnswer: "Barra do Ceará", info: "A maior unidade SENAI do Ceará é o SENAI Barra do Ceará, referência em formação e apoio à indústria local." },
+    { question: "Qual a maior unidade SENAI do Brasil?", options: ["SENAI São Paulo", "SENAI CIMATEC", "SENAI Osasco", "SENAI Cuiabá"], correctAnswer: "SENAI CIMATEC", info: "O SENAI CIMATEC, em Salvador-BA, é um centro de excelência com mais de 60 laboratórios e um parque tecnológico inovador." }
+];
+
+let currentQuestionIndex = 0;
+let userScore = 0;
+const bipPerCorrectAnswer = 3;
+const timePerQuestion = 30;
+let questionTimer;
+
+const questionText = document.getElementById('question-text');
+const optionsContainer = document.getElementById('options-container');
+const feedbackMessage = document.getElementById('feedback-message');
+const nextButton = document.getElementById('next-button');
+const scoreDisplay = document.getElementById('score-display');
+const timerDisplay = document.getElementById('timer-display');
+const progressIndicator = document.getElementById('progress-indicator');
+const robotContainer = document.getElementById('robot-container');
+const infoText = document.getElementById('info-text');
+
+function startTimer() {
+    let timeLeft = timePerQuestion;
+    timerDisplay.textContent = `Tempo: ${String(timeLeft).padStart(2, '0')}s`;
+    clearInterval(questionTimer);
+    questionTimer = setInterval(() => {
+        timeLeft--;
+        timerDisplay.textContent = `Tempo: ${String(timeLeft).padStart(2, '0')}s`;
+        if (timeLeft <= 0) {
+            clearInterval(questionTimer);
+            feedbackMessage.textContent = "Tempo esgotado!";
+            feedbackMessage.style.color = "#dc3545";
+            disableOptions(true);
+            nextButton.disabled = false;
+        }
+    }, 1000);
+}
+
+function loadQuestion() {
+    robotContainer.style.display = "none";
+    if (currentQuestionIndex >= questions.length) return endQuiz();
+    const q = questions[currentQuestionIndex];
+    questionText.textContent = q.question;
+    optionsContainer.innerHTML = '';
+    feedbackMessage.textContent = '';
+    nextButton.disabled = true;
+    q.options.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.classList.add('option-button');
+        btn.textContent = opt;
+        btn.onclick = () => checkAnswer(opt, q.correctAnswer, btn, q.info);
+        optionsContainer.appendChild(btn);
+    });
+    progressIndicator.textContent = `Questão ${currentQuestionIndex + 1} de ${questions.length}`;
+    startTimer();
+}
+
+function disableOptions(disable) {
+    Array.from(optionsContainer.children).forEach(btn => {
+        btn.disabled = disable;
+        btn.classList.toggle('disabled', disable);
+    });
+}
+
+function checkAnswer(selected, correct, btn, info) {
+    clearInterval(questionTimer);
+    disableOptions(true);
+    if (selected === correct) {
+        userScore += bipPerCorrectAnswer;
+        scoreDisplay.textContent = `BIPs: ${userScore}`;
+        feedbackMessage.textContent = "Correto! ✅";
+        feedbackMessage.style.color = "#28a745";
+        btn.classList.add('correct');
+        showRobot(info);
+    } else {
+        feedbackMessage.textContent = "Incorreto! ❌";
+        feedbackMessage.style.color = "#dc3545";
+        btn.classList.add('incorrect');
+    }
+    nextButton.disabled = false;
+}
+
+function showRobot(info) {
+    infoText.textContent = info;
+    robotContainer.style.display = "block";
+    let speech = new SpeechSynthesisUtterance(info);
+    speech.lang = "pt-BR";
+    speech.rate = 1;
+    speech.pitch = 1;
+    window.speechSynthesis.speak(speech);
+}
+
+function nextQuestion() {
+    // Interrompe qualquer fala em andamento antes de ir para a próxima pergunta
+    window.speechSynthesis.cancel();
+    currentQuestionIndex++;
+    loadQuestion();
+}
+
+function endQuiz() {
+    clearInterval(questionTimer);
+    questionText.textContent = "Quiz Finalizado!";
+    optionsContainer.innerHTML = `<p>Você ganhou ${userScore} BIPs!</p>`;
+    feedbackMessage.textContent = "Parabéns!";
+
+    // Botão Jogar Novamente
+    const playAgainButton = document.createElement("button");
+    playAgainButton.textContent = "Jogar Novamente";
+    playAgainButton.style.backgroundColor = "#28a745";
+    playAgainButton.style.color = "white";
+    playAgainButton.style.border = "none";
+    playAgainButton.style.padding = "12px 25px";
+    playAgainButton.style.borderRadius = "8px";
+    playAgainButton.style.marginRight = "10px";
+    playAgainButton.style.cursor = "pointer";
+    playAgainButton.onclick = () => {
+        currentQuestionIndex = 0;
+        userScore = 0;
+        scoreDisplay.textContent = `BIPs: ${userScore}`;
+        nextButton.style.display = 'inline-block';
+        loadQuestion();
+    };
+
+    // Botão Sair
+    const exitButton = document.createElement("button");
+    exitButton.textContent = "Sair";
+    exitButton.style.backgroundColor = "#dc3545";
+    exitButton.style.color = "white";
+    exitButton.style.border = "none";
+    exitButton.style.padding = "12px 25px";
+    exitButton.style.borderRadius = "8px";
+    exitButton.style.cursor = "pointer";
+    exitButton.onclick = () => {
+        window.location.href = "dashboard.html";
+    };
+
+    nextButton.style.display = 'none';
+    feedbackMessage.insertAdjacentElement("afterend", playAgainButton);
+    playAgainButton.insertAdjacentElement("afterend", exitButton);
+}
+
+nextButton.addEventListener('click', nextQuestion);
+loadQuestion();
+</script>
+</body>
+</html>
+
