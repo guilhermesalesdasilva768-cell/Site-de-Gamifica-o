@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>O Novato</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .game-container {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            width: 100%;
+            overflow: hidden;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .game-image {
+            width: 100%;
+            max-height: 450px;
+            object-fit: contain;
+            border-radius: 8px;
+            transition: opacity 1s ease-in-out;
+            opacity: 1;
+        }
+
+        .game-text {
+            font-size: 1.2em;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+
+        .choices {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .choice-button {
+            padding: 15px;
+            font-size: 1em;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .choice-button:hover {
+            background-color: #2980b9;
+        }
+
+        .fade-out {
+            opacity: 0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="game-container">
+    <img id="game-image" class="game-image" src="assets/image_ba8734.png" alt="Cena do Jogo">
+    <p id="game-text" class="game-text"></p>
+    <div id="choices" class="choices"></div>
+</div>
+
+<script>
+    const gameImage = document.getElementById('game-image');
+    const gameText = document.getElementById('game-text');
+    const choicesDiv = document.getElementById('choices');
+
+    const scenes = {
+        'start': {
+            image: 'assets/resources/cena1.jpg',
+            text: 'Juninho é o novato na equipe de marketing. Chegou com a energia lá no alto, mas logo percebeu que o ambiente é tenso. Seus colegas, Ana e Pedro, parecem estar sempre à beira de um ataque de nervos. Duarte, o chefe, é conhecido por sua fama de intimidador. Hoje, a equipe precisa finalizar uma apresentação importante.',
+            choices: [
+                { text: 'Focar em seu próprio trabalho.', nextScene: 'cena2' },
+            ]
+        },
+        'cena2': {
+            image: 'assets/resources/cena2.jpg',
+            text: 'Um dia, você testemunha Robinho sendo humilhado pelo chefe Duarte, que grita ameaças de demissão. A raiva ferve, mas você hesita. Dias depois, Duarte começa a agir da mesma forma com você. O que você faz?',
+            choices: [
+                { text: 'Ficar calado.', nextScene: 'cena3_negativo' },
+                { text: 'Guardar a calma e depois procurar alguém de confiança.', nextScene: 'cena3_positivo' },
+            ]
+        },
+        'cena3_negativo': {
+            image: 'assets/resources/cena3escolha1.jpg',
+            text: 'Você se cala. Duarte ganha confiança e os ataques se tornam diários. O estresse aumenta, você dorme mal e começa a ter crises de ansiedade. Você pensa em desistir.',
+            choices: [
+                { text: 'FIM NEGATIVO: Desistir e ir embora.', nextScene: 'final_negativo_desistencia' },
+            ]
+        },
+        'final_negativo_desistencia': {
+            image: 'assets/image_ba8376.png',
+            text: 'Você decide que já chega. Não vale a pena sacrificar sua saúde. Você sai do escritório e vai embora. O jogo termina aqui.',
+            choices: []
+        },
+        'cena3_positivo': {
+            image: 'assets/resources/cena3escolha2.jpg',
+            text: 'Após o expediente, você procura Robinho. Ele confessa que também sofre com os ataques há meses. Vocês percebem que não estão sozinhos e pensam em agir. O que vocês fazem?',
+            choices: [
+                { text: 'Registrar no RH.', nextScene: 'cena4_rh' },
+                { text: 'Conversar diretamente com Duarte, impondo limites.', nextScene: 'cena4_confronto' },
+            ]
+        },
+        'cena4_rh': {
+            image: 'assets/resources/cena4escolha1.jpg',
+            text: 'O caso é registrado e uma investigação formal começa. Duarte é observado de perto, mas sem uma ação imediata. A tensão continua no ar.',
+            choices: [
+                { text: 'Continuar a denúncia, unindo os colegas.', nextScene: 'cena5_uniao_rh' },
+                { text: 'Esperar a investigação do RH, sem envolver mais ninguém.', nextScene: 'final_intermediario_rh' },
+            ]
+        },
+        'cena5_uniao_rh': {
+            image: 'assets/resources/cena6escolha1.jpg',
+            text: 'A união da equipe fortalece a denúncia. Com vários relatos, a empresa não pode ignorar o caso. Duarte é confrontado pelo RH e pela equipe, e a situação chega a um ponto crítico.',
+            choices: [
+                { text: 'Próxima cena...', nextScene: 'final_bom_uniao' },
+            ]
+        },
+        'final_bom_uniao': {
+            image: 'assets/resources/final bom.jpg',
+            text: 'Com as provas e testemunhas, Duarte é punido. A empresa cria novas políticas contra assédio moral. Juninho e Robinho recuperam a confiança e se tornam um exemplo de coragem para todos. O jogo termina aqui.',
+            choices: []
+        },
+        'final_intermediario_rh': {
+            image: 'assets/image_ba7e97.png',
+            text: 'Sem mais relatos, Duarte recua por medo, mas sem registros formais o problema pode voltar. Juninho melhora temporariamente, mas o problema continua. O jogo termina aqui.',
+            choices: []
+        },
+        'cena4_confronto': {
+            image: 'assets/resources/cena4escolha2.jpg',
+            text: 'Você e Robinho confrontam Duarte. Ele recua, mas sem provas formais, pode voltar a atacar. O que vocês fazem agora?',
+            choices: [
+                { text: 'Tentar unir os colegas para denunciarem juntos.', nextScene: 'cena5_uniao_confronto' },
+                { text: 'Tentar suportar sozinho, sem envolver ninguém.', nextScene: 'final_negativo_solidao' },
+            ]
+        },
+        'cena5_uniao_confronto': {
+            image: 'assets/image_ba7f96.png',
+            text: 'A união da equipe fortalece a denúncia. Com vários relatos, a empresa não pode ignorar o caso. Duarte é confrontado pelo RH e pela equipe, e a situação chega a um ponto crítico.',
+            choices: [
+                { text: 'Próxima cena...', nextScene: 'final_bom_uniao' },
+            ]
+        },
+        'final_negativo_solidao': {
+            image: 'assets/image_ba7ebd.png',
+            text: 'Você e Robinho tentam suportar sozinhos. A pressão aumenta, e vocês ficam cada vez mais desgastados. A humilhação se torna constante, e vocês se sentem sozinhos. O jogo termina aqui.',
+            choices: []
+        }
+    };
+
+    function renderScene(scene) {
+        gameImage.classList.add('fade-out');
+        setTimeout(() => {
+            gameImage.src = scene.image;
+            gameText.textContent = scene.text;
+            choicesDiv.innerHTML = '';
+            scene.choices.forEach(choice => {
+                const button = document.createElement('button');
+                button.textContent = choice.text;
+                button.classList.add('choice-button');
+                button.addEventListener('click', () => {
+                    renderScene(scenes[choice.nextScene]);
+                });
+                choicesDiv.appendChild(button);
+            });
+            gameImage.classList.remove('fade-out');
+        }, 500);
+    }
+
+    renderScene(scenes.start);
+</script>
+
+</body>
+</html>

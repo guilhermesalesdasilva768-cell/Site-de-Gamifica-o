@@ -16,38 +16,45 @@
     --green: #81C784; /* Verde mais claro */
     --red: #E57373; /* Vermelho mais claro */
 }
-        body {
-            font-family: 'Poppins', sans-serif;
-            text-align: center;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            
-            /* Animação de fundo de chamas */
-            background: linear-gradient(270deg, #ff9a00, #ff0000, #ff9a00);
-            background-size: 100% 100%;
-            animation: fogo 4s ease infinite;
-        }
-
+  body {
+    font-family: 'Poppins', sans-serif;
+    text-align: center;
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    /* Adicionando a imagem com gradiente de sobreposição */
+    background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('assets/resources/extintor.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+}
         @keyframes fogo {
             0% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
         }
 
-        .game-container {
-            width: 100%;
-            max-width: 800px;
-            background: var(--container-bg);
-            border-radius: 20px;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-            padding: 30px;
-            box-sizing: border-box;
-            color: var(--header-bg);
-        }
+  .game-container {
+    width: 100%;
+    max-width: 800px;
+    background: var(--container-bg);
+    background-image: url('assets/resources/extintor.jp');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    border-radius: 20px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    padding: 30px;
+    box-sizing: border-box;
+    color: var(--header-bg);
+    
+    /* Adicionando um contorno */
+    border: 10px solid #ffffff; /* Exemplo: borda de 3px, sólida e laranja */
+}
 
         h1 {
             color: var(--header-bg);

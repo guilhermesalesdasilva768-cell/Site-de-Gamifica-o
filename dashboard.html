@@ -367,26 +367,31 @@
         }
 
         /* New styles for the Learn Section */
-        .learn-section {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 20px;
-            text-align: left;
-        }
+       .learn-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    text-align: left;
+    /* --- Adicione um padding geral aqui para a seção --- */
+    padding: 20px; 
+}
 
-        .learn-topic {
-            width: 100%;
-            max-width: 800px;
-            padding: 20px;
-            background-color: var(--card-header-bg);
-            border-radius: 10px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+.learn-topic {
+    width: 100%;
+    max-width: 800px;
+    padding: 20px;
+    background-color: var(--card-header-bg);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-sizing: border-box;
+    /* Adicione esta linha para criar o espaço entre os cards */
+    margin-bottom: 15px; 
+}
 
         .learn-topic:hover {
             background-color: rgba(10, 15, 36, 0.8);
