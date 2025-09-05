@@ -239,7 +239,7 @@
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
         }
 
-        .memory-game-container, .fire-game-container, .quiz-game-container {
+        .memory-game-container, .fire-game-container, .detroit-game-container {
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -247,7 +247,7 @@
             margin-bottom: 40px;
         }
 
-        .memory-game-icon, .fire-game-icon, .quiz-gamer-container {
+        .memory-game-icon, .fire-game-icon, .detroit-gamer-container {
             width: 120px;
             height: 120px;
             cursor: pointer;
@@ -255,7 +255,7 @@
             filter: drop-shadow(4px 4px 6px rgba(0, 0, 0, 0.3));
         }
 
-        .memory-game-icon:hover, .fire-game-icon:hover, .quiz-gamer-container {
+        .memory-game-icon:hover, .fire-game-icon:hover, .detroit-gamer-container {
             transform: scale(1.1);
             filter: drop-shadow(6px 6px 8px rgba(0, 0, 0, 0.4));
         }
@@ -762,9 +762,9 @@
                     <button class="play-button" onclick="window.location.href='fire.html'">Jogo Combate ao Fogo</button>
                 </div>
 
-                <div class="quiz-game-container">
-                    <img src="assets/resources/th (9).jpeg" alt="Ícone Quiz" class="fire-game-icon">
-                    <button class="play-button" onclick="window.location.href='Quiz.html'">Jogo do Quiz</button>
+                <div class="detroit-game-container">
+                    <img src="assets/resources/th (9).jpeg" alt="Ícone Quiz" class="detroit-game-icon">
+                    <button class="play-button" onclick="window.location.href='detroit.html'">Jogo do Quiz</button>
                 </div>
             </section>
 
@@ -790,7 +790,7 @@
     </div>
 
 <script>
-const API_URL = 'http://localhost:3000/api';
+const API_URL = 'https://meu-site4.onrender.com/api/login';
 
 // Referências aos elementos existentes
 const usernameElement = document.getElementById('username');
@@ -820,49 +820,61 @@ async function fetchRanking() {
     }
 }
 
-// ✅ Atualiza tabela de ranking no painel e o BIP do usuário logado
+// ✅ Busca o ranking do backend e atualiza a UI
 async function updateRanking() {
-    const rankingData = await fetchRanking();
-    rankingBody.innerHTML = '';
-    homeRankingList.innerHTML = '';
-
-    rankingData.forEach((user, index) => {
-        const row = document.createElement('tr');
-        if (index === 0) row.classList.add('position-1');
-        if (index === 1) row.classList.add('position-2');
-        if (index === 2) row.classList.add('position-3');
-
-        row.innerHTML = `
-            <td>${index + 1}</td>
-            <td class="user-cell">
-                <img src="${user.avatar}" alt="${user.nome}" class="user-avatar">
-                ${user.nome}
-            </td>
-            <td class="xp-cell"><span class="xp-coins">${user.bip} BIP</span></td>
-        `;
-        rankingBody.appendChild(row);
-
-        // Preenche o Top 3 também
-        if (index < 3) {
-            const li = document.createElement('li');
-            li.className = 'ranking-item';
-            li.innerHTML = `
-                <span class="rank-number">#${index + 1}</span>
-                <img src="${user.avatar}" alt="${user.nome}" class="user-avatar">
-                <span>${user.nome}</span>
-            `;
-            homeRankingList.appendChild(li);
+    try {
+        const response = await fetch('https://meu-site4.onrender.com/api/ranking');
+        if (!response.ok) {
+            throw new Error('Falha ao buscar o ranking.');
         }
-    });
 
-    // Encontra o usuário logado e atualiza o BIP na interface
-    const user = rankingData.find(u => u.id === usuarioLogado.id);
-    if (user) {
-        userRankHomeElement.textContent = `#${rankingData.indexOf(user) + 1}`;
-        userBipsHeaderElement.textContent = `${user.bip} BIP`;
-        userBipsHomeElement.textContent = user.bip;
-    } else {
-        userRankHomeElement.textContent = '--';
+        const rankingData = await response.json();
+        const rankingBody = document.getElementById('ranking-body');
+        rankingBody.innerHTML = '';
+        
+        const usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado')); // Ou qualquer método que você use para ter o usuário logado.
+
+        // Limpa a tabela e o ranking do card inicial
+        document.getElementById('ranking-body').innerHTML = '';
+        document.getElementById('home-ranking-list').innerHTML = '';
+
+        // Preenche a tabela completa do ranking e encontra o usuário logado
+        rankingData.ranking.forEach((user, index) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>#${index + 1}</td>
+                <td>
+                    <div class="user-cell">
+                        <img src="${user.avatar}" alt="Avatar" class="user-avatar">
+                        <span>${user.nome}</span>
+                    </div>
+                </td>
+                <td class="xp-cell">${user.bip} BIPs</td>
+            `;
+            rankingBody.appendChild(row);
+
+            // Se for o usuário logado, atualiza o BIP no cabeçalho e no card inicial
+            if (usuarioLogado && user.id === usuarioLogado.id) {
+                document.getElementById('user-xp').textContent = `${user.bip} BIP`;
+                document.getElementById('user-bips-home').textContent = user.bip;
+                document.getElementById('user-rank-home').textContent = `#${index + 1}`;
+            }
+
+            // Preenche o ranking do card inicial (Top 3)
+            if (index < 3) {
+                const homeListItem = document.createElement('li');
+                homeListItem.className = 'ranking-item';
+                homeListItem.innerHTML = `
+                    <span class="rank-number">#${index + 1}</span>
+                    <img src="${user.avatar}" alt="Avatar">
+                    <span>${user.nome}</span>
+                `;
+                document.getElementById('home-ranking-list').appendChild(homeListItem);
+            }
+        });
+
+    } catch (error) {
+        console.error('Erro ao buscar o ranking:', error);
     }
 }
 
