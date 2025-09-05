@@ -802,10 +802,10 @@ const rankingBody = document.getElementById('ranking-body');
 const homeRankingList = document.getElementById('home-ranking-list');
 const historyTableBody = document.getElementById('history-table-body');
 
-// 🔹 Agora o usuário é buscado do backend, não do localStorage
-async function getUsuarioLogado() {
+// 🔹 Buscar dados do usuário logado pelo ID
+async function getUsuarioLogado(userId) {
     try {
-        const res = await fetch(`${API_URL}/login`, { credentials: 'include' });
+        const res = await fetch(`${API_URL}/usuario-logado/${userId}`);
         if (!res.ok) return null;
         const data = await res.json();
         return data.usuario || null;
@@ -849,10 +849,10 @@ async function updateRanking() {
         const rankingBody = document.getElementById('ranking-body');
         rankingBody.innerHTML = '';
 
-        let usuarioLogado = null; // Encontrará o usuário na lista do ranking
+        let usuarioLogado = null; 
 
         // Preenche a tabela completa do ranking e encontra o usuário logado
-        rankingData.ranking.forEach((user, index) => {
+        rankingData.forEach((user, index) => {
             const row = document.createElement('tr');
             row.innerHTML = `
                 <td>#${index + 1}</td>
@@ -866,23 +866,25 @@ async function updateRanking() {
             `;
             rankingBody.appendChild(row);
 
-            // Se o ID do usuário na lista for igual ao ID da URL, guarda o objeto do usuário
             if (user.id === userId) {
                 usuarioLogado = user;
             }
         });
 
-        // Chama a função para exibir os dados do usuário, agora com o objeto correto
+        // 🔹 Se ainda não achou, busca direto na rota /usuario-logado/:id
+        if (!usuarioLogado) {
+            usuarioLogado = await getUsuarioLogado(userId);
+        }
+
+        // Exibe os dados do usuário
         loadUserData(usuarioLogado);
 
-        // Atualiza o BIP e a posição do usuário na tela
         if (usuarioLogado) {
             document.getElementById('user-xp').textContent = `${usuarioLogado.bip} BIP`;
             document.getElementById('user-bips-home').textContent = usuarioLogado.bip;
 
-            // Encontra a posição do usuário para exibir o rank
-            const userIndex = rankingData.ranking.findIndex(u => u.id === userId);
-            document.getElementById('user-rank-home').textContent = `#${userIndex + 1}`;
+            const userIndex = rankingData.findIndex(u => u.id === userId);
+            document.getElementById('user-rank-home').textContent = userIndex >= 0 ? `#${userIndex + 1}` : '-';
         }
 
     } catch (error) {
@@ -925,7 +927,6 @@ function toggleTopic(topicId) {
 window.onload = function() {
     showSection('home');
 };
-
 
 </script>
 </body>
