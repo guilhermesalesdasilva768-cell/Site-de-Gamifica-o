@@ -829,7 +829,6 @@ async function fetchRanking() {
 // ✅ Busca o ranking do backend e atualiza a UI
 async function updateRanking() {
     try {
-        // Pega o ID do usuário da URL
         const urlParams = new URLSearchParams(window.location.search);
         const userId = urlParams.get('id');
 
@@ -839,19 +838,14 @@ async function updateRanking() {
             return;
         }
 
-        // Busca os dados do ranking completo do backend
         const response = await fetch(`${API_URL}/ranking`);
-        if (!response.ok) {
-            throw new Error('Falha ao buscar o ranking.');
-        }
+        if (!response.ok) throw new Error('Falha ao buscar o ranking.');
 
         const rankingData = await response.json();
-        const rankingBody = document.getElementById('ranking-body');
         rankingBody.innerHTML = '';
 
-        let usuarioLogado = null; 
+        let usuarioLogado = null;
 
-        // Preenche a tabela completa do ranking e encontra o usuário logado
         rankingData.forEach((user, index) => {
             const row = document.createElement('tr');
             row.innerHTML = `
@@ -866,23 +860,16 @@ async function updateRanking() {
             `;
             rankingBody.appendChild(row);
 
-            if (user.id === userId) {
-                usuarioLogado = user;
-            }
+            if (user.id === userId) usuarioLogado = user;
         });
 
-        // 🔹 Se ainda não achou, busca direto na rota /usuario-logado/:id
-        if (!usuarioLogado) {
-            usuarioLogado = await getUsuarioLogado(userId);
-        }
+        if (!usuarioLogado) usuarioLogado = await getUsuarioLogado(userId);
 
-        // Exibe os dados do usuário
         loadUserData(usuarioLogado);
 
         if (usuarioLogado) {
             document.getElementById('user-xp').textContent = `${usuarioLogado.bip} BIP`;
             document.getElementById('user-bips-home').textContent = usuarioLogado.bip;
-
             const userIndex = rankingData.findIndex(u => u.id === userId);
             document.getElementById('user-rank-home').textContent = userIndex >= 0 ? `#${userIndex + 1}` : '-';
         }
@@ -900,19 +887,17 @@ function loadUserData(usuarioLogado) {
     }
 }
 
-// 🔹 Alterna seções
-function showSection(sectionId, usuarioLogado) {
+// 🔹 Alterna seções SEM recarregar a página
+function showSection(sectionId, event) {
+    if (event) event.preventDefault(); // 🔹 impede recarregamento da página
+
     const sections = document.querySelectorAll('.main-content > section');
     sections.forEach(section => section.style.display = 'none');
     document.getElementById(`${sectionId}-section`).style.display = 'block';
 
-    if (sectionId === 'ranking') {
-        updateRanking(usuarioLogado);
-    } else if (sectionId === 'ponto') {
-        fetchUserPointsHistory(usuarioLogado);
-    } else if (sectionId === 'home') {
-        updateRanking(usuarioLogado);
-    }
+    if (sectionId === 'ranking') updateRanking();
+    else if (sectionId === 'ponto') fetchUserPointsHistory();
+    else if (sectionId === 'home') updateRanking();
 }
 
 // ✅ Funções do botão "Aprenda" (expandir/esconder)
@@ -926,7 +911,16 @@ function toggleTopic(topicId) {
 // 🔹 Inicialização
 window.onload = function() {
     showSection('home');
+
+    // 🔹 Adiciona listeners nos botões de menu
+    document.querySelectorAll('.menu-link').forEach(link => {
+        link.addEventListener('click', (e) => {
+            const sectionId = link.dataset.section; // exemplo: <a href="#" class="menu-link" data-section="ranking">
+            showSection(sectionId, e);
+        });
+    });
 };
+
 
 </script>
 </body>
