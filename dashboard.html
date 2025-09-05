@@ -790,8 +790,8 @@
     </div>
 
 <script>
-const API_URL = 'https://meu-site4.onrender.com/api';
-
+// 🔹 Definição da URL base da API
+const API_URL = "https://meu-site4.onrender.com/api";
 
 // Referências aos elementos existentes
 const usernameElement = document.getElementById('username');
@@ -804,114 +804,113 @@ const historyTableBody = document.getElementById('history-table-body');
 
 // 🔹 Agora o usuário é buscado do backend, não do localStorage
 async function getUsuarioLogado() {
-try {
-const res = await fetch(`${API_URL}/login`, { credentials: 'include' });
-if (!res.ok) return null;
-const data = await res.json();
-return data.usuario || null;
-} catch (err) {
-console.error("Erro ao buscar usuário logado:", err);
-return null;
-}
+    try {
+        const res = await fetch(`${API_URL}/login`, { credentials: 'include' });
+        if (!res.ok) return null;
+        const data = await res.json();
+        return data.usuario || null;
+    } catch (err) {
+        console.error("Erro ao buscar usuário logado:", err);
+        return null;
+    }
 }
 
 // 🔹 Busca ranking completo
 async function fetchRanking() {
-try {
-const res = await fetch(`${API_URL}/ranking`);
-return await res.json();
-} catch (error) {
-console.error('Erro ao buscar ranking:', error);
-return [];
-}
-}
-
- // ✅ Busca o ranking do backend e atualiza a UI
-    async function updateRanking() {
-        try {
-            // Pega o ID do usuário da URL
-            const urlParams = new URLSearchParams(window.location.search);
-            const userId = urlParams.get('id');
-
-            if (!userId) {
-                console.error('ID do usuário não encontrado na URL. Redirecionando...');
-                window.location.href = '../site_login/index.html'; // Redireciona para o login se o ID não estiver na URL
-                return;
-            }
-
-            // Busca os dados do ranking completo do backend
-            const response = await fetch('https://meu-site4.onrender.com/api/ranking');
-            if (!response.ok) {
-                throw new Error('Falha ao buscar o ranking.');
-            }
-
-            const rankingData = await response.json();
-            const rankingBody = document.getElementById('ranking-body');
-            rankingBody.innerHTML = '';
-            
-            let usuarioLogado = null; // Encontrará o usuário na lista do ranking
-            
-            // Preenche a tabela completa do ranking e encontra o usuário logado
-            rankingData.ranking.forEach((user, index) => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>#${index + 1}</td>
-                    <td>
-                        <div class="user-cell">
-                            <img src="${user.avatar}" alt="Avatar" class="user-avatar">
-                            <span>${user.nome}</span>
-                        </div>
-                    </td>
-                    <td class="xp-cell">${user.bip} BIPs</td>
-                `;
-                rankingBody.appendChild(row);
-
-                // Se o ID do usuário na lista for igual ao ID da URL, guarda o objeto do usuário
-                if (user.id === userId) {
-                    usuarioLogado = user;
-                }
-            });
-
-            // Chama a função para exibir os dados do usuário, agora com o objeto correto
-            loadUserData(usuarioLogado);
-
-            // Atualiza o BIP e a posição do usuário na tela
-            if (usuarioLogado) {
-                document.getElementById('user-xp').textContent = `${usuarioLogado.bip} BIP`;
-                document.getElementById('user-bips-home').textContent = usuarioLogado.bip;
-                // Encontra a posição do usuário para exibir o rank
-                const userIndex = rankingData.ranking.findIndex(u => u.id === userId);
-                document.getElementById('user-rank-home').textContent = `#${userIndex + 1}`;
-            }
-
-        } catch (error) {
-            console.error('Erro ao carregar dados:', error);
-            // Em caso de erro, exibe uma mensagem ou redireciona
-        }
+    try {
+        const res = await fetch(`${API_URL}/ranking`);
+        return await res.json();
+    } catch (error) {
+        console.error('Erro ao buscar ranking:', error);
+        return [];
     }
+}
 
-    // 🔹 Exibe informações do usuário na UI
-    function loadUserData(usuarioLogado) {
+// ✅ Busca o ranking do backend e atualiza a UI
+async function updateRanking() {
+    try {
+        // Pega o ID do usuário da URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const userId = urlParams.get('id');
+
+        if (!userId) {
+            console.error('ID do usuário não encontrado na URL. Redirecionando...');
+            window.location.href = '../site_login/index.html'; 
+            return;
+        }
+
+        // Busca os dados do ranking completo do backend
+        const response = await fetch(`${API_URL}/ranking`);
+        if (!response.ok) {
+            throw new Error('Falha ao buscar o ranking.');
+        }
+
+        const rankingData = await response.json();
+        const rankingBody = document.getElementById('ranking-body');
+        rankingBody.innerHTML = '';
+
+        let usuarioLogado = null; // Encontrará o usuário na lista do ranking
+
+        // Preenche a tabela completa do ranking e encontra o usuário logado
+        rankingData.ranking.forEach((user, index) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>#${index + 1}</td>
+                <td>
+                    <div class="user-cell">
+                        <img src="${user.avatar}" alt="Avatar" class="user-avatar">
+                        <span>${user.nome}</span>
+                    </div>
+                </td>
+                <td class="xp-cell">${user.bip} BIPs</td>
+            `;
+            rankingBody.appendChild(row);
+
+            // Se o ID do usuário na lista for igual ao ID da URL, guarda o objeto do usuário
+            if (user.id === userId) {
+                usuarioLogado = user;
+            }
+        });
+
+        // Chama a função para exibir os dados do usuário, agora com o objeto correto
+        loadUserData(usuarioLogado);
+
+        // Atualiza o BIP e a posição do usuário na tela
         if (usuarioLogado) {
-            usernameElement.textContent = usuarioLogado.nome;
-            userAvatarElement.src = usuarioLogado.avatar;
+            document.getElementById('user-xp').textContent = `${usuarioLogado.bip} BIP`;
+            document.getElementById('user-bips-home').textContent = usuarioLogado.bip;
+
+            // Encontra a posição do usuário para exibir o rank
+            const userIndex = rankingData.ranking.findIndex(u => u.id === userId);
+            document.getElementById('user-rank-home').textContent = `#${userIndex + 1}`;
         }
+
+    } catch (error) {
+        console.error('Erro ao carregar dados:', error);
     }
+}
+
+// 🔹 Exibe informações do usuário na UI
+function loadUserData(usuarioLogado) {
+    if (usuarioLogado) {
+        usernameElement.textContent = usuarioLogado.nome;
+        userAvatarElement.src = usuarioLogado.avatar;
+    }
+}
 
 // 🔹 Alterna seções
 function showSection(sectionId, usuarioLogado) {
-const sections = document.querySelectorAll('.main-content > section');
-sections.forEach(section => section.style.display = 'none');
-document.getElementById(`${sectionId}-section`).style.display = 'block';
+    const sections = document.querySelectorAll('.main-content > section');
+    sections.forEach(section => section.style.display = 'none');
+    document.getElementById(`${sectionId}-section`).style.display = 'block';
 
-
-if (sectionId === 'ranking') {
-updateRanking(usuarioLogado);
-} else if (sectionId === 'ponto') {
-fetchUserPointsHistory(usuarioLogado);
-} else if (sectionId === 'home') {
-updateRanking(usuarioLogado);
-}
+    if (sectionId === 'ranking') {
+        updateRanking(usuarioLogado);
+    } else if (sectionId === 'ponto') {
+        fetchUserPointsHistory(usuarioLogado);
+    } else if (sectionId === 'home') {
+        updateRanking(usuarioLogado);
+    }
 }
 
 // ✅ Funções do botão "Aprenda" (expandir/esconder)
@@ -922,11 +921,11 @@ function toggleTopic(topicId) {
     arrow.classList.toggle('rotate');
 }
 
- // 🔹 Inicialização
-    window.onload = function() {
-        showSection('home');
-        updateRanking();
-    };
+// 🔹 Inicialização
+window.onload = function() {
+    showSection('home');
+};
+
 
 </script>
 </body>
