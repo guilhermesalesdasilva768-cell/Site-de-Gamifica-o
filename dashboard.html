@@ -889,7 +889,10 @@ function loadUserData(usuarioLogado) {
 
 // 🔹 Alterna seções SEM recarregar a página
 function showSection(sectionId, event) {
-    if (event) event.preventDefault(); // 🔹 impede recarregamento da página
+    // ❗ Isso impede que o navegador recarregue a página
+    if (event) {
+        event.preventDefault(); 
+    }
 
     const sections = document.querySelectorAll('.main-content > section');
     sections.forEach(section => section.style.display = 'none');
@@ -910,7 +913,11 @@ function toggleTopic(topicId) {
 
 // 🔹 Inicialização
 window.onload = function() {
-    showSection('home');
+    // Esconde todas as seções por padrão e mostra a inicial para evitar um "flash" de conteúdo
+    document.querySelectorAll('.main-content > section').forEach(section => {
+        section.style.display = 'none';
+    });
+    document.getElementById('home-section').style.display = 'block';
 
     // 🔹 Adiciona listeners nos botões de menu
     document.querySelectorAll('.menu-link').forEach(link => {
@@ -920,7 +927,6 @@ window.onload = function() {
         });
     });
 };
-
 
 </script>
 </body>
