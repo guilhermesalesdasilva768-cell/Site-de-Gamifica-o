@@ -790,146 +790,149 @@
     </div>
 
 <script>
-const API_URL = 'https://meu-site4.onrender.com/api/login';
+const API_URL = 'https://meu-site4.onrender.com/api';
+
 
 // Referências aos elementos existentes
 const usernameElement = document.getElementById('username');
 const userAvatarElement = document.getElementById('user-avatar');
-const userBipsHeaderElement = document.getElementById('user-bips-header');
 const userBipsHomeElement = document.getElementById('user-bips-home');
 const userRankHomeElement = document.getElementById('user-rank-home');
 const rankingBody = document.getElementById('ranking-body');
 const homeRankingList = document.getElementById('home-ranking-list');
 const historyTableBody = document.getElementById('history-table-body');
 
-// Pega usuário logado do localStorage (apenas para o ID)
-let usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado')) || null;
-
-if (!usuarioLogado) {
-    window.location.href = '../site_ponto/index.html'; 
+// 🔹 Agora o usuário é buscado do backend, não do localStorage
+async function getUsuarioLogado() {
+try {
+const res = await fetch(`${API_URL}/login`, { credentials: 'include' });
+if (!res.ok) return null;
+const data = await res.json();
+return data.usuario || null;
+} catch (err) {
+console.error("Erro ao buscar usuário logado:", err);
+return null;
+}
 }
 
-// ✅ Busca ranking completo no backend
+// 🔹 Busca ranking completo
 async function fetchRanking() {
-    try {
-        const res = await fetch(`${API_URL}/ranking`);
-        return await res.json();
-    } catch (error) {
-        console.error('Erro ao buscar ranking:', error);
-        return [];
-    }
+try {
+const res = await fetch(`${API_URL}/ranking`);
+return await res.json();
+} catch (error) {
+console.error('Erro ao buscar ranking:', error);
+return [];
+}
 }
 
-// ✅ Busca o ranking do backend e atualiza a UI
-async function updateRanking() {
-    try {
-        const response = await fetch('https://meu-site4.onrender.com/api/ranking');
-        if (!response.ok) {
-            throw new Error('Falha ao buscar o ranking.');
-        }
+// 🔹 Atualiza ranking e posição do usuário logado
+async function updateRanking(usuarioLogado) {
+try {
+const response = await fetch(`${API_URL}/ranking`);
+if (!response.ok) throw new Error('Falha ao buscar o ranking.');
 
-        const rankingData = await response.json();
-        const rankingBody = document.getElementById('ranking-body');
-        rankingBody.innerHTML = '';
-        
-        const usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado')); // Ou qualquer método que você use para ter o usuário logado.
 
-        // Limpa a tabela e o ranking do card inicial
-        document.getElementById('ranking-body').innerHTML = '';
-        document.getElementById('home-ranking-list').innerHTML = '';
+const rankingData = await response.json();
+rankingBody.innerHTML = '';
+homeRankingList.innerHTML = '';
 
-        // Preenche a tabela completa do ranking e encontra o usuário logado
-        rankingData.ranking.forEach((user, index) => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>#${index + 1}</td>
-                <td>
-                    <div class="user-cell">
-                        <img src="${user.avatar}" alt="Avatar" class="user-avatar">
-                        <span>${user.nome}</span>
-                    </div>
-                </td>
-                <td class="xp-cell">${user.bip} BIPs</td>
-            `;
-            rankingBody.appendChild(row);
 
-            // Se for o usuário logado, atualiza o BIP no cabeçalho e no card inicial
-            if (usuarioLogado && user.id === usuarioLogado.id) {
-                document.getElementById('user-xp').textContent = `${user.bip} BIP`;
-                document.getElementById('user-bips-home').textContent = user.bip;
-                document.getElementById('user-rank-home').textContent = `#${index + 1}`;
-            }
+rankingData.forEach((user, index) => {
+const row = document.createElement('tr');
+row.innerHTML = `
+<td>#${index + 1}</td>
+<td>
+<div class="user-cell">
+<img src="${user.avatar}" alt="Avatar" class="user-avatar">
+<span>${user.nome}</span>
+</div>
+</td>
+<td class="xp-cell">${user.bip} BIPs</td>
+`;
+rankingBody.appendChild(row);
 
-            // Preenche o ranking do card inicial (Top 3)
-            if (index < 3) {
-                const homeListItem = document.createElement('li');
-                homeListItem.className = 'ranking-item';
-                homeListItem.innerHTML = `
-                    <span class="rank-number">#${index + 1}</span>
-                    <img src="${user.avatar}" alt="Avatar">
-                    <span>${user.nome}</span>
-                `;
-                document.getElementById('home-ranking-list').appendChild(homeListItem);
-            }
-        });
 
-    } catch (error) {
-        console.error('Erro ao buscar o ranking:', error);
-    }
+if (usuarioLogado && user.id === usuarioLogado.id) {
+document.getElementById('user-xp').textContent = `${user.bip} BIP`;
+userBipsHomeElement.textContent = user.bip;
+userRankHomeElement.textContent = `#${index + 1}`;
 }
 
-// ✅ Função para carregar o histórico de pontos
-async function fetchUserPointsHistory() {
-    if (!usuarioLogado || !usuarioLogado.id) {
-        console.error('Usuário não logado, não é possível carregar o histórico.');
-        historyTableBody.innerHTML = `<tr><td colspan="3" class="no-data">Erro ao carregar histórico.</td></tr>`;
-        return;
-    }
 
-    try {
-        const res = await fetch(`${API_URL}/pontos/${usuarioLogado.id}`);
-        const data = await res.json();
+if (index < 3) {
+const homeListItem = document.createElement('li');
+homeListItem.className = 'ranking-item';
+homeListItem.innerHTML = `
+<span class="rank-number">#${index + 1}</span>
+<img src="${user.avatar}" alt="Avatar">
+<span>${user.nome}</span>
+`;
+homeRankingList.appendChild(homeListItem);
+}
+});
 
-        historyTableBody.innerHTML = '';
 
-        if (data.status === 'sucesso' && data.pontos.length > 0) {
-            data.pontos.forEach(ponto => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${ponto.data_ponto}</td>
-                    <td>${ponto.hora_ponto}</td>
-                    <td>${ponto.moedas_ganhas} BIP</td>
-                `;
-                historyTableBody.appendChild(row);
-            });
-        } else {
-            historyTableBody.innerHTML = `<tr><td colspan="3" class="no-data">Nenhum ponto registrado ainda.</td></tr>`;
-        }
-    } catch (error) {
-        console.error('Erro ao buscar histórico de pontos:', error);
-        historyTableBody.innerHTML = `<tr><td colspan="3" class="no-data">Erro ao carregar histórico.</td></tr>`;
-    }
+} catch (error) {
+console.error('Erro ao buscar o ranking:', error);
+}
 }
 
-// ✅ Exibe informações do usuário na UI
-function loadUserData() {
-    usernameElement.textContent = usuarioLogado.nome;
-    userAvatarElement.src = usuarioLogado.avatar;
+// 🔹 Histórico de pontos
+async function fetchUserPointsHistory(usuarioLogado) {
+if (!usuarioLogado || !usuarioLogado.id) {
+historyTableBody.innerHTML = `<tr><td colspan="3" class="no-data">Erro ao carregar histórico.</td></tr>`;
+return;
 }
 
-// ✅ Função para alternar seções
-function showSection(sectionId) {
-    const sections = document.querySelectorAll('.main-content > section');
-    sections.forEach(section => section.style.display = 'none');
-    document.getElementById(`${sectionId}-section`).style.display = 'block';
 
-    if (sectionId === 'ranking') {
-        updateRanking();
-    } else if (sectionId === 'ponto') {
-        fetchUserPointsHistory();
-    } else if (sectionId === 'home') {
-        updateRanking();
-    }
+try {
+const res = await fetch(`${API_URL}/pontos/${usuarioLogado.id}`);
+const data = await res.json();
+
+
+historyTableBody.innerHTML = '';
+
+
+if (data.status === 'sucesso' && data.pontos.length > 0) {
+data.pontos.forEach(ponto => {
+const row = document.createElement('tr');
+row.innerHTML = `
+<td>${ponto.data_ponto}</td>
+<td>${ponto.hora_ponto}</td>
+<td>${ponto.moedas_ganhas} BIP</td>
+`;
+historyTableBody.appendChild(row);
+});
+} else {
+historyTableBody.innerHTML = `<tr><td colspan="3" class="no-data">Nenhum ponto registrado ainda.</td></tr>`;
+}
+} catch (error) {
+console.error('Erro ao buscar histórico de pontos:', error);
+historyTableBody.innerHTML = `<tr><td colspan="3" class="no-data">Erro ao carregar histórico.</td></tr>`;
+}
+}
+
+// 🔹 Exibe informações do usuário
+function loadUserData(usuarioLogado) {
+usernameElement.textContent = usuarioLogado.nome;
+userAvatarElement.src = usuarioLogado.avatar;
+}
+
+// 🔹 Alterna seções
+function showSection(sectionId, usuarioLogado) {
+const sections = document.querySelectorAll('.main-content > section');
+sections.forEach(section => section.style.display = 'none');
+document.getElementById(`${sectionId}-section`).style.display = 'block';
+
+
+if (sectionId === 'ranking') {
+updateRanking(usuarioLogado);
+} else if (sectionId === 'ponto') {
+fetchUserPointsHistory(usuarioLogado);
+} else if (sectionId === 'home') {
+updateRanking(usuarioLogado);
+}
 }
 
 // ✅ Funções do botão "Aprenda" (expandir/esconder)
@@ -940,10 +943,15 @@ function toggleTopic(topicId) {
     arrow.classList.toggle('rotate');
 }
 
-// ✅ Inicialização
-window.onload = () => {
-    loadUserData();
-    updateRanking();
+// 🔹 Inicialização
+window.onload = async () => {
+const usuarioLogado = await getUsuarioLogado();
+if (!usuarioLogado) {
+window.location.href = '../site_ponto/index.html';
+return;
+}
+loadUserData(usuarioLogado);
+updateRanking(usuarioLogado);
 };
 </script>
 </body>
