@@ -239,7 +239,7 @@
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
         }
 
-        .memory-game-container, .fire-game-container, .detroit-game-container {
+        .memory-game-container, .fire-game-container, .quiz-game-container {
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -247,7 +247,7 @@
             margin-bottom: 40px;
         }
 
-        .memory-game-icon, .fire-game-icon, .detroit-gamer-container {
+        .memory-game-icon, .fire-game-icon, .quiz-gamer-container {
             width: 120px;
             height: 120px;
             cursor: pointer;
@@ -255,7 +255,7 @@
             filter: drop-shadow(4px 4px 6px rgba(0, 0, 0, 0.3));
         }
 
-        .memory-game-icon:hover, .fire-game-icon:hover, .detroit-gamer-container {
+        .memory-game-icon:hover, .fire-game-icon:hover, .quiz-gamer-container {
             transform: scale(1.1);
             filter: drop-shadow(6px 6px 8px rgba(0, 0, 0, 0.4));
         }
@@ -367,31 +367,26 @@
         }
 
         /* New styles for the Learn Section */
-       .learn-section {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 20px;
-    text-align: left;
-    /* --- Adicione um padding geral aqui para a seção --- */
-    padding: 20px; 
-}
+        .learn-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            text-align: left;
+        }
 
-.learn-topic {
-    width: 100%;
-    max-width: 800px;
-    padding: 20px;
-    background-color: var(--card-header-bg);
-    border-radius: 10px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-sizing: border-box;
-    /* Adicione esta linha para criar o espaço entre os cards */
-    margin-bottom: 15px; 
-}
+        .learn-topic {
+            width: 100%;
+            max-width: 800px;
+            padding: 20px;
+            background-color: var(--card-header-bg);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
 
         .learn-topic:hover {
             background-color: rgba(10, 15, 36, 0.8);
@@ -762,9 +757,9 @@
                     <button class="play-button" onclick="window.location.href='fire.html'">Jogo Combate ao Fogo</button>
                 </div>
 
-                <div class="detroit-game-container">
-                    <img src="assets/resources/th (9).jpeg" alt="Ícone Quiz" class="detroit-game-icon">
-                    <button class="play-button" onclick="window.location.href='detroit.html'">Jogo do Quiz</button>
+                <div class="quiz-game-container">
+                    <img src="assets/resources/th (9).jpeg" alt="Ícone Quiz" class="fire-game-icon">
+                    <button class="play-button" onclick="window.location.href='Quiz.html'">Jogo do Quiz</button>
                 </div>
             </section>
 
@@ -789,145 +784,234 @@
         </footer>
     </div>
 
-<script>
-// 🔹 Definição da URL base da API
-const API_URL = "https://meu-site4.onrender.com/api";
+    <script>
+        // Carrega o ranking completo do localStorage ou inicia vazio
+        let rankingData = JSON.parse(localStorage.getItem('rankingData')) || [];
+        
+        // Carrega os dados do usuário logado
+        let usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado')) || {
+            id: null,
+            nome: "Usuário",
+            avatar: "https://via.placeholder.com/60",
+            moedas: 0
+        };
 
-// Referências aos elementos existentes
-const usernameElement = document.getElementById('username');
-const userAvatarElement = document.getElementById('user-avatar');
-const userBipsHomeElement = document.getElementById('user-bips-home');
-const userRankHomeElement = document.getElementById('user-rank-home');
-const rankingBody = document.getElementById('ranking-body');
-const homeRankingList = document.getElementById('home-ranking-list');
-const historyTableBody = document.getElementById('history-table-body');
+        async function fetchAndUpdateUserData() {
+            if (usuarioLogado.id) {
+                try {
+                    const moedasResponse = await fetch(`http://localhost:3000/api/moedas/${usuarioLogado.id}`);
+                    const moedasData = await moedasResponse.json();
 
-// 🔹 Buscar dados do usuário logado pelo ID
-async function getUsuarioLogado(userId) {
-    try {
-        const res = await fetch(`${API_URL}/usuario-logado/${userId}`);
-        if (!res.ok) return null;
-        const data = await res.json();
-        return data.usuario || null;
-    } catch (err) {
-        console.error("Erro ao buscar usuário logado:", err);
-        return null;
-    }
-}
-
-// 🔹 Busca ranking completo
-async function fetchRanking() {
-    try {
-        const res = await fetch(`${API_URL}/ranking`);
-        return await res.json();
-    } catch (error) {
-        console.error('Erro ao buscar ranking:', error);
-        return [];
-    }
-}
-
-// ✅ Busca o ranking do backend e atualiza a UI
-async function updateRanking() {
-    try {
-        const urlParams = new URLSearchParams(window.location.search);
-        const userId = urlParams.get('id');
-
-        if (!userId) {
-            console.error('ID do usuário não encontrado na URL. Redirecionando...');
-            window.location.href = '../site_login/index.html'; 
-            return;
+                    if (moedasData.status === 'sucesso' && moedasData.moedas !== undefined) {
+                        usuarioLogado.moedas = moedasData.moedas;
+                        localStorage.setItem('usuarioLogado', JSON.stringify(usuarioLogado));
+                    } else {
+                        console.error('Erro ao buscar moedas:', moedasData.mensagem);
+                    }
+                } catch (error) {
+                    console.error('Erro na requisição para atualizar dados do usuário:', error);
+                }
+            }
+            loadUserData();
         }
 
-        const response = await fetch(`${API_URL}/ranking`);
-        if (!response.ok) throw new Error('Falha ao buscar o ranking.');
-
-        const rankingData = await response.json();
-        rankingBody.innerHTML = '';
-
-        let usuarioLogado = null;
-
-        rankingData.forEach((user, index) => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>#${index + 1}</td>
-                <td>
-                    <div class="user-cell">
-                        <img src="${user.avatar}" alt="Avatar" class="user-avatar">
-                        <span>${user.nome}</span>
-                    </div>
-                </td>
-                <td class="xp-cell">${user.bip} BIPs</td>
-            `;
-            rankingBody.appendChild(row);
-
-            if (user.id === userId) usuarioLogado = user;
-        });
-
-        if (!usuarioLogado) usuarioLogado = await getUsuarioLogado(userId);
-
-        loadUserData(usuarioLogado);
-
-        if (usuarioLogado) {
-            document.getElementById('user-xp').textContent = `${usuarioLogado.bip} BIP`;
-            document.getElementById('user-bips-home').textContent = usuarioLogado.bip;
-            const userIndex = rankingData.findIndex(u => u.id === userId);
-            document.getElementById('user-rank-home').textContent = userIndex >= 0 ? `#${userIndex + 1}` : '-';
+        function syncUserAndRanking() {
+            if (usuarioLogado.id) {
+                const usuarioExistenteNoRanking = rankingData.find(user => user.id === usuarioLogado.id);
+                if (usuarioExistenteNoRanking) {
+                    usuarioExistenteNoRanking.bip = usuarioLogado.moedas;
+                    usuarioExistenteNoRanking.avatar = usuarioLogado.avatar;
+                    usuarioExistenteNoRanking.nome = usuarioLogado.nome;
+                } else {
+                    rankingData.push({
+                        id: usuarioLogado.id,
+                        nome: usuarioLogado.nome,
+                        avatar: usuarioLogado.avatar,
+                        bip: usuarioLogado.moedas || 0
+                    });
+                }
+                localStorage.setItem('rankingData', JSON.stringify(rankingData));
+            }
         }
 
-    } catch (error) {
-        console.error('Erro ao carregar dados:', error);
-    }
-}
+        const usernameElement = document.getElementById('username');
+        const userAvatarElement = document.getElementById('user-avatar');
+        const userXpElement = document.getElementById('user-xp');
+        const rankingBody = document.getElementById('ranking-body');
+        const historyTableBody = document.getElementById('history-table-body');
+        const userBipsHomeElement = document.getElementById('user-bips-home');
+        const userRankHomeElement = document.getElementById('user-rank-home');
+        const homeRankingList = document.getElementById('home-ranking-list');
 
-// 🔹 Exibe informações do usuário na UI
-function loadUserData(usuarioLogado) {
-    if (usuarioLogado) {
-        usernameElement.textContent = usuarioLogado.nome;
-        userAvatarElement.src = usuarioLogado.avatar;
-    }
-}
+        function loadUserData() {
+            usernameElement.textContent = usuarioLogado.nome || "Usuário";
+            userAvatarElement.src = usuarioLogado.avatar || "https://via.placeholder.com/60";
+            userXpElement.textContent = `${usuarioLogado.moedas || 0} BIP`;
+            
+            // Atualiza os dados na seção "Início"
+            userBipsHomeElement.textContent = usuarioLogado.moedas || 0;
 
-// 🔹 Alterna seções SEM recarregar a página
-function showSection(sectionId, event) {
-    // ❗ Isso impede que o navegador recarregue a página
-    if (event) {
-        event.preventDefault(); 
-    }
+            syncUserAndRanking();
+            rankingData.sort((a, b) => b.bip - a.bip);
+            const userRankIndex = rankingData.findIndex(user => user.id === usuarioLogado.id);
+            if (userRankIndex !== -1) {
+                userRankHomeElement.textContent = `#${userRankIndex + 1}`;
+            } else {
+                userRankHomeElement.textContent = '--';
+            }
 
-    const sections = document.querySelectorAll('.main-content > section');
-    sections.forEach(section => section.style.display = 'none');
-    document.getElementById(`${sectionId}-section`).style.display = 'block';
+            // Carrega o ranking rápido na home
+            loadHomeRanking();
+        }
 
-    if (sectionId === 'ranking') updateRanking();
-    else if (sectionId === 'ponto') fetchUserPointsHistory();
-    else if (sectionId === 'home') updateRanking();
-}
+function loadHomeRanking() {
+    homeRankingList.innerHTML = '';
+    const top3 = rankingData.slice(0, 3);
+    
+    // Create a lookup array for medal images
+    const medals = [
+        { src: '/assets/resources/gold-medal.png', alt: 'Medalha de Ouro' },
+        { src: '/assets/resources/silver-medal.png', alt: 'Medalha de Prata' },
+        { src: '/assets/resources/bronze-medal.png', alt: 'Medalha de Bronze' }
+    ];
 
-// ✅ Funções do botão "Aprenda" (expandir/esconder)
-function toggleTopic(topicId) {
-    const content = document.getElementById(`${topicId}-content`);
-    const arrow = document.querySelector(`#${topicId} .topic-arrow`);
-    content.classList.toggle('show');
-    arrow.classList.toggle('rotate');
-}
+    top3.forEach((user, index) => {
+        const li = document.createElement('li');
+        li.className = 'ranking-item';
 
-// 🔹 Inicialização
-window.onload = function() {
-    // Esconde todas as seções por padrão e mostra a inicial para evitar um "flash" de conteúdo
-    document.querySelectorAll('.main-content > section').forEach(section => {
-        section.style.display = 'none';
+        // Get the medal data from the array based on the index
+        const medal = medals[index];
+
+        // Use a single line to generate the medal HTML
+        const medalHtml = medal ? `<img src="${medal.src}" alt="${medal.alt}" class="medal-icon">` : '';
+
+        li.innerHTML = `
+            <span class="rank-number">${medalHtml}#${index + 1}</span>
+            <img src="${user.avatar}" alt="${user.nome}" class="user-avatar">
+            <span>${user.nome}</span>
+        `;
+        homeRankingList.appendChild(li);
     });
-    document.getElementById('home-section').style.display = 'block';
+}
 
-    // 🔹 Adiciona listeners nos botões de menu
-    document.querySelectorAll('.menu-link').forEach(link => {
-        link.addEventListener('click', (e) => {
-            const sectionId = link.dataset.section; // exemplo: <a href="#" class="menu-link" data-section="ranking">
-            showSection(sectionId, e);
-        });
-    });
-};
+        function showSection(sectionId) {
+            const mainContentSections = document.querySelectorAll('.main-content > section');
+            mainContentSections.forEach(section => {
+                section.style.display = 'none';
+            });
 
-</script>
+            const sectionToShow = document.getElementById(`${sectionId}-section`);
+            if (sectionToShow) {
+                sectionToShow.style.display = 'block';
+            }
+
+            if (sectionId === 'home') {
+                loadUserData();
+            } else if (sectionId === 'ranking') {
+                updateRanking();
+            } else if (sectionId === 'ponto') {
+                updatePontoHistory();
+            }
+        }
+        
+        function toggleTopic(topicId) {
+            const content = document.getElementById(topicId + '-content');
+            const arrow = document.querySelector(`#${topicId} .topic-arrow`);
+            
+            content.classList.toggle('show');
+            arrow.classList.toggle('rotate');
+        }
+
+        function updateRanking() {
+            rankingBody.innerHTML = '';
+            syncUserAndRanking();
+            rankingData.sort((a, b) => b.bip - a.bip);
+
+            rankingData.forEach((user, index) => {
+                const row = document.createElement('tr');
+                if (index === 0) row.classList.add('position-1');
+                if (index === 1) row.classList.add('position-2');
+                if (index === 2) row.classList.add('position-3');
+
+                let medal = '';
+                if (index === 0) {
+                    medal = `<svg class="medal" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="12" cy="12" r="10" fill="#FFD700"/>
+                        <circle cx="12" cy="12" r="8" fill="#FFEC8B"/>
+                        <text x="12" y="15" text-anchor="middle" font-size="8" font-weight="bold" fill="#8B7500">1°</text>
+                    </svg>`;
+                } else if (index === 1) {
+                    medal = `<svg class="medal" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="12" cy="12" r="10" fill="#C0C0C0"/>
+                        <circle cx="12" cy="12" r="8" fill="#E6E6E6"/>
+                        <text x="12" y="15" text-anchor="middle" font-size="8" font-weight="bold" fill="#505050">2°</text>
+                    </svg>`;
+                } else if (index === 2) {
+                    medal = `<svg class="medal" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="12" cy="12" r="10" fill="#CD7F32"/>
+                        <circle cx="12" cy="12" r="8" fill="#E6C39A"/>
+                        <text x="12" y="15" text-anchor="middle" font-size="8" font-weight="bold" fill="#5E3A00">3°</text>
+                    </svg>`;
+                }
+
+                row.innerHTML = `
+                    <td>${index + 1} ${medal}</td>
+                    <td class="user-cell">
+                        <img src="${user.avatar}" alt="${user.nome}" class="user-avatar">
+                        ${user.nome}
+                    </td>
+                    <td class="xp-cell">
+                        <span class="xp-coins">${user.bip} BIP</span>
+                    </td>
+                `;
+                rankingBody.appendChild(row);
+            });
+        }
+
+        async function updatePontoHistory() {
+            if (!usuarioLogado || !usuarioLogado.id) {
+                historyTableBody.innerHTML = '<tr><td colspan="3" class="no-data">Por favor, faça login para ver o histórico.</td></tr>';
+                return;
+            }
+
+            try {
+                const res = await fetch(`http://localhost:3000/api/pontos/${usuarioLogado.id}`);
+                if (!res.ok) {
+                    if (res.status === 404) {
+                        historyTableBody.innerHTML = '<tr><td colspan="3" class="no-data">Nenhum ponto registrado para este usuário.</td></tr>';
+                        return;
+                    }
+                    throw new Error(`HTTP error! status: ${res.status}`);
+                }
+                const data = await res.json();
+
+                historyTableBody.innerHTML = '';
+                if (data.pontos && data.pontos.length > 0) {
+                    data.pontos.forEach(record => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${record.data}</td>
+                            <td>${record.hora}</td>
+                            <td>${record.moedas}</td>
+                        `;
+                        historyTableBody.appendChild(row);
+                    });
+                } else {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `<td colspan="3" class="no-data">Nenhum ponto registrado.</td>`;
+                    historyTableBody.appendChild(row);
+                }
+            } catch (error) {
+                console.error('Erro ao buscar histórico de pontos:', error);
+                historyTableBody.innerHTML = `<tr><td colspan="3" class="no-data">Erro ao carregar dados. Tente novamente.</td></tr>`;
+            }
+        }
+
+        // Chama as funções iniciais quando a página é carregada
+        window.onload = () => {
+            fetchAndUpdateUserData();
+            showSection('home');
+        };
+    </script>
 </body>
 </html>
