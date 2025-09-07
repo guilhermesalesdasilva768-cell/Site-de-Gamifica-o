@@ -294,14 +294,60 @@
         }
 
         @media (max-width: 768px) {
+            body {
+                padding: 0 10px;
+            }
+
             header {
                 flex-direction: column;
-                gap: 20px;
+                gap: 15px;
+                padding: 10px;
+            }
+
+            .profile {
+                width: 100%;
+                justify-content: center;
+                text-align: center;
             }
 
             .nav-icons {
                 width: 100%;
                 justify-content: space-around;
+                gap: 10px;
+            }
+
+            .nav-icon img {
+                width: 35px;
+                height: 35px;
+            }
+
+            .nav-icon span {
+                font-size: 0.8rem;
+            }
+            
+            .home-content {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .ranking-table th, .ranking-table td,
+            .history-table th, .history-table td {
+                padding: 8px;
+                font-size: 0.85rem;
+            }
+            
+            .user-cell {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+
+            .user-avatar {
+                margin-bottom: 5px;
+            }
+            
+            .learn-topic .topic-header {
+                font-size: 1.2rem;
             }
         }
 
@@ -378,9 +424,10 @@
         .learn-topic {
             width: 100%;
             max-width: 800px;
-            padding: 20px;
+            padding: 10px;
+            margin-bottom: 10px;
             background-color: var(--card-header-bg);
-            border-radius: 10px;
+            border-radius: 5px;
             cursor: pointer;
             transition: background-color 0.3s;
             display: flex;
@@ -653,7 +700,7 @@
     </ul>
 </div>
 
-                    
+
                     <div class="home-card fact-of-day">
                         <h3>Fato do Dia</h3>
                         <p><b>"A gamificação aumenta o engajamento em 60% e a retenção de conhecimento em 40%."</b></p>
@@ -799,7 +846,7 @@
         async function fetchAndUpdateUserData() {
             if (usuarioLogado.id) {
                 try {
-                    const moedasResponse = await fetch(`http://localhost:3000/api/moedas/${usuarioLogado.id}`);
+                 const moedasResponse = await fetch(`https://meu-site4.onrender.com/api/moedas/${usuarioLogado.id}`);
                     const moedasData = await moedasResponse.json();
 
                     if (moedasData.status === 'sucesso' && moedasData.moedas !== undefined) {
@@ -975,7 +1022,8 @@ function loadHomeRanking() {
             }
 
             try {
-                const res = await fetch(`http://localhost:3000/api/pontos/${usuarioLogado.id}`);
+               const res = await fetch(`https://meu-site4.onrender.com/api/pontos/${usuarioLogado.id}`);
+
                 if (!res.ok) {
                     if (res.status === 404) {
                         historyTableBody.innerHTML = '<tr><td colspan="3" class="no-data">Nenhum ponto registrado para este usuário.</td></tr>';
