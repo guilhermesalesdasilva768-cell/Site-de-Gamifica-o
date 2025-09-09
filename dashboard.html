@@ -832,13 +832,9 @@
     </div>
 
     <script>
-        // 🔹 Dados do usuário logado (vêm do backend)
-let usuarioLogado = {
-    id: null,
-    nome: "Usuário",
-    avatar: "https://via.placeholder.com/60",
-    moedas: 0
-};
+       // 🔹 Dados do usuário logado (vêm do backend)
+let usuarioLogado = null;
+let rankingData = [];
 
 // 🔹 Atualiza os dados do usuário logado a partir do backend
 async function fetchAndUpdateUserData(userId) {
@@ -856,12 +852,17 @@ async function fetchAndUpdateUserData(userId) {
                 };
             } else {
                 console.error('Erro ao buscar moedas:', data.mensagem);
+                usuarioLogado = null;
             }
         } catch (error) {
             console.error('Erro na requisição para atualizar dados do usuário:', error);
+            usuarioLogado = null;
         }
+    } else {
+        usuarioLogado = null;
     }
-    loadUserData(); // <-- mantém sua função que atualiza a UI do usuário
+
+    loadUserData();
 }
 
 // 🔹 Busca o ranking global no backend
@@ -871,14 +872,14 @@ async function fetchRanking() {
         const data = await response.json();
 
         if (Array.isArray(data)) {
-            const rankingData = data.map(user => ({
+            rankingData = data.map(user => ({
                 id: user.id,
                 nome: user.nome,
                 avatar: user.avatar || "https://via.placeholder.com/60",
                 bip: user.bip || 0
             }));
 
-            renderRanking(rankingData); // <-- mantém sua função que monta o ranking na tela
+            renderRanking(rankingData);
         } else {
             console.error("Formato inesperado de dados do ranking:", data);
         }
@@ -889,47 +890,51 @@ async function fetchRanking() {
 
 // 🔹 Ao carregar a página
 document.addEventListener("DOMContentLoaded", () => {
-    // Se você já tiver o ID do usuário logado, passe aqui:
-    // fetchAndUpdateUserData(usuarioId);
     fetchRanking();
 });
 
+// Referências de elementos
+const usernameElement = document.getElementById('username');
+const userAvatarElement = document.getElementById('user-avatar');
+const userXpElement = document.getElementById('user-xp');
+const rankingBody = document.getElementById('ranking-body');
+const historyTableBody = document.getElementById('history-table-body');
+const userBipsHomeElement = document.getElementById('user-bips-home');
+const userRankHomeElement = document.getElementById('user-rank-home');
+const homeRankingList = document.getElementById('home-ranking-list');
 
-        const usernameElement = document.getElementById('username');
-        const userAvatarElement = document.getElementById('user-avatar');
-        const userXpElement = document.getElementById('user-xp');
-        const rankingBody = document.getElementById('ranking-body');
-        const historyTableBody = document.getElementById('history-table-body');
-        const userBipsHomeElement = document.getElementById('user-bips-home');
-        const userRankHomeElement = document.getElementById('user-rank-home');
-        const homeRankingList = document.getElementById('home-ranking-list');
+function loadUserData() {
+    if (!usuarioLogado) {
+        usernameElement.textContent = "Visitante";
+        userAvatarElement.src = "https://via.placeholder.com/60";
+        userXpElement.textContent = "0 BIP";
+        userBipsHomeElement.textContent = "0";
+        userRankHomeElement.textContent = "--";
+        return;
+    }
 
-        function loadUserData() {
-            usernameElement.textContent = usuarioLogado.nome || "Usuário";
-            userAvatarElement.src = usuarioLogado.avatar || "https://via.placeholder.com/60";
-            userXpElement.textContent = `${usuarioLogado.moedas || 0} BIP`;
+    usernameElement.textContent = usuarioLogado.nome || "Usuário";
+    userAvatarElement.src = usuarioLogado.avatar || "https://via.placeholder.com/60";
+    userXpElement.textContent = `${usuarioLogado.moedas || 0} BIP`;
+    userBipsHomeElement.textContent = usuarioLogado.moedas || 0;
 
-            // Atualiza os dados na seção "Início"
-            userBipsHomeElement.textContent = usuarioLogado.moedas || 0;
+    syncUserAndRanking();
+    rankingData.sort((a, b) => b.bip - a.bip);
 
-            syncUserAndRanking();
-            rankingData.sort((a, b) => b.bip - a.bip);
-            const userRankIndex = rankingData.findIndex(user => user.id === usuarioLogado.id);
-            if (userRankIndex !== -1) {
-                userRankHomeElement.textContent = `#${userRankIndex + 1}`;
-            } else {
-                userRankHomeElement.textContent = '--';
-            }
+    const userRankIndex = rankingData.findIndex(user => user.id === usuarioLogado.id);
+    if (userRankIndex !== -1) {
+        userRankHomeElement.textContent = `#${userRankIndex + 1}`;
+    } else {
+        userRankHomeElement.textContent = '--';
+    }
 
-            // Carrega o ranking rápido na home
-            loadHomeRanking();
-        }
+    loadHomeRanking();
+}
 
 function loadHomeRanking() {
     homeRankingList.innerHTML = '';
     const top3 = rankingData.slice(0, 3);
 
-    // Create a lookup array for medal images
     const medals = [
         { src: '/assets/resources/gold-medal.png', alt: 'Medalha de Ouro' },
         { src: '/assets/resources/silver-medal.png', alt: 'Medalha de Prata' },
@@ -939,11 +944,7 @@ function loadHomeRanking() {
     top3.forEach((user, index) => {
         const li = document.createElement('li');
         li.className = 'ranking-item';
-
-        // Get the medal data from the array based on the index
         const medal = medals[index];
-
-        // Use a single line to generate the medal HTML
         const medalHtml = medal ? `<img src="${medal.src}" alt="${medal.alt}" class="medal-icon">` : '';
 
         li.innerHTML = `
@@ -955,125 +956,125 @@ function loadHomeRanking() {
     });
 }
 
-        function showSection(sectionId) {
-            const mainContentSections = document.querySelectorAll('.main-content > section');
-            mainContentSections.forEach(section => {
-                section.style.display = 'none';
-            });
+function showSection(sectionId) {
+    const mainContentSections = document.querySelectorAll('.main-content > section');
+    mainContentSections.forEach(section => {
+        section.style.display = 'none';
+    });
 
-            const sectionToShow = document.getElementById(`${sectionId}-section`);
-            if (sectionToShow) {
-                sectionToShow.style.display = 'block';
-            }
+    const sectionToShow = document.getElementById(`${sectionId}-section`);
+    if (sectionToShow) {
+        sectionToShow.style.display = 'block';
+    }
 
-            if (sectionId === 'home') {
-                loadUserData();
-            } else if (sectionId === 'ranking') {
-                updateRanking();
-            } else if (sectionId === 'ponto') {
-                updatePontoHistory();
-            }
+    if (sectionId === 'home') {
+        loadUserData();
+    } else if (sectionId === 'ranking') {
+        updateRanking();
+    } else if (sectionId === 'ponto') {
+        updatePontoHistory();
+    }
+}
+
+function toggleTopic(topicId) {
+    const content = document.getElementById(topicId + '-content');
+    const arrow = document.querySelector(`#${topicId} .topic-arrow`);
+
+    content.classList.toggle('show');
+    arrow.classList.toggle('rotate');
+}
+
+function updateRanking() {
+    rankingBody.innerHTML = '';
+    syncUserAndRanking();
+    rankingData.sort((a, b) => b.bip - a.bip);
+
+    rankingData.forEach((user, index) => {
+        const row = document.createElement('tr');
+        if (index === 0) row.classList.add('position-1');
+        if (index === 1) row.classList.add('position-2');
+        if (index === 2) row.classList.add('position-3');
+
+        let medal = '';
+        if (index === 0) {
+            medal = `<svg class="medal" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="10" fill="#FFD700"/>
+                <circle cx="12" cy="12" r="8" fill="#FFEC8B"/>
+                <text x="12" y="15" text-anchor="middle" font-size="8" font-weight="bold" fill="#8B7500">1°</text>
+            </svg>`;
+        } else if (index === 1) {
+            medal = `<svg class="medal" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="10" fill="#C0C0C0"/>
+                <circle cx="12" cy="12" r="8" fill="#E6E6E6"/>
+                <text x="12" y="15" text-anchor="middle" font-size="8" font-weight="bold" fill="#505050">2°</text>
+            </svg>`;
+        } else if (index === 2) {
+            medal = `<svg class="medal" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="10" fill="#CD7F32"/>
+                <circle cx="12" cy="12" r="8" fill="#E6C39A"/>
+                <text x="12" y="15" text-anchor="middle" font-size="8" font-weight="bold" fill="#5E3A00">3°</text>
+            </svg>`;
         }
 
-        function toggleTopic(topicId) {
-            const content = document.getElementById(topicId + '-content');
-            const arrow = document.querySelector(`#${topicId} .topic-arrow`);
+        row.innerHTML = `
+            <td>${index + 1} ${medal}</td>
+            <td class="user-cell">
+                <img src="${user.avatar}" alt="${user.nome}" class="user-avatar">
+                ${user.nome}
+            </td>
+            <td class="xp-cell">
+                <span class="xp-coins">${user.bip} BIP</span>
+            </td>
+        `;
+        rankingBody.appendChild(row);
+    });
+}
 
-            content.classList.toggle('show');
-            arrow.classList.toggle('rotate');
-        }
+async function updatePontoHistory() {
+    if (!usuarioLogado || !usuarioLogado.id) {
+        historyTableBody.innerHTML = '<tr><td colspan="3" class="no-data">Por favor, faça login para ver o histórico.</td></tr>';
+        return;
+    }
 
-        function updateRanking() {
-            rankingBody.innerHTML = '';
-            syncUserAndRanking();
-            rankingData.sort((a, b) => b.bip - a.bip);
+    try {
+        const res = await fetch(`https://meu-site4.onrender.com/api/pontos/${usuarioLogado.id}`);
 
-            rankingData.forEach((user, index) => {
-                const row = document.createElement('tr');
-                if (index === 0) row.classList.add('position-1');
-                if (index === 1) row.classList.add('position-2');
-                if (index === 2) row.classList.add('position-3');
-
-                let medal = '';
-                if (index === 0) {
-                    medal = `<svg class="medal" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <circle cx="12" cy="12" r="10" fill="#FFD700"/>
-                        <circle cx="12" cy="12" r="8" fill="#FFEC8B"/>
-                        <text x="12" y="15" text-anchor="middle" font-size="8" font-weight="bold" fill="#8B7500">1°</text>
-                    </svg>`;
-                } else if (index === 1) {
-                    medal = `<svg class="medal" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <circle cx="12" cy="12" r="10" fill="#C0C0C0"/>
-                        <circle cx="12" cy="12" r="8" fill="#E6E6E6"/>
-                        <text x="12" y="15" text-anchor="middle" font-size="8" font-weight="bold" fill="#505050">2°</text>
-                    </svg>`;
-                } else if (index === 2) {
-                    medal = `<svg class="medal" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <circle cx="12" cy="12" r="10" fill="#CD7F32"/>
-                        <circle cx="12" cy="12" r="8" fill="#E6C39A"/>
-                        <text x="12" y="15" text-anchor="middle" font-size="8" font-weight="bold" fill="#5E3A00">3°</text>
-                    </svg>`;
-                }
-
-                row.innerHTML = `
-                    <td>${index + 1} ${medal}</td>
-                    <td class="user-cell">
-                        <img src="${user.avatar}" alt="${user.nome}" class="user-avatar">
-                        ${user.nome}
-                    </td>
-                    <td class="xp-cell">
-                        <span class="xp-coins">${user.bip} BIP</span>
-                    </td>
-                `;
-                rankingBody.appendChild(row);
-            });
-        }
-
-        async function updatePontoHistory() {
-            if (!usuarioLogado || !usuarioLogado.id) {
-                historyTableBody.innerHTML = '<tr><td colspan="3" class="no-data">Por favor, faça login para ver o histórico.</td></tr>';
+        if (!res.ok) {
+            if (res.status === 404) {
+                historyTableBody.innerHTML = '<tr><td colspan="3" class="no-data">Nenhum ponto registrado para este usuário.</td></tr>';
                 return;
             }
-
-            try {
-               const res = await fetch(`https://meu-site4.onrender.com/api/pontos/${usuarioLogado.id}`);
-
-                if (!res.ok) {
-                    if (res.status === 404) {
-                        historyTableBody.innerHTML = '<tr><td colspan="3" class="no-data">Nenhum ponto registrado para este usuário.</td></tr>';
-                        return;
-                    }
-                    throw new Error(`HTTP error! status: ${res.status}`);
-                }
-                const data = await res.json();
-
-                historyTableBody.innerHTML = '';
-                if (data.pontos && data.pontos.length > 0) {
-                    data.pontos.forEach(record => {
-                        const row = document.createElement('tr');
-                        row.innerHTML = `
-                            <td>${record.data}</td>
-                            <td>${record.hora}</td>
-                            <td>${record.moedas}</td>
-                        `;
-                        historyTableBody.appendChild(row);
-                    });
-                } else {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `<td colspan="3" class="no-data">Nenhum ponto registrado.</td>`;
-                    historyTableBody.appendChild(row);
-                }
-            } catch (error) {
-                console.error('Erro ao buscar histórico de pontos:', error);
-                historyTableBody.innerHTML = `<tr><td colspan="3" class="no-data">Erro ao carregar dados. Tente novamente.</td></tr>`;
-            }
+            throw new Error(`HTTP error! status: ${res.status}`);
         }
+        const data = await res.json();
 
-        // Chama as funções iniciais quando a página é carregada
-        window.onload = () => {
-            fetchAndUpdateUserData();
-            showSection('home');
-        };
+        historyTableBody.innerHTML = '';
+        if (data.pontos && data.pontos.length > 0) {
+            data.pontos.forEach(record => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${record.data}</td>
+                    <td>${record.hora}</td>
+                    <td>${record.moedas}</td>
+                `;
+                historyTableBody.appendChild(row);
+            });
+        } else {
+            const row = document.createElement('tr');
+            row.innerHTML = `<td colspan="3" class="no-data">Nenhum ponto registrado.</td>`;
+            historyTableBody.appendChild(row);
+        }
+    } catch (error) {
+        console.error('Erro ao buscar histórico de pontos:', error);
+        historyTableBody.innerHTML = `<tr><td colspan="3" class="no-data">Erro ao carregar dados. Tente novamente.</td></tr>`;
+    }
+}
+
+// Chama as funções iniciais quando a página é carregada
+window.onload = () => {
+    fetchAndUpdateUserData();
+    showSection('home');
+};
     </script>
 </body>
 </html>
