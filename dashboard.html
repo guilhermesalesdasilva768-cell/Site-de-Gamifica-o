@@ -844,15 +844,15 @@ let usuarioLogado = {
 async function fetchAndUpdateUserData(userId) {
     if (userId) {
         try {
-            const response = await fetch(`https://meu-site4.onrender.com/api/moedas/${userId}`);
+            const response = await fetch(`https://meu-site4.onrender.com/api/bip/${userId}`);
             const data = await response.json();
 
-            if (data.status === 'sucesso' && data.moedas !== undefined) {
+            if (data.status === 'sucesso' && data.bip !== undefined) {
                 usuarioLogado = {
                     id: userId,
                     nome: data.nome || "Usuário",
                     avatar: data.avatar || "https://via.placeholder.com/60",
-                    moedas: data.moedas
+                    moedas: data.bip
                 };
             } else {
                 console.error('Erro ao buscar moedas:', data.mensagem);
@@ -907,10 +907,10 @@ document.addEventListener("DOMContentLoaded", () => {
         function loadUserData() {
             usernameElement.textContent = usuarioLogado.nome || "Usuário";
             userAvatarElement.src = usuarioLogado.avatar || "https://via.placeholder.com/60";
-            userXpElement.textContent = `${usuarioLogado.moedas || 0} BIP`;
+            userXpElement.textContent = `${usuarioLogado.bip || 0} BIP`;
             
             // Atualiza os dados na seção "Início"
-            userBipsHomeElement.textContent = usuarioLogado.moedas || 0;
+            userBipsHomeElement.textContent = usuarioLogado.bip || 0;
 
             syncUserAndRanking();
             rankingData.sort((a, b) => b.bip - a.bip);
