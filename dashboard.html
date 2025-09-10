@@ -832,10 +832,12 @@
     </div>
 
     <script>
-      // Ranking global vem sempre do backend
+    // === INÍCIO: gerência de usuário e ranking (cole no lugar do trecho antigo) ===
+
+// Ranking global vem sempre do backend
 let rankingData = [];
 
-// Usuário logado (começa vazio, será carregado do backend)
+// Usuário logado (inicial)
 let usuarioLogado = {
     id: null,
     nome: "Usuário",
@@ -843,51 +845,82 @@ let usuarioLogado = {
     moedas: 0
 };
 
-// 🔹 Buscar usuário logado no backend
+// Pega user id a partir da URL (?user_id=...) ou de sessionStorage
+function getUserIdFromSources() {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('user_id') || sessionStorage.getItem('userId') || null;
+}
+
+// Salva o id após login (use isto na tela de login quando receber o id do backend)
+function setLoggedUserId(id, persist = true) {
+    usuarioLogado.id = id;
+    if (persist) sessionStorage.setItem('userId', id); // guarda só o id na sessão
+}
+
+// Busca os dados completos do usuário no backend (/api/usuario-logado/:id)
 async function fetchUsuarioLogado(id) {
     try {
         const res = await fetch(`https://meu-site4.onrender.com/api/usuario-logado/${id}`);
+        if (!res.ok) {
+            console.warn('Usuário não encontrado no backend. status:', res.status);
+            return;
+        }
         const data = await res.json();
-        if (data.status === "sucesso") {
-            usuarioLogado = data.usuario;
+        if (data.status === 'sucesso' && data.usuario) {
+            usuarioLogado.id = data.usuario.id;
+            usuarioLogado.nome = data.usuario.nome || usuarioLogado.nome;
+            usuarioLogado.avatar = data.usuario.avatar || usuarioLogado.avatar;
+            // mapeia bip (no DB é bip) para moedas aqui
+            usuarioLogado.moedas = (typeof data.usuario.bip === 'number') ? data.usuario.bip : Number(data.usuario.bip) || usuarioLogado.moedas;
         } else {
-            console.warn("Usuário não encontrado no backend.");
+            console.warn('Resposta inesperada /api/usuario-logado:', data);
         }
     } catch (err) {
-        console.error("Erro ao buscar usuário logado:", err);
+        console.error('Erro ao buscar usuário logado:', err);
     }
 }
 
-// 🔹 Atualiza os dados do usuário logado puxando moedas do backend
+// Atualiza apenas as moedas (rota já existente)
 async function fetchAndUpdateUserData() {
-    if (usuarioLogado.id) {
-        try {
-            const moedasResponse = await fetch(`https://meu-site4.onrender.com/api/moedas/${usuarioLogado.id}`);
+    if (!usuarioLogado.id) {
+        loadUserData(); // mesmo sem id, atualiza a UI com valores padrão
+        return;
+    }
+    try {
+        const moedasResponse = await fetch(`https://meu-site4.onrender.com/api/moedas/${usuarioLogado.id}`);
+        if (moedasResponse.ok) {
             const moedasData = await moedasResponse.json();
-
             if (moedasData.status === 'sucesso' && moedasData.moedas !== undefined) {
                 usuarioLogado.moedas = moedasData.moedas;
             } else {
-                console.error('Erro ao buscar moedas:', moedasData.mensagem);
+                console.warn('Resposta inesperada /api/moedas:', moedasData);
             }
-        } catch (error) {
-            console.error('Erro na requisição para atualizar dados do usuário:', error);
+        } else {
+            console.warn('Erro ao buscar moedas. status:', moedasResponse.status);
         }
+    } catch (error) {
+        console.error('Erro na requisição para atualizar dados do usuário:', error);
     }
     loadUserData();
 }
 
-// 🔹 Busca ranking completo no backend
+// Busca o ranking completo no backend
 async function fetchRanking() {
     try {
         const res = await fetch('https://meu-site4.onrender.com/api/ranking');
-        rankingData = await res.json();
+        if (res.ok) {
+            rankingData = await res.json();
+        } else {
+            console.warn('Erro ao buscar /api/ranking status:', res.status);
+            rankingData = [];
+        }
     } catch (err) {
         console.error("Erro ao buscar ranking:", err);
         rankingData = [];
     }
 }
 
+// Elementos do DOM
 const usernameElement = document.getElementById('username');
 const userAvatarElement = document.getElementById('user-avatar');
 const userXpElement = document.getElementById('user-xp');
@@ -897,15 +930,14 @@ const userBipsHomeElement = document.getElementById('user-bips-home');
 const userRankHomeElement = document.getElementById('user-rank-home');
 const homeRankingList = document.getElementById('home-ranking-list');
 
+// Atualiza UI do usuário (nome, avatar, BIPs e posição)
 function loadUserData() {
     usernameElement.textContent = usuarioLogado.nome || "Usuário";
     userAvatarElement.src = usuarioLogado.avatar || "https://via.placeholder.com/60";
     userXpElement.textContent = `${usuarioLogado.moedas || 0} BIP`;
-    
-    // Atualiza os dados na seção "Início"
     userBipsHomeElement.textContent = usuarioLogado.moedas || 0;
 
-    // Pega ranking global do backend para calcular posição do usuário
+    // Calcula posição do usuário consultando ranking (assíncrono)
     fetchRanking().then(() => {
         rankingData.sort((a, b) => b.bip - a.bip);
         const userRankIndex = rankingData.findIndex(user => user.id === usuarioLogado.id);
@@ -914,16 +946,19 @@ function loadUserData() {
         } else {
             userRankHomeElement.textContent = '--';
         }
-
-        // Carrega o top 3 na home
+        // atualiza top3 da home
         loadHomeRanking();
     });
 }
 
-// 🔹 Top 3 global direto do backend
+// Top 3 global direto do backend (usa /api/ranking/top3)
 async function loadHomeRanking() {
     try {
         const res = await fetch('https://meu-site4.onrender.com/api/ranking/top3');
+        if (!res.ok) {
+            console.warn('Erro ao buscar top3, status:', res.status);
+            return;
+        }
         const top3 = await res.json();
         homeRankingList.innerHTML = '';
 
@@ -942,38 +977,10 @@ async function loadHomeRanking() {
     }
 }
 
-function showSection(sectionId) {
-    const mainContentSections = document.querySelectorAll('.main-content > section');
-    mainContentSections.forEach(section => {
-        section.style.display = 'none';
-    });
-
-    const sectionToShow = document.getElementById(`${sectionId}-section`);
-    if (sectionToShow) {
-        sectionToShow.style.display = 'block';
-    }
-
-    if (sectionId === 'home') {
-        loadUserData();
-    } else if (sectionId === 'ranking') {
-        updateRanking();
-    } else if (sectionId === 'ponto') {
-        updatePontoHistory();
-    }
-}
-
-function toggleTopic(topicId) {
-    const content = document.getElementById(topicId + '-content');
-    const arrow = document.querySelector(`#${topicId} .topic-arrow`);
-    
-    content.classList.toggle('show');
-    arrow.classList.toggle('rotate');
-}
-
-// 🔹 Ranking global
+// Atualiza tabela de ranking completa (busca do backend)
 async function updateRanking() {
     rankingBody.innerHTML = '';
-    await fetchRanking(); // busca no backend
+    await fetchRanking();
     rankingData.sort((a, b) => b.bip - a.bip);
 
     rankingData.forEach((user, index) => {
@@ -1017,7 +1024,7 @@ async function updateRanking() {
     });
 }
 
-// 🔹 Histórico de pontos continua igual
+// Histórico de pontos (mantém sua lógica atual)
 async function updatePontoHistory() {
     if (!usuarioLogado || !usuarioLogado.id) {
         historyTableBody.innerHTML = '<tr><td colspan="3" class="no-data">Por favor, faça login para ver o histórico.</td></tr>';
@@ -1058,16 +1065,27 @@ async function updatePontoHistory() {
     }
 }
 
-// 🔹 Início da página
-window.onload = async () => {
-    // Aqui você precisa passar o ID do usuário logado após login/cadastro
-    // Exemplo: usuarioLogado.id = "id_que_veio_do_backend";
-    if (usuarioLogado.id) {
-        await fetchUsuarioLogado(usuarioLogado.id);
+// Inicializa a página: busca id, usuario e atualiza UI
+async function initUserAndUI() {
+    const id = getUserIdFromSources();
+    if (id) {
+        usuarioLogado.id = id;
+        await fetchUsuarioLogado(id);     // popula nome/avatar/bip
+        await fetchAndUpdateUserData();   // atualiza moedas pela rota /api/moedas (e chama loadUserData)
+    } else {
+        // sem id: mostra valores padrão e top3
+        loadUserData();
     }
-    await fetchAndUpdateUserData();
+}
+
+// chama no load
+window.onload = async () => {
+    await initUserAndUI();
     showSection('home');
 };
+
+// === FIM bloco atualizado ===
+
     </script>
 </body>
 </html>
