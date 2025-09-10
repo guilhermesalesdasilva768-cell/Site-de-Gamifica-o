@@ -25,25 +25,45 @@
         #startButton:hover {
             background-color: #0056b3;
         }
-        #game-board {
-            display: grid;
-            grid-template-columns: repeat(4, 100px);
-            gap: 10px;
-            justify-content: center;
-            margin-top: 20px;
-        }
-        .card {
-            width: 100px;
-            height: 100px;
-            background: #ddd;
-            border-radius: 10px;
-            font-size: 2rem;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
+       #game-board {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
+    gap: 10px;
+    justify-content: center;
+    margin: 20px auto;
+    max-width: 420px; /* evita que fique muito largo em telas grandes */
+}
+
+.card {
+    aspect-ratio: 1 / 1; /* mantém formato quadrado */
+    background: #ddd;
+    border-radius: 10px;
+    font-size: 2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+@media (max-width: 600px) {
+    #game-board {
+        grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+        max-width: 95vw;
+    }
+    .card {
+        font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 400px) {
+    #game-board {
+        grid-template-columns: repeat(auto-fit, minmax(50px, 1fr));
+    }
+    .card {
+        font-size: 1.2rem;
+    }
+}
         .matched {
             background: #9be7a7;
             pointer-events: none;
