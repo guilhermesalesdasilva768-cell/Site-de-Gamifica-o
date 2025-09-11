@@ -239,7 +239,7 @@
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
         }
 
-        .memory-game-container, .fire-game-container, .quiz-game-container {
+        .memory-game-container, .fire-game-container, .detroit-game-container {
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -247,7 +247,7 @@
             margin-bottom: 40px;
         }
 
-        .memory-game-icon, .fire-game-icon, .quiz-gamer-container {
+        .memory-game-icon, .fire-game-icon, .detroit-gamer-container {
             width: 120px;
             height: 120px;
             cursor: pointer;
@@ -255,7 +255,7 @@
             filter: drop-shadow(4px 4px 6px rgba(0, 0, 0, 0.3));
         }
 
-        .memory-game-icon:hover, .fire-game-icon:hover, .quiz-gamer-container {
+        .memory-game-icon:hover, .fire-game-icon:hover, .detroit-gamer-container {
             transform: scale(1.1);
             filter: drop-shadow(6px 6px 8px rgba(0, 0, 0, 0.4));
         }
@@ -804,9 +804,9 @@
                     <button class="play-button" onclick="window.location.href='fire.html'">Jogo Combate ao Fogo</button>
                 </div>
 
-                <div class="quiz-game-container">
-                    <img src="assets/resources/th (9).jpeg" alt="Ícone Quiz" class="fire-game-icon">
-                    <button class="play-button" onclick="window.location.href='Quiz.html'">Jogo do Quiz</button>
+                <div class="detroit-game-container">
+                    <img src="assets/resources/th (9).jpeg" alt="Ícone Quiz" class="detroit-game-icon">
+                    <button class="play-button" onclick="window.location.href='detroit.html'">Jogo do Juninho</button>
                 </div>
             </section>
 
@@ -832,7 +832,7 @@
     </div>
 
     <script>
-    // Ranking global vem sempre do backend
+       // Ranking global vem sempre do backend
 let rankingData = [];
 
 // Usuário logado (começa vazio, será carregado do backend)
@@ -1015,6 +1015,45 @@ async function updateRanking() {
         `;
         rankingBody.appendChild(row);
     });
+}
+
+function registrarPontosQuiz(pontosGanhos) {
+  const usuarioId = sessionStorage.getItem("userId");
+  fetch("https://meu-site4.onrender.com/api/pontos-extra", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ usuario_id: usuarioId, origem: "quiz", pontos: pontosGanhos })
+  })
+  .then(res => res.json())
+  .then(data => {
+    alert(data.mensagem);
+  });
+}
+
+function registrarPontosQuiz(pontosGanhos) {
+  const usuarioId = sessionStorage.getItem("userId");
+  fetch("https://meu-site4.onrender.com/api/pontos-extra", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ usuario_id: usuarioId, origem: "fire", pontos: pontosGanhos })
+  })
+  .then(res => res.json())
+  .then(data => {
+    alert(data.mensagem);
+  });
+}
+
+function registrarPontosQuiz(pontosGanhos) {
+  const usuarioId = sessionStorage.getItem("userId");
+  fetch("https://meu-site4.onrender.com/api/pontos-extra", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ usuario_id: usuarioId, origem: "memory", pontos: pontosGanhos })
+  })
+  .then(res => res.json())
+  .then(data => {
+    alert(data.mensagem);
+  });
 }
 
 // 🔹 Histórico de pontos continua igual
