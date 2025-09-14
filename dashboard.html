@@ -1231,8 +1231,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 avatarImage.src = newAvatarSrc;
 
                 // 3. Envia o avatar para o back-end
-                // Substitua 'URL_DO_SEU_SERVIDOR' pelo endereço real do seu servidor
-                fetch('URL_DO_SEU_SERVIDOR/api/avatar', {
+                fetch('https://meu-site4.onrender.com/api/avatar', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
