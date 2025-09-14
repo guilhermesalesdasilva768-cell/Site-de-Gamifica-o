@@ -996,11 +996,18 @@ async function loadHomeRanking() {
         homeRankingList.innerHTML = '';
 
         top3.forEach((user, index) => {
+            let avatarSrc = user.avatar;
+            if (!avatarSrc) {
+                avatarSrc = "https://via.placeholder.com/40"; // fallback
+            }
+
             const li = document.createElement('li');
             li.className = 'ranking-item';
             li.innerHTML = `
                 <span class="rank-number">#${index + 1}</span>
-                <img src="${user.avatar}" alt="${user.nome}" class="user-avatar">
+                <img src="${avatarSrc}" alt="avatar de ${user.nome}" 
+                     class="user-avatar" 
+                     style="width:35px; height:35px; border-radius:50%; margin-right:8px;">
                 <span>${user.nome} - ${user.bip} BIP</span>
             `;
             homeRankingList.appendChild(li);
@@ -1009,6 +1016,7 @@ async function loadHomeRanking() {
         console.error("Erro ao buscar top 3:", err);
     }
 }
+
 
 function showSection(sectionId) {
     const mainContentSections = document.querySelectorAll('.main-content > section');
