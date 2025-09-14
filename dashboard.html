@@ -52,73 +52,26 @@
             margin-bottom: 20px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
         }
-.profile {
-  display: flex;
-  align-items: center; /* Centraliza avatar e texto na vertical */
-  gap: 15px;
-}
 
-.avatar-container {
-  position: relative;
-  width: 70px;   /* deixei menor para ficar proporcional */
-  height: 70px;
-  flex-shrink: 0; /* evita que encolha */
-}
+        .profile {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
 
-.avatar {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  object-fit: cover; /* garante que a imagem preencha bem */
-  border: 3px solid white;
-  display: block;
-}
+        .avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
 
-.avatar-frame {
-    /* Seu código CSS para o círculo, brilho e borda */
-    position: relative;
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    overflow: hidden;
-    cursor: pointer; /* Isso muda o mouse para uma mão, indicando que é clicável */
-    box-shadow: 0 0 15px 5px rgba(0, 191, 255, 0.75);
-    border: 3px solid #00BFFF;
-}
-
-#avatar-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover; /* Garante que a imagem preencha o círculo sem distorcer */
-    transition: transform 0.3s ease;
-}
-
-#avatar-image:hover {
-    transform: scale(1.05); /* Um pequeno efeito de zoom ao passar o mouse */
-}
-
-#avatar-upload {
-    display: none; /* Esconde o input de arquivo padrão */
-}
-
-.profile-info h2 {
-  margin: 0;
-  font-size: 1.3rem;
-  font-weight: bold;
-  color: #fff;
-}
-
-.bip {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  background: #111;
-  border-radius: 10px;
-  padding: 2px 8px;
-  font-size: 0.9rem;
-  margin-top: 5px;
-}
-
+        .profile-info h2 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
 
         .xp-badge {
             background-color: rgba(0, 0, 0, 0.3);
@@ -658,37 +611,13 @@
         .fact-of-day {
             text-align: center;
         }
-        .frame-nivel1 {
-  border: 4px solid gray;
-}
-
-.frame-nivel5 {
-  border: 4px solid gold;
-  box-shadow: 0 0 10px gold;
-}
-
-.frame-nivel10 {
-  border: 4px solid dodgerblue;
-  box-shadow: 0 0 15px dodgerblue, 0 0 30px cyan;
-}
-
-.frame-nivel20 {
-  border: 4px solid purple;
-  box-shadow: 0 0 20px purple, 0 0 40px violet, 0 0 60px pink;
-}
-
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-      <div class="profile">
-  <div class="avatar-container">
-    <div class="avatar-frame">
-        <img id="avatar-image" src="caminho/para/imagem_padrao.png" alt="Avatar do usuário">
-        <input type="file" id="avatar-upload" accept="image/*">
-    </div>
-</div>
+            <div class="profile">
+                <img id="user-avatar" class="avatar" alt="Avatar">
                 <div class="profile-info">
                     <h2 id="username">Usuário</h2>
                     <div class="xp-badge">
@@ -996,18 +925,11 @@ async function loadHomeRanking() {
         homeRankingList.innerHTML = '';
 
         top3.forEach((user, index) => {
-            let avatarSrc = user.avatar;
-            if (!avatarSrc) {
-                avatarSrc = "https://via.placeholder.com/40"; // fallback
-            }
-
             const li = document.createElement('li');
             li.className = 'ranking-item';
             li.innerHTML = `
                 <span class="rank-number">#${index + 1}</span>
-                <img src="${avatarSrc}" alt="avatar de ${user.nome}" 
-                     class="user-avatar" 
-                     style="width:35px; height:35px; border-radius:50%; margin-right:8px;">
+                <img src="${user.avatar}" alt="${user.nome}" class="user-avatar">
                 <span>${user.nome} - ${user.bip} BIP</span>
             `;
             homeRankingList.appendChild(li);
@@ -1016,7 +938,6 @@ async function loadHomeRanking() {
         console.error("Erro ao buscar top 3:", err);
     }
 }
-
 
 function showSection(sectionId) {
     const mainContentSections = document.querySelectorAll('.main-content > section');
@@ -1082,9 +1003,7 @@ async function updateRanking() {
         row.innerHTML = `
             <td>${index + 1} ${medal}</td>
             <td class="user-cell">
-                <img src="${user.avatar && user.avatar.trim() !== "" ? user.avatar : "https://via.placeholder.com/40"}" 
-     alt="${user.nome}" class="user-avatar">
-
+                <img src="${user.avatar}" alt="${user.nome}" class="user-avatar">
                 ${user.nome}
             </td>
             <td class="xp-cell">
@@ -1193,81 +1112,6 @@ window.onload = async () => {
 
     showSection('home');
 };
- function atualizarMoldura(nivel) {
-    const frame = document.querySelector(".avatar-frame");
-    
-    frame.className = "avatar-frame"; // reseta moldura
-
-    if (nivel >= 20) {
-      frame.classList.add("frame-nivel20");
-    } else if (nivel >= 10) {
-      frame.classList.add("frame-nivel10");
-    } else if (nivel >= 5) {
-      frame.classList.add("frame-nivel5");
-    } else {
-      frame.classList.add("frame-nivel1");
-    }
-  }
-
-  // Exemplo: usuário com 12 BIPs (nível 10)
-  atualizarMoldura(12);
-
-document.addEventListener('DOMContentLoaded', function() {
-    const avatarFrame = document.querySelector('.avatar-frame');
-    const avatarUpload = document.getElementById('avatar-upload');
-    const avatarImage = document.getElementById('avatar-image');
-
-    // ⚠️ Importante: obtenha o ID do usuário logado.
-    // O ideal é que este ID seja armazenado no localStorage, cookies, ou de
-    // alguma forma acessível após o login.
-    const usuarioLogadoId = localStorage.getItem('usuarioId'); 
-
-    // 1. Clicar no avatar ativa o botão de upload
-    avatarFrame.addEventListener('click', () => {
-        avatarUpload.click();
-    });
-
-    // 2. Quando um arquivo é selecionado, a imagem é carregada
-    avatarUpload.addEventListener('change', (event) => {
-        const file = event.target.files[0];
-        
-        if (file) {
-            const reader = new FileReader();
-
-            reader.onload = (e) => {
-                const newAvatarSrc = e.target.result;
-                
-                // Exibe a imagem no avatar principal imediatamente
-                avatarImage.src = newAvatarSrc;
-
-                // 3. Envia o avatar para o back-end
-                fetch('https://meu-site4.onrender.com/api/avatar', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        id: usuarioLogadoId,
-                        avatar: newAvatarSrc
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'sucesso') {
-                        console.log('Avatar salvo no back-end com sucesso!');
-                    } else {
-                        console.error('Erro ao salvar o avatar:', data.mensagem);
-                    }
-                })
-                .catch(error => {
-                    console.error('Erro na requisição:', error);
-                });
-            };
-
-            reader.readAsDataURL(file);
-        }
-    });
-});
     </script>
     <!-- Biblioteca de ícones Lucide -->
 <script src="https://unpkg.com/lucide@latest"></script>
