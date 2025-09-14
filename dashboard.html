@@ -1202,10 +1202,15 @@ window.onload = async () => {
   // Exemplo: usuário com 12 BIPs (nível 10)
   atualizarMoldura(12);
 
- document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function() {
     const avatarFrame = document.querySelector('.avatar-frame');
     const avatarUpload = document.getElementById('avatar-upload');
     const avatarImage = document.getElementById('avatar-image');
+
+    // ⚠️ Importante: obtenha o ID do usuário logado.
+    // O ideal é que este ID seja armazenado no localStorage, cookies, ou de
+    // alguma forma acessível após o login.
+    const usuarioLogadoId = localStorage.getItem('usuarioId'); 
 
     // 1. Clicar no avatar ativa o botão de upload
     avatarFrame.addEventListener('click', () => {
@@ -1220,7 +1225,34 @@ window.onload = async () => {
             const reader = new FileReader();
 
             reader.onload = (e) => {
-                avatarImage.src = e.target.result;
+                const newAvatarSrc = e.target.result;
+                
+                // Exibe a imagem no avatar principal imediatamente
+                avatarImage.src = newAvatarSrc;
+
+                // 3. Envia o avatar para o back-end
+                // Substitua 'URL_DO_SEU_SERVIDOR' pelo endereço real do seu servidor
+                fetch('URL_DO_SEU_SERVIDOR/api/avatar', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        id: usuarioLogadoId,
+                        avatar: newAvatarSrc
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'sucesso') {
+                        console.log('Avatar salvo no back-end com sucesso!');
+                    } else {
+                        console.error('Erro ao salvar o avatar:', data.mensagem);
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro na requisição:', error);
+                });
             };
 
             reader.readAsDataURL(file);
