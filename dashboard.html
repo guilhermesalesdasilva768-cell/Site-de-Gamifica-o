@@ -303,6 +303,36 @@
             color: rgba(255, 255, 255, 0.7);
         }
 
+        /* === Responsividade Progressiva === */
+    /* Base - celulares pequenos */
+    body { font-size: 14px; }
+    .container { padding: 10px; }
+    header { flex-direction: column; gap: 10px; text-align: center; }
+    .avatar { width: 50px; height: 50px; }
+    .home-section h1 { font-size: 1.8rem; }
+
+    /* Tablets */
+    @media (min-width: 600px) {
+      body { font-size: 16px; }
+      header { flex-direction: row; padding: 15px; }
+      .container { padding: 15px; }
+      .home-section h1 { font-size: 2rem; }
+    }
+
+    /* Notebooks */
+    @media (min-width: 992px) {
+      body { font-size: 18px; }
+      .container { padding: 20px; }
+      .home-section h1 { font-size: 2.3rem; }
+    }
+
+    /* Telas grandes */
+    @media (min-width: 1200px) {
+      body { font-size: 20px; }
+      .container { max-width: 1400px; }
+      .home-section h1 { font-size: 2.5rem; }
+    }
+
         @media (max-width: 768px) {
             body {
                 padding: 0 10px;
@@ -618,6 +648,7 @@
         <header>
             <div class="profile">
                 <img id="user-avatar" class="avatar" alt="Avatar">
+<input type="file" id="avatar-upload" accept="image/*" style="display: none;">
                 <div class="profile-info">
                     <h2 id="username">Usuário</h2>
                     <div class="xp-badge">
@@ -1111,7 +1142,31 @@ window.onload = async () => {
     }
 
     showSection('home');
+
+    // 👉 Upload de avatar (colocar aqui dentro)
+    const avatarUpload = document.getElementById("avatar-upload");
+    const userAvatarElement = document.getElementById("user-avatar");
+
+    // Quando o usuário clicar no avatar → abre o seletor
+    userAvatarElement.addEventListener("click", () => {
+        avatarUpload.click();
+    });
+
+    // Quando o usuário escolher uma imagem → mostra no avatar
+    avatarUpload.addEventListener("change", (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                userAvatarElement.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
 };
+
+
+
     </script>
     <!-- Biblioteca de ícones Lucide -->
 <script src="https://unpkg.com/lucide@latest"></script>
