@@ -1076,15 +1076,17 @@ async function updateRanking() {
         }
 
         row.innerHTML = `
-            <td>${index + 1} ${medal}</td>
-            <td class="user-cell">
-                <img src="${user.avatar}" alt="${user.nome}" class="user-avatar">
-                ${user.nome}
-            </td>
-            <td class="xp-cell">
-                <span class="xp-coins">${user.bip} BIP</span>
-            </td>
-        `;
+    <td>${index + 1} ${medal}</td>
+    <td class="user-cell">
+        <div class="avatar-container ${getBorderClass(user.bip)}">
+            <img src="${user.avatar}" alt="${user.nome}" class="user-avatar">
+        </div>
+        ${user.nome}
+    </td>
+    <td class="xp-cell">
+        <span class="xp-coins">${user.bip} BIP</span>
+    </td>
+`;
         rankingBody.appendChild(row);
     });
 }
