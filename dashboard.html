@@ -1091,6 +1091,13 @@ async function updateRanking() {
     });
 }
 
+function getBorderClass(bips) {
+    if (bips >= 200) return "borda-ouro";
+    if (bips >= 100) return "borda-prata";
+    if (bips >= 50) return "borda-bronze";
+    return "borda-padrao";
+}
+
 function registrarPontosQuiz(pontosGanhos) {
   const usuarioId = sessionStorage.getItem("userId");
   fetch("https://meu-site4.onrender.com/api/pontos-extra", {
