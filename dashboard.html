@@ -674,14 +674,51 @@
   padding: 3px;
 }
 
+.borda-lendaria {
+  position: relative;
+}
+.borda-lendaria::before {
+  content: "";
+  position: absolute;
+  top: -6px; left: -6px; right: -6px; bottom: -6px;
+  border-radius: 50%;
+  background: conic-gradient(red, orange, gold, lime, cyan, violet, red);
+  animation: girarLendario 4s linear infinite;
+  z-index: -1;
+}
+@keyframes girarLendario {
+  100% { transform: rotate(360deg); }
+}
 .borda-ouro {
-  box-shadow: 0 0 15px gold;
+  box-shadow: 0 0 18px gold, 0 0 35px orange;
+  animation: pulsarOuro 2s infinite;
+}
+@keyframes pulsarOuro {
+  0%, 100% { box-shadow: 0 0 15px gold, 0 0 30px orange; }
+  50% { box-shadow: 0 0 35px gold, 0 0 60px yellow; }
 }
 .borda-prata {
-  box-shadow: 0 0 15px silver;
+  position: relative;
+}
+.borda-prata::before {
+  content: "";
+  position: absolute;
+  top: -4px; left: -4px; right: -4px; bottom: -4px;
+  border-radius: 50%;
+  background: conic-gradient(silver, white, silver);
+  animation: girarPrata 6s linear infinite;
+  z-index: -1;
+}
+@keyframes girarPrata {
+  100% { transform: rotate(360deg); }
 }
 .borda-bronze {
-  box-shadow: 0 0 15px peru;
+  box-shadow: 0 0 12px peru, 0 0 25px sienna;
+  animation: pulsarBronze 3s infinite;
+}
+@keyframes pulsarBronze {
+  0%, 100% { box-shadow: 0 0 12px peru, 0 0 25px sienna; }
+  50% { box-shadow: 0 0 25px peru, 0 0 45px chocolate; }
 }
 .borda-padrao {
   box-shadow: 0 0 10px gray;
@@ -997,16 +1034,18 @@ function loadUserData() {
 
 function updateAvatarBorder(bips) {
     const avatar = document.getElementById("user-avatar");
-    avatar.className = "avatar"; // limpa classes anteriores
+    avatar.className = "avatar"; // limpa classes antigas
 
     if (bips >= 100) {
-        avatar.classList.add("level-4");
+        avatar.classList.add("borda-lendaria");
     } else if (bips >= 50) {
-        avatar.classList.add("level-3");
+        avatar.classList.add("borda-ouro");
     } else if (bips >= 20) {
-        avatar.classList.add("level-2");
+        avatar.classList.add("borda-prata");
+    } else if (bips >= 5) {
+        avatar.classList.add("borda-bronze");
     } else {
-        avatar.classList.add("level-1");
+        avatar.classList.add("borda-padrao");
     }
 }
 
