@@ -641,6 +641,27 @@
         .fact-of-day {
             text-align: center;
         }
+
+        /* Bordas que evoluem conforme os BIPs */
+.avatar.level-1 {
+  border: 3px solid gray; /* iniciante */
+}
+
+.avatar.level-2 {
+  border: 3px solid silver; /* intermediário */
+  box-shadow: 0 0 8px silver;
+}
+
+.avatar.level-3 {
+  border: 3px solid gold; /* avançado */
+  box-shadow: 0 0 12px gold;
+}
+
+.avatar.level-4 {
+  border: 3px solid linear-gradient(45deg, gold, red); /* lenda */
+  box-shadow: 0 0 16px orange, 0 0 32px gold;
+}
+
     </style>
 </head>
 <body>
@@ -932,6 +953,7 @@ function loadUserData() {
     
     // Atualiza os dados na seção "Início"
     userBipsHomeElement.textContent = usuarioLogado.moedas || 0;
+    updateAvatarBorder(usuarioLogado.moedas || 0);
 
     // Pega ranking global do backend para calcular posição do usuário
     fetchRanking().then(() => {
@@ -947,6 +969,22 @@ function loadUserData() {
         loadHomeRanking();
     });
 }
+
+function updateAvatarBorder(bips) {
+    const avatar = document.getElementById("user-avatar");
+    avatar.className = "avatar"; // limpa classes anteriores
+
+    if (bips >= 100) {
+        avatar.classList.add("level-4");
+    } else if (bips >= 50) {
+        avatar.classList.add("level-3");
+    } else if (bips >= 20) {
+        avatar.classList.add("level-2");
+    } else {
+        avatar.classList.add("level-1");
+    }
+}
+
 
 // 🔹 Top 3 global direto do backend
 async function loadHomeRanking() {
