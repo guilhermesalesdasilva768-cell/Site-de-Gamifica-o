@@ -729,8 +729,9 @@
 <body>
     <div class="container">
         <header>
-            <div class="profile">
-                <img id="user-avatar" class="avatar" alt="Avatar">
+           <div class="profile">
+  <div id="avatar-container" class="avatar">
+    <img id="user-avatar" alt="Avatar">
 <input type="file" id="avatar-upload" accept="image/*" style="display: none;">
                 <div class="profile-info">
                     <h2 id="username">Usuário</h2>
@@ -1033,22 +1034,21 @@ function loadUserData() {
 }
 
 function updateAvatarBorder(bips) {
-    const avatar = document.getElementById("user-avatar");
-    avatar.className = "avatar"; // limpa classes antigas
+    const avatarContainer = document.getElementById("avatar-container");
+    avatarContainer.className = "avatar"; // limpa classes antigas
 
     if (bips >= 100) {
-        avatar.classList.add("borda-lendaria");
+        avatarContainer.classList.add("borda-lendaria");
     } else if (bips >= 50) {
-        avatar.classList.add("borda-ouro");
+        avatarContainer.classList.add("borda-ouro");
     } else if (bips >= 20) {
-        avatar.classList.add("borda-prata");
+        avatarContainer.classList.add("borda-prata");
     } else if (bips >= 5) {
-        avatar.classList.add("borda-bronze");
+        avatarContainer.classList.add("borda-bronze");
     } else {
-        avatar.classList.add("borda-padrao");
+        avatarContainer.classList.add("borda-padrao");
     }
 }
-
 
 // 🔹 Top 3 global direto do backend
 async function loadHomeRanking() {
