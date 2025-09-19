@@ -41,17 +41,17 @@
         }
 
         header {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    padding: 20px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-    background-color: var(--card-header-bg);
-    color: var(--text-primary);
-    border-radius: 10px;
-    margin-bottom: 20px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-}
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            background-color: var(--card-header-bg);
+            color: var(--text-primary);
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
 
         .profile {
             display: flex;
@@ -88,32 +88,22 @@
             height: 16px;
         }
 
-  .nav-icons {
-  display: flex;
-  justify-content: space-around;
-  padding: 15px 0; /* só espaçamento, sem cor */
-}
+        .nav-icons {
+            display: flex;
+            gap: 20px;
+        }
 
-.nav-icon {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  color: white;
-  font-size: 14px;
-  cursor: pointer;
-  transition: color 0.3s;
-}
+        .nav-icon {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
 
-.nav-icon i {
-  width: 28px;   /* tamanho do ícone */
-  height: 28px;
-  margin-bottom: 5px;
-}
-
-.nav-icon:hover {
-  color: gold; /* muda cor ao passar o mouse */
-}
-
+        .nav-icon:hover {
+            transform: scale(1.1);
+        }
 
         .nav-icon img {
             width: 40px;
@@ -249,7 +239,7 @@
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
         }
 
-        .memory-game-container, .fire-game-container, .detroit-game-container {
+        .memory-game-container, .fire-game-container, .quiz-game-container {
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -257,7 +247,7 @@
             margin-bottom: 40px;
         }
 
-        .memory-game-icon, .fire-game-icon, .detroit-gamer-container {
+        .memory-game-icon, .fire-game-icon, .quiz-gamer-container {
             width: 120px;
             height: 120px;
             cursor: pointer;
@@ -265,7 +255,7 @@
             filter: drop-shadow(4px 4px 6px rgba(0, 0, 0, 0.3));
         }
 
-        .memory-game-icon:hover, .fire-game-icon:hover, .detroit-gamer-container {
+        .memory-game-icon:hover, .fire-game-icon:hover, .quiz-gamer-container {
             transform: scale(1.1);
             filter: drop-shadow(6px 6px 8px rgba(0, 0, 0, 0.4));
         }
@@ -303,91 +293,15 @@
             color: rgba(255, 255, 255, 0.7);
         }
 
-        /* === Responsividade Progressiva === */
-    /* Base - celulares pequenos */
-    body { font-size: 14px; }
-    .container { padding: 10px; }
-    header { flex-direction: column; gap: 10px; text-align: center; }
-    .avatar { width: 50px; height: 50px; }
-    .home-section h1 { font-size: 1.8rem; }
-
-    /* Tablets */
-    @media (min-width: 600px) {
-      body { font-size: 16px; }
-      header { flex-direction: row; padding: 15px; }
-      .container { padding: 15px; }
-      .home-section h1 { font-size: 2rem; }
-    }
-
-    /* Notebooks */
-    @media (min-width: 992px) {
-      body { font-size: 18px; }
-      .container { padding: 20px; }
-      .home-section h1 { font-size: 2.3rem; }
-    }
-
-    /* Telas grandes */
-    @media (min-width: 1200px) {
-      body { font-size: 20px; }
-      .container { max-width: 1400px; }
-      .home-section h1 { font-size: 2.5rem; }
-    }
-
         @media (max-width: 768px) {
-            body {
-                padding: 0 10px;
-            }
-
             header {
                 flex-direction: column;
-                gap: 15px;
-                padding: 10px;
-            }
-
-            .profile {
-                width: 100%;
-                justify-content: center;
-                text-align: center;
+                gap: 20px;
             }
 
             .nav-icons {
                 width: 100%;
                 justify-content: space-around;
-                gap: 10px;
-            }
-
-            .nav-icon img {
-                width: 35px;
-                height: 35px;
-            }
-
-            .nav-icon span {
-                font-size: 0.8rem;
-            }
-            
-            .home-content {
-                grid-template-columns: 1fr;
-                gap: 20px;
-            }
-
-            .ranking-table th, .ranking-table td,
-            .history-table th, .history-table td {
-                padding: 8px;
-                font-size: 0.85rem;
-            }
-            
-            .user-cell {
-                flex-direction: column;
-                align-items: center;
-                text-align: center;
-            }
-
-            .user-avatar {
-                margin-bottom: 5px;
-            }
-            
-            .learn-topic .topic-header {
-                font-size: 1.2rem;
             }
         }
 
@@ -464,10 +378,9 @@
         .learn-topic {
             width: 100%;
             max-width: 800px;
-            padding: 10px;
-            margin-bottom: 10px;
+            padding: 20px;
             background-color: var(--card-header-bg);
-            border-radius: 5px;
+            border-radius: 10px;
             cursor: pointer;
             transition: background-color 0.3s;
             display: flex;
@@ -641,96 +554,14 @@
         .fact-of-day {
             text-align: center;
         }
-
-        /* Bordas que evoluem conforme os BIPs */
-.avatar.level-1 {
-  border: 3px solid gray; /* iniciante */
-}
-
-.avatar.level-2 {
-  border: 3px solid silver; /* intermediário */
-  box-shadow: 0 0 8px silver;
-}
-
-.avatar.level-3 {
-  border: 3px solid gold; /* avançado */
-  box-shadow: 0 0 12px gold;
-}
-
-.avatar.level-4 {
-  border: 3px solid linear-gradient(45deg, gold, red); /* lenda */
-  box-shadow: 0 0 16px orange, 0 0 32px gold;
-}
-
-.avatar-container {
-  display: inline-block;
-  border-radius: 50%;
-  padding: 3px;
-}
-
-.borda-lendaria {
-  position: relative;
-}
-.borda-lendaria::before {
-  content: "";
-  position: absolute;
-  top: -6px; left: -6px; right: -6px; bottom: -6px;
-  border-radius: 50%;
-  background: conic-gradient(red, orange, gold, lime, cyan, violet, red);
-  animation: girarLendario 4s linear infinite;
-  z-index: -1;
-}
-@keyframes girarLendario {
-  100% { transform: rotate(360deg); }
-}
-.borda-ouro {
-  box-shadow: 0 0 18px gold, 0 0 35px orange;
-  animation: pulsarOuro 2s infinite;
-}
-@keyframes pulsarOuro {
-  0%, 100% { box-shadow: 0 0 15px gold, 0 0 30px orange; }
-  50% { box-shadow: 0 0 35px gold, 0 0 60px yellow; }
-}
-.borda-prata {
-  position: relative;
-}
-.borda-prata::before {
-  content: "";
-  position: absolute;
-  top: -4px; left: -4px; right: -4px; bottom: -4px;
-  border-radius: 50%;
-  background: conic-gradient(silver, white, silver);
-  animation: girarPrata 6s linear infinite;
-  z-index: -1;
-}
-@keyframes girarPrata {
-  100% { transform: rotate(360deg); }
-}
-.borda-bronze {
-  box-shadow: 0 0 12px peru, 0 0 25px sienna;
-  animation: pulsarBronze 3s infinite;
-}
-@keyframes pulsarBronze {
-  0%, 100% { box-shadow: 0 0 12px peru, 0 0 25px sienna; }
-  50% { box-shadow: 0 0 25px peru, 0 0 45px chocolate; }
-}
-.borda-padrao {
-  box-shadow: 0 0 10px gray;
-}
-
     </style>
 </head>
 <body>
     <div class="container">
-    <header>
-       <div class="profile-card">
-           <div class="profile-header">
-    <img id="user-avatar" class="avatar" alt="Avatar">
-    <div class="profile-info">
-    <h2 id="username">Usuário</h2>
-    <p id="user-bips-home">0 BIP</p>
-  </div>
-</div>
+        <header>
+            <div class="profile">
+                <img id="user-avatar" class="avatar" alt="Avatar">
+                 <input type="file" id="avatar-upload" accept="image/*" style="display:none;">
                 <div class="profile-info">
                     <h2 id="username">Usuário</h2>
                     <div class="xp-badge">
@@ -744,7 +575,7 @@
                 </div>
             </div>
 
-          <div class="nav-icons">
+                    <div class="nav-icons">
     <div class="nav-icon" onclick="showSection('home')">
         <i data-lucide="home"></i>
         <span>Início</span>
@@ -765,8 +596,7 @@
         <i data-lucide="trophy"></i>
         <span>Ranking</span>
     </div>
-</div>
-
+            </div>
         </header>
 
         <main class="main-content">
@@ -1241,37 +1071,52 @@ function getUserId() {
 }
 
 // 🔹 Início da página
-window.onload = async () => {
-    const id = getUserId();
+window.onload = function() {
+  const avatarUpload = document.getElementById("avatar-upload");
+  const userAvatarElement = document.getElementById("user-avatar");
 
-    if (id) {
-        usuarioLogado.id = id;                    // garante que temos o ID
-        await fetchUsuarioLogado(usuarioLogado.id);  // busca nome e avatar
-        await fetchAndUpdateUserData();              // busca moedas (BIPs)
-    }
+  // Ao clicar na imagem do avatar, abre o seletor de arquivos
+  userAvatarElement.addEventListener("click", function() {
+    avatarUpload.click();
+  });
 
-    showSection('home');
+  // Quando escolher uma imagem, faz upload
+  avatarUpload.addEventListener("change", async function(event) {
+    const file = event.target.files[0];
+    if (file && usuarioLogado.id) {
+      // Preview local imediato
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        userAvatarElement.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
 
-    // 👉 Upload de avatar (colocar aqui dentro)
-    const avatarUpload = document.getElementById("avatar-upload");
-    const userAvatarElement = document.getElementById("user-avatar");
+      // Envia para backend
+      const formData = new FormData();
+      formData.append('avatar', file);
+      formData.append('usuario_id', usuarioLogado.id);
 
-    // Quando o usuário clicar no avatar → abre o seletor
-    userAvatarElement.addEventListener("click", () => {
-        avatarUpload.click();
-    });
-
-    // Quando o usuário escolher uma imagem → mostra no avatar
-    avatarUpload.addEventListener("change", (event) => {
-        const file = event.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                userAvatarElement.src = e.target.result;
-            };
-            reader.readAsDataURL(file);
+      try {
+        const res = await fetch('https://meu-site4.onrender.com/api/upload-avatar', {
+          method: 'POST',
+          body: formData
+        });
+        const data = await res.json();
+        if (data.status === "sucesso" && data.avatarUrl) {
+          userAvatarElement.src = data.avatarUrl;
+          usuarioLogado.avatar = data.avatarUrl;
+          alert('Foto de perfil atualizada!');
+        } else {
+          alert('Erro ao enviar imagem: ' + (data.mensagem || 'Erro desconhecido'));
         }
-    });
+      } catch (err) {
+        alert('Erro ao fazer upload do avatar. Tente novamente.');
+        console.error(err);
+      }
+    } else {
+      alert("Selecione uma imagem e certifique-se que está logado.");
+    }
+  });
 };
 
 
