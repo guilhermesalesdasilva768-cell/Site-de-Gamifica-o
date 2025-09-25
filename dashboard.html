@@ -29,19 +29,23 @@
             display: flex;
         }
         /* --- SIDEBAR --- */
-        .sidebar {
-            width: 250px;
-            background: var(--sidebar-bg);
-            color: #fff;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            position: fixed;
-            left: 0;
-            top: 0;
-            z-index: 100;
-            box-shadow: 2px 0 12px rgba(0,0,0,0.07);
-        }
+       .sidebar {
+    width: 250px;
+    background: var(--sidebar-bg);
+    color: #fff;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 100;
+    box-shadow: 2px 0 12px rgba(0,0,0,0.07);
+
+    /* 🔹 Permite rolagem quando passar da tela */
+    overflow-y: auto;
+}
+
         .sidebar .logo {
     font-weight: bold;
     font-size: 2rem;
@@ -51,13 +55,37 @@
     background: linear-gradient(90deg, #181c2f 60%, #2563eb22 100%);
     border-bottom: 1px solid var(--border-color);
 }
-        .sidebar-nav {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-            margin-top: 40px;
-        }
+       .sidebar-nav {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 40px;
+    padding-bottom: 20px;
+}
+
+     .sidebar-nav {
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 40px;
+  overflow-y: scroll !important;
+  padding-bottom: 20px;
+  /* rolagem estilizada opcional */
+  scrollbar-width: thin;
+  scrollbar-color: #2563eb22 #181c2f;
+}
+.sidebar-nav::-webkit-scrollbar {
+  width: 8px;
+  background: #181c2f;
+}
+.sidebar-nav::-webkit-scrollbar-thumb {
+  background: #2563eb22;
+  border-radius: 7px;
+}
+.sidebar-nav {
+  scrollbar-width: thin;
+  scrollbar-color: #2563eb22 #181c2f;
+}
         .sidebar-nav .nav-icon {
             display: flex;
             align-items: center;
@@ -83,8 +111,32 @@
     padding: 0 32px 32px 32px;
     width: calc(100vw - 250px);
     height: 100vh;
-    overflow-y: scroll;
+    overflow-y: auto;
+    overflow-x: hidden;
     box-sizing: border-box;
+    scrollbar-width: thin;
+    scrollbar-color: var(--medal-gold) var(--card-bg);
+}
+
+/* Estilo personalizado da barra de rolagem para navegadores Webkit */
+.main-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.main-content::-webkit-scrollbar-track {
+    background: var(--card-bg);
+    border-radius: 4px;
+}
+
+.main-content::-webkit-scrollbar-thumb {
+    background: var(--medal-gold);
+    border-radius: 4px;
+    opacity: 0.7;
+}
+
+.main-content::-webkit-scrollbar-thumb:hover {
+    background: #ffce45;
+    opacity: 1;
 }
         .topbar {
             display: flex;
@@ -638,7 +690,7 @@
   border-radius: 18px;
   padding: 24px 28px;
   min-width: 270px;
-  box-shadow: 0 2px 12px #00000022;
+  box-shadow: 0 2px 12px #ede6e622;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -763,7 +815,7 @@
 
 /* --- card atividades sugeridas --- */
 .home-suggested-card {
-  background: #112233;
+  background: var(--card-header-bg);
   border-radius: 18px;
   padding: 26px 24px 22px 24px;
   box-shadow: 0 8px 16px rgba(0,0,0,0.2);
@@ -830,7 +882,7 @@
 /* --- Saiba Mais Section --- */
 
 .learn-dashboard {
-  background: #181f2c;
+  background: var(--card-header-bg);
   border-radius: 16px;
   padding: 24px;
   color: #fff;
@@ -978,7 +1030,7 @@
 
 /* --- Meu Perfil Section --- */
 .profile-section {
-  background: #181f2c;
+  background: var(--card-header-bg);
   border-radius: 16px;
   padding: 30px 18px 24px 18px;
   color: #e9f0ff;
@@ -1128,7 +1180,7 @@
 
 /* --- Loja de Recompensas Section --- */
 .loja-recompensas-section {
-  background: #181f2c;
+  background: var(--card-header-bg);
   border-radius: 16px;
   padding: 32px 24px 28px 24px;
   margin-bottom: 30px;
@@ -1935,6 +1987,7 @@
   }
 }
 
+
     </style>
 </head>
 <body>
@@ -1943,11 +1996,11 @@
 </button>
     <div class="sidebar">
        <div class="logo">
-  <img src="assets/resources/silver-medal.png" alt="Mascote Grow" style="height:38px;vertical-align:middle;">
+  <img src="assets/resources/growsemfundo.png" alt="Mascote Grow" style="height:38px;vertical-align:middle;">
   <span style="margin-left:0px;">Grow System</span>
 </div>
-<div class="sidebar-backdrop"></div>
         <nav class="sidebar-nav">
+  
             <div class="nav-icon active" onclick="showSection('home')">
                 <i data-lucide="home"></i>
                 <span>Inicio</span>
@@ -1984,10 +2037,9 @@
   <i data-lucide="settings"></i>
   <span>Gestão</span>
 </div>
-
-
         </nav>
     </div>
+    <div class="sidebar-backdrop"></div>
     <div class="main-content">
         <div class="topbar">
             <div class="topbar-user">
@@ -2646,16 +2698,31 @@ async function loadHomeRanking() {
 }
 
 function showSection(sectionId) {
+    // Oculta todas as sections
     const mainContentSections = document.querySelectorAll('.main-content > section');
     mainContentSections.forEach(section => {
         section.style.display = 'none';
     });
 
+    // Mostra apenas a section selecionada
     const sectionToShow = document.getElementById(`${sectionId}-section`);
     if (sectionToShow) {
         sectionToShow.style.display = 'block';
     }
 
+    // Atualiza o menu ativo
+    document.querySelectorAll('.sidebar-nav .nav-icon').forEach(nav => nav.classList.remove('active'));
+    document.querySelectorAll('.sidebar-nav .nav-icon').forEach(nav => {
+        const span = nav.querySelector('span');
+        if (
+            span &&
+            span.textContent.replace(/\s/g, '').toLowerCase() === sectionId.replace(/\s/g, '').toLowerCase()
+        ) {
+            nav.classList.add('active');
+        }
+    });
+
+    // Funções específicas
     if (sectionId === 'home') {
         loadUserData();
     } else if (sectionId === 'ranking') {
@@ -2889,6 +2956,518 @@ document.querySelectorAll('.sidebar-nav .nav-icon').forEach(function(el) {
     });
 });
 
+// === PERFIL PROFISSIONAL INTERATIVO ===
+// Requer que a section do perfil tenha id="profile-section"
+
+document.addEventListener('DOMContentLoaded', function () {
+  const profileSection = document.getElementById('profile-section');
+  if (!profileSection) return;
+
+  // ========== ELEMENTOS ==========
+  const editBtn = profileSection.querySelector('.profile-edit-btn');
+  const infoBlocks = profileSection.querySelectorAll('.profile-info-block');
+  const tagsBlocks = profileSection.querySelectorAll('.profile-card .profile-tags');
+  const interessesBlock = tagsBlocks[tagsBlocks.length - 1]; // Assume último bloco = interesses
+  const certList = profileSection.querySelector('.profile-cert-list');
+  const certUploadForm = profileSection.querySelector('.cert-upload-form');
+  const certInput = profileSection.querySelector('#cert-upload-input');
+
+  // ========== ESTADO ==========
+  let isEditing = false;
+
+  // ========== MODO EDIÇÃO ==========
+  editBtn.addEventListener('click', function () {
+    if (!isEditing) {
+      ativarEdicao();
+    } else {
+      salvarEdicao();
+    }
+  });
+
+  function ativarEdicao() {
+    isEditing = true;
+    editBtn.textContent = 'Salvar';
+    editBtn.classList.add('salvar');
+
+    // Torna campos editáveis
+    infoBlocks.forEach(block => {
+      const valueSpan = block.querySelector('.profile-value');
+      const valor = valueSpan.textContent;
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.value = valor;
+      input.className = 'profile-input-edit';
+      valueSpan.replaceWith(input);
+    });
+
+    // Permite adicionar/remover tags de competências
+    tagsBlocks.forEach(tags => {
+      // Adiciona botão de remover em cada tag
+      tags.querySelectorAll('.tag').forEach(tag => {
+        if (!tag.querySelector('.remove-tag')) {
+          const btn = document.createElement('span');
+          btn.textContent = ' ×';
+          btn.className = 'remove-tag';
+          btn.style.cursor = 'pointer';
+          btn.style.color = '#f87171';
+          btn.title = 'Remover';
+          btn.onclick = () => tag.remove();
+          tag.appendChild(btn);
+        }
+      });
+
+      // Campo para adicionar nova tag
+      if (!tags.querySelector('.add-tag-form')) {
+        const addForm = document.createElement('form');
+        addForm.className = 'add-tag-form';
+        addForm.style.display = 'inline';
+        addForm.innerHTML = `
+          <input type="text" placeholder="Nova tag" class="tag-input" maxlength="25" style="margin-left:8px;padding:2px 6px;border-radius:7px;border:none;font-size:0.99rem;">
+          <button type="submit" style="margin-left:4px;padding:2px 12px;border-radius:7px;background:#38cfa1;color:#181f2c;font-weight:bold;border:none;cursor:pointer;">Adicionar</button>
+        `;
+        addForm.onsubmit = (e) => {
+          e.preventDefault();
+          const val = addForm.querySelector('.tag-input').value.trim();
+          if (val) {
+            const nTag = document.createElement('span');
+            nTag.className = 'tag';
+            nTag.textContent = val;
+            tags.appendChild(nTag);
+            addForm.querySelector('.tag-input').value = '';
+            // Adiciona botão de remover
+            const btn = document.createElement('span');
+            btn.textContent = ' ×';
+            btn.className = 'remove-tag';
+            btn.style.cursor = 'pointer';
+            btn.style.color = '#f87171';
+            btn.title = 'Remover';
+            btn.onclick = () => nTag.remove();
+            nTag.appendChild(btn);
+          }
+        };
+        tags.appendChild(addForm);
+      }
+    });
+
+    // Permite upload de certificado, altera botões
+    certList.querySelectorAll('.cert-upload-btn').forEach(btn => {
+      btn.disabled = false;
+      btn.onclick = (e) => {
+        e.preventDefault();
+        certInput.click();
+        // Salva referência para saber qual certificado está sendo atualizado
+        certInput.dataset.certIndex = Array.from(certList.children).indexOf(btn.parentElement);
+      };
+    });
+    certInput.disabled = false;
+
+    // Adiciona botão cancelar
+    if (!profileSection.querySelector('.profile-cancel-btn')) {
+      const cancelBtn = document.createElement('button');
+      cancelBtn.textContent = 'Cancelar';
+      cancelBtn.className = 'profile-cancel-btn';
+      cancelBtn.style.marginLeft = '18px';
+      cancelBtn.style.background = '#b51414';
+      cancelBtn.style.color = '#fff';
+      cancelBtn.style.borderRadius = '10px';
+      cancelBtn.style.padding = '10px 24px';
+      cancelBtn.style.fontSize = '1.09rem';
+      cancelBtn.onclick = cancelarEdicao;
+      editBtn.parentElement.appendChild(cancelBtn);
+    }
+  }
+
+  function salvarEdicao() {
+    // Salva campos editáveis
+    infoBlocks.forEach(block => {
+      const input = block.querySelector('input.profile-input-edit');
+      if (input) {
+        const span = document.createElement('span');
+        span.className = 'profile-value';
+        span.textContent = input.value || '---';
+        input.replaceWith(span);
+      }
+    });
+
+    // Remove botões de remover/adicionar tags
+    tagsBlocks.forEach(tags => {
+      tags.querySelectorAll('.remove-tag').forEach(btn => btn.remove());
+      tags.querySelectorAll('.add-tag-form').forEach(form => form.remove());
+    });
+
+    // Desabilita upload dos certificados
+    certList.querySelectorAll('.cert-upload-btn').forEach(btn => {
+      btn.disabled = true;
+      btn.onclick = null;
+    });
+    certInput.disabled = true;
+
+    // Remove botão cancelar
+    const cancelBtn = profileSection.querySelector('.profile-cancel-btn');
+    if (cancelBtn) cancelBtn.remove();
+
+    editBtn.textContent = 'Editar';
+    editBtn.classList.remove('salvar');
+    isEditing = false;
+  }
+
+  function cancelarEdicao() {
+    // Apenas recarrega a página (ou você pode restaurar os valores antigos se preferir)
+    window.location.reload();
+  }
+
+  // ========== UPLOAD DE CERTIFICADO ==========
+  certUploadForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (!isEditing) return;
+    certInput.click();
+  });
+
+  certInput.addEventListener('change', function (e) {
+    if (!isEditing) return;
+    const file = e.target.files[0];
+    if (file) {
+      // Aqui você faria o upload para o backend.
+      // Vou apenas simular que fez upload e dar feedback.
+      const idx = certInput.dataset.certIndex || 0;
+      const certItem = certList.children[idx];
+      if (certItem) {
+        certItem.querySelector('span').textContent += ' (PDF enviado)';
+        certItem.querySelector('.cert-upload-btn').textContent = 'Enviado';
+        certItem.querySelector('.cert-upload-btn').disabled = true;
+      }
+      certInput.value = '';
+      alert('Arquivo enviado! (simulação)');
+    }
+  });
+
+  // Por padrão, desabilita upload dos certificados
+  certList.querySelectorAll('.cert-upload-btn').forEach(btn => btn.disabled = true);
+  certInput.disabled = true;
+});
+
+// === JS para o Section "Games & Aprendizado" (Saiba Mais) ===
+// Recursos: filtro dinâmico dos cards por categoria e status
+
+document.addEventListener('DOMContentLoaded', function () {
+  const learnSection = document.getElementById('learn-section');
+  if (!learnSection) return;
+
+  // Elementos dos filtros
+  const [categoriaSelect, statusSelect] = learnSection.querySelectorAll('.learn-filters select');
+  const cardsGrid = learnSection.querySelector('.learn-cards-grid');
+  const cards = Array.from(cardsGrid.querySelectorAll('.learn-card'));
+
+  // --- Filtro Dinâmico ---
+  categoriaSelect.addEventListener('change', filtrarCards);
+  statusSelect.addEventListener('change', filtrarCards);
+
+  function filtrarCards() {
+    const categoriaFiltro = categoriaSelect.value;
+    const statusFiltro = statusSelect.value;
+
+    cards.forEach(card => {
+      let mostrar = true;
+
+      // Categoria (classe tipo: categoria-seguranca, categoria-inclusao, etc)
+      if (categoriaFiltro !== 'Todas categorias') {
+        mostrar = card.classList.contains('categoria-' + categoriaFiltro.toLowerCase());
+      }
+      // Status (Novo, Em andamento, Concluído)
+      if (mostrar && statusFiltro !== 'Todos') {
+        const statusDiv = card.querySelector('.card-status');
+        if (!statusDiv) mostrar = false;
+        else {
+          let statusTxt = statusDiv.classList.contains('novo') ? 'Novo'
+                        : statusDiv.classList.contains('andamento') ? 'Em andamento'
+                        : statusDiv.classList.contains('concluido') ? 'Concluído'
+                        : '';
+          mostrar = (statusFiltro === statusTxt);
+        }
+      }
+
+      card.style.display = mostrar ? '' : 'none';
+    });
+  }
+
+  // --- Trilha de Progresso: exibe alerta sobre o tema ao clicar ---
+  learnSection.querySelectorAll('.trail-btn').forEach(btn => {
+    btn.addEventListener('click', function () {
+      const tema = btn.parentElement.querySelector('.trail-title').textContent.replace('Progresso ', '');
+      alert('Aqui você pode ver mais sobre a trilha de: ' + tema + ' (funcionalidade futura)');
+    });
+  });
+
+  // --- Cards "Jogar": para os cards sem link direto, exibe alerta ---
+  cards.forEach(card => {
+    const jogarBtn = card.querySelector('.card-action');
+    if (jogarBtn && !jogarBtn.hasAttribute('onclick')) {
+      jogarBtn.addEventListener('click', function () {
+        alert('Em breve este jogo estará disponível!');
+      });
+    }
+  });
+});
+
+// === JS para Quizzes Section ===
+// Front-end dinâmico: catálogo, editor e publicação (modo local/memória)
+
+document.addEventListener('DOMContentLoaded', function () {
+  const quizzesSection = document.getElementById('quizzes-section');
+  if (!quizzesSection) return;
+
+  // Estado local de quizzes
+  let quizzes = [{
+    title: "Sem título",
+    category: "Segurança",
+    questions: [],
+    published: false
+  }];
+  let editingQuizIdx = 0;
+  let editorStep = 1; // 1: Detalhes, 2: Perguntas, 3: Revisão
+
+  // === Elementos ===
+  const btnNovoQuiz = quizzesSection.querySelector('.quiz-btn-green');
+  const btnExportar = quizzesSection.querySelector('.quizzes-header-actions .quiz-btn:not(.quiz-btn-green)');
+  const catalog = quizzesSection.querySelector('.quiz-catalog');
+  const editor = quizzesSection.querySelector('.quiz-editor');
+  const quizTitleInput = editor.querySelector('#quiz-title');
+  const quizCategorySelect = editor.querySelector('#quiz-category');
+  const perguntasDiv = editor.querySelector('.quiz-editor-perguntas');
+  const perguntasTitle = perguntasDiv.querySelector('.quiz-editor-perguntas-title');
+  const perguntasActions = perguntasDiv.querySelectorAll('button');
+  const btnAddPergunta = perguntasActions[0];
+  const btnIrRevisao = perguntasActions[1];
+  const reviewList = editor.querySelector('.quiz-review-list');
+  const btnSalvarRascunho = editor.querySelector('.quiz-editor-actions .quiz-btn:not(.quiz-btn-green)');
+  const btnPublicar = editor.querySelector('.quiz-editor-actions .quiz-btn.quiz-btn-green');
+  const publishedList = quizzesSection.querySelector('.quizzes-published-list');
+  const publishedSearch = quizzesSection.querySelector('.quizzes-published-actions input');
+
+  // === Renderização ===
+  function renderCatalog() {
+    catalog.querySelectorAll('.quiz-catalog-card').forEach(c => c.remove());
+    quizzes.forEach((q, idx) => {
+      if (!q.published) {
+        const card = document.createElement('div');
+        card.className = 'quiz-catalog-card';
+        card.innerHTML = `
+          <div>
+            <div class="quiz-catalog-card-title">${q.title || '(Sem título)'}</div>
+            <div class="quiz-catalog-card-sub">${q.category} • ${q.questions.length} perg.</div>
+          </div>
+          <div class="quiz-catalog-card-actions">
+            <button class="quiz-btn quiz-btn-small" data-edit="${idx}">Editar</button>
+            <button class="quiz-btn quiz-btn-small quiz-btn-danger" data-del="${idx}">Excluir</button>
+          </div>
+        `;
+        card.querySelector('[data-edit]').onclick = () => editarQuiz(idx);
+        card.querySelector('[data-del]').onclick = () => excluirQuiz(idx);
+        catalog.appendChild(card);
+      }
+    });
+  }
+
+  function renderEditor() {
+    const quiz = quizzes[editingQuizIdx];
+    quizTitleInput.value = quiz.title;
+    quizCategorySelect.value = quiz.category;
+    // Render perguntas (simples)
+    let perguntasHtml = '';
+    quiz.questions.forEach((p, i) => {
+      perguntasHtml += `<div style="margin-bottom:8px;">
+        <b>P${i+1}:</b> ${p.text} (${p.options.length} alternativas)
+        <button class="quiz-btn quiz-btn-mini" data-del-pergunta="${i}" style="margin-left:8px;">Remover</button>
+      </div>`;
+    });
+    perguntasTitle.innerHTML = `Perguntas (${quiz.questions.length})`;
+    if (perguntasDiv.querySelector('.perguntas-lista')) perguntasDiv.querySelector('.perguntas-lista').remove();
+    const lista = document.createElement('div');
+    lista.className = 'perguntas-lista';
+    lista.innerHTML = perguntasHtml || '<span style="color:#b3b9c5;">Nenhuma pergunta adicionada.</span>';
+    perguntasDiv.insertBefore(lista, perguntasDiv.children[1]);
+    // Remover perguntas
+    lista.querySelectorAll('[data-del-pergunta]').forEach(btn => {
+      btn.onclick = () => {
+        quiz.questions.splice(Number(btn.dataset.delPergunta), 1);
+        renderEditor();  
+      };
+    });
+
+    // Review feedback
+    const checks = [
+      quiz.title && quiz.title.length > 4,
+      quiz.category,
+      quiz.questions.length > 0,
+      quiz.questions.every(q => q.options.length >= 2),
+      quiz.questions.every(q => typeof q.correct === "number")
+    ];
+    reviewList.innerHTML = `
+      <li class="${checks[0] ? "quiz-review-ok" : "quiz-review-alert"}">${checks[0] ? "✅" : "⚠️"} Tem um título claro</li>
+      <li class="${checks[1] ? "quiz-review-ok" : "quiz-review-alert"}">${checks[1] ? "✅" : "⚠️"} Categoria selecionada</li>
+      <li class="${checks[2] ? "quiz-review-ok" : "quiz-review-alert"}">${checks[2] ? "✅" : "⚠️"} Possui ao menos 1 pergunta</li>
+      <li class="${checks[3] ? "quiz-review-ok" : "quiz-review-alert"}">${checks[3] ? "✅" : "⚠️"} Cada pergunta tem 2+ alternativas</li>
+      <li class="${checks[4] ? "quiz-review-ok" : "quiz-review-alert"}">${checks[4] ? "✅" : "⚠️"} Cada pergunta tem 1 resposta correta</li>
+    `;
+  }
+
+  function renderPublished() {
+    publishedList.innerHTML = '';
+    const buscado = publishedSearch.value?.toLowerCase() || '';
+    const pubs = quizzes.filter(q => q.published && (!buscado || q.title.toLowerCase().includes(buscado)));
+    if (pubs.length === 0) {
+      publishedList.innerHTML = `<span class="quizzes-published-empty">Nenhum quiz publicado</span>`;
+      return;
+    }
+    pubs.forEach(q => {
+      const div = document.createElement('div');
+      div.className = "quiz-published-item";
+      div.style.marginBottom = '8px';
+      div.innerHTML = `<b>${q.title}</b> <span style="color:#67cdf7;">(${q.category})</span> - ${q.questions.length} perguntas`;
+      publishedList.appendChild(div);
+    });
+  }
+
+  // === Ações do Editor ===
+  quizTitleInput.oninput = () => {
+    quizzes[editingQuizIdx].title = quizTitleInput.value;
+    renderCatalog();
+    renderEditor();
+  };
+  quizCategorySelect.onchange = () => {
+    quizzes[editingQuizIdx].category = quizCategorySelect.value;
+    renderCatalog();
+    renderEditor();
+  };
+
+  btnAddPergunta.onclick = () => {
+    // Simples: prompt para pergunta e alternativas
+    const texto = prompt("Digite a pergunta:");
+    if (!texto) return;
+    const op1 = prompt("Alternativa 1:");
+    const op2 = prompt("Alternativa 2:");
+    if (!op1 || !op2) { alert('Precisa de pelo menos 2 alternativas!'); return; }
+    const op3 = prompt("Alternativa 3 (opcional):");
+    const alternativas = [op1, op2];
+    if (op3) alternativas.push(op3);
+    const correta = prompt("Número da alternativa correta (1, 2 ou 3):");
+    let corretaIdx = Number(correta) - 1;
+    if (isNaN(corretaIdx) || corretaIdx < 0 || corretaIdx >= alternativas.length) {
+      alert('Informe o número da alternativa correta!');
+      return;
+    }
+    quizzes[editingQuizIdx].questions.push({
+      text: texto,
+      options: alternativas,
+      correct: corretaIdx
+    });
+    renderEditor();
+  };
+
+  btnIrRevisao.onclick = () => {
+    editorStep = 3;
+    alert("Modo revisão ativado! (Simulação, não bloqueia campos)");
+  };
+
+  btnSalvarRascunho.onclick = () => {
+    alert("Rascunho salvo localmente!");
+    renderCatalog();
+    renderPublished();
+  };
+
+  btnPublicar.onclick = () => {
+    quizzes[editingQuizIdx].published = true;
+    alert("Quiz publicado!");
+    renderCatalog();
+    renderPublished();
+  };
+
+  // === Novo Quiz ===
+  btnNovoQuiz.onclick = () => {
+    quizzes.push({
+      title: "Novo Quiz",
+      category: "Segurança",
+      questions: [],
+      published: false
+    });
+    editingQuizIdx = quizzes.length - 1;
+    renderCatalog();
+    renderEditor();
+  };
+
+  // === Exportar (simples) ===
+  btnExportar.onclick = () => {
+    const txt = JSON.stringify(quizzes, null, 2);
+    const blob = new Blob([txt], {type: "application/json"});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = "quizzes.json";
+    a.click();
+  };
+
+  // === Editar/Excluir Quiz ===
+  function editarQuiz(idx) {
+    editingQuizIdx = idx;
+    renderEditor();
+  }
+  function excluirQuiz(idx) {
+    if (confirm("Excluir este quiz?")) {
+      quizzes.splice(idx, 1);
+      editingQuizIdx = 0;
+      renderCatalog();
+      renderEditor();
+      renderPublished();
+    }
+  }
+
+  // === Busca em quizzes publicados ===
+  publishedSearch.oninput = renderPublished;
+
+  // === Inicialização ===
+  renderCatalog();
+  renderEditor();
+  renderPublished();
+});
+
+// === JS para a Loja de Recompensas ===
+// Troca de abas (Vouchers, Benefícios, Produtos) e ação do botão "Resgatar"
+
+document.addEventListener('DOMContentLoaded', function () {
+  const storeSection = document.getElementById('store-section');
+  if (!storeSection) return;
+
+  // Abas da loja
+  const tabBtns = storeSection.querySelectorAll('.loja-tab-btn');
+  const tabContents = storeSection.querySelectorAll('.loja-tab-content');
+
+  tabBtns.forEach(btn => {
+    btn.addEventListener('click', function () {
+      // Ativa só o botão clicado
+      tabBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      // Mostra só a tab clicada
+      tabContents.forEach(tc => tc.style.display = 'none');
+      const tab = btn.getAttribute('data-tab');
+      const showTab = storeSection.querySelector(`#loja-tab-${tab}`);
+      if (showTab) showTab.style.display = 'flex';
+    });
+  });
+
+  // Ação dos botões "Resgatar"
+  storeSection.querySelectorAll('.loja-card-btn').forEach(btn => {
+    btn.addEventListener('click', function () {
+      const card = btn.closest('.loja-card');
+      const nome = card.querySelector('.loja-card-title').textContent;
+      const pontos = card.querySelector('.loja-card-points').textContent;
+      // Aqui você pode integrar com backend para debitar pontos e registrar resgate
+      alert(`Você solicitou o resgate de: ${nome} (${pontos})\n\nFuncionalidade de resgate pode ser integrada ao backend!`);
+    });
+  });
+
+  // Exibe a primeira aba como padrão ao carregar
+  tabBtns[0].click();
+});
 
     </script>
     <!-- Biblioteca de ícones Lucide -->
