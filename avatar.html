@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Mascote que evolui</title>
+  <style>
+    .avatar-container {
+      text-align: center;
+      margin-top: 50px;
+    }
+    .avatar-img {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      border: 4px solid #ccc;
+      transition: all 0.5s ease;
+    }
+    .level-label {
+      margin-top: 10px;
+      font-size: 1.2em;
+      font-weight: bold;
+    }
+
+    /* Estilos por nível */
+
+    .level-1 .avatar-img {
+      border-color: #aaa;
+      box-shadow: none;
+    }
+
+    .level-2 .avatar-img {
+      border-color: #ffd700; /* dourado */
+      box-shadow: 0 0 10px rgba(255, 215, 0, 0.7);
+    }
+
+    .level-3 .avatar-img {
+      border-color: #ff8c00; /* laranja/bronze ou algo chamativo */
+      box-shadow: 0 0 15px rgba(255, 140, 0, 0.8);
+      transform: scale(1.1);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="avatar-container" id="avatarBox">
+    <img id="avatar" class="avatar-img" src="avatar1.png" alt="Avatar Nível 1">
+    <div class="level-label" id="levelLabel">Nível 1</div>
+  </div>
+
+  <script>
+    // Simulação de pontos, mas você pega do backend ou localStorage
+    let pontos = 0;
+
+    // Função para atualizar avatar baseado nos pontos
+    function atualizarAvatar() {
+      const avatarBox = document.getElementById('avatarBox');
+      const avatar = document.getElementById('avatar');
+      const label = document.getElementById('levelLabel');
+
+      if (pontos >= 100) {
+        avatar.src = 'avatar3.png';   // imagem de nível 3
+        label.textContent = 'Nível 3';
+        avatarBox.className = 'avatar-container level-3';
+      }
+      else if (pontos >= 50) {
+        avatar.src = 'avatar2.png';   // imagem de nível 2
+        label.textContent = 'Nível 2';
+        avatarBox.className = 'avatar-container level-2';
+      }
+      else {
+        avatar.src = 'avatar1.png';   // nível 1 inicial
+        label.textContent = 'Nível 1';
+        avatarBox.className = 'avatar-container level-1';
+      }
+    }
+
+    // Simular ganhar pontos
+    // Aqui só pra testar
+    function ganharPontos(qtd) {
+      pontos += qtd;
+      console.log('Pontos agora:', pontos);
+      atualizarAvatar();
+    }
+
+    // Teste: ganhar pontos de pouco em pouco
+    setTimeout(() => ganharPontos(30), 1000);  // após 1s ganha 30 pontos
+    setTimeout(() => ganharPontos(30), 4000);  // após mais 3s ganha mais 30 (total 60)
+    setTimeout(() => ganharPontos(50), 8000);  // mais 5s, total 110 pontos
+  </script>
+
+</body>
+</html>

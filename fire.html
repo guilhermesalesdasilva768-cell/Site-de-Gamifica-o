@@ -275,16 +275,16 @@
     
     <p class="question-text">Para a situação da imagem abaixo, qual seria o extintor ideal?</p>
 
-    <div class="fire-zone-wrapper" ondrop="drop(event)" ondragover="allowDrop(event)">
-        <div id="fire"></div>
-    </div>
+  <div class="fire-zone-wrapper" ondrop="drop(event)" ondragover="allowDrop(event)" ontouchmove="touchMove(event)" ontouchend="touchEnd(event)">
+    <div id="fire"></div>
+</div>
 
     <div class="extintores-container">
-        <img src="assets/Fire/Extintor A.jpeg" alt="Extintor A" class="extintor" draggable="true" ondragstart="drag(event)" data-tipo="A">
-        <img src="assets/Fire/Extintor B.jpeg" alt="Extintor B" class="extintor" draggable="true" ondragstart="drag(event)" data-tipo="B">
-        <img src="assets/Fire/Extintor C.jpeg" alt="Extintor C" class="extintor" draggable="true" ondragstart="drag(event)" data-tipo="C">
-        <img src="assets/Fire/Extintor D.jpeg" alt="Extintor D" class="extintor" draggable="true" ondragstart="drag(event)" data-tipo="D">
-        <img src="assets/Fire/Extintor K.jpeg" alt="Extintor K" class="extintor" draggable="true" ondragstart="drag(event)" data-tipo="K">
+       <img src="assets/Fire/Extintor A.jpeg" alt="Extintor A" class="extintor" draggable="true" ondragstart="drag(event)" data-tipo="A" ontouchstart="touchStart(event)">
+       <img src="assets/Fire/Extintor B.jpeg" alt="Extintor B" class="extintor" draggable="true" ondragstart="drag(event)" data-tipo="B" ontouchstart="touchStart(event)">
+       <img src="assets/Fire/Extintor C.jpeg" alt="Extintor C" class="extintor" draggable="true" ondragstart="drag(event)" data-tipo="C" ontouchstart="touchStart(event)">
+       <img src="assets/Fire/Extintor D.jpeg" alt="Extintor D" class="extintor" draggable="true" ondragstart="drag(event)" data-tipo="D" ontouchstart="touchStart(event)">
+       <img src="assets/Fire/Extintor K.jpeg" alt="Extintor K" class="extintor" draggable="true" ondragstart="drag(event)" data-tipo="K" ontouchstart="touchStart(event)">
     </div>
 </div>
 
@@ -468,6 +468,128 @@
             extintor.style.transform = 'translate(0, 0)';
         });
     }
+    // Variável global para armazenar o extintor que está sendo arrastado
+let currentDragElement = null;
+
+function touchStart(event) {
+    event.preventDefault(); // Impede o comportamento padrão de toque (como zoom)
+    currentDragElement = event.target;
+    // Armazena a posição inicial do toque para referência
+    const touch = event.touches[0];
+    currentDragElement.initialX = touch.clientX;
+    currentDragElement.initialY = touch.clientY;
+}
+
+function touchMove(event) {
+    event.preventDefault();
+    if (currentDragElement) {
+        const touch = event.touches[0];
+        // Move o extintor seguindo o dedo do usuário
+        currentDragElement.style.position = 'absolute';
+        currentDragElement.style.left = (touch.clientX - currentDragElement.initialX) + 'px';
+        currentDragElement.style.top = (touch.clientY - currentDragElement.initialY) + 'px';
+    }
+}
+
+function touchEnd(event) {
+    if (!currentDragElement) return;
+
+    const fireZone = document.querySelector('.fire-zone-wrapper');
+    const extintor = currentDragElement;
+    
+    // Pega as coordenadas de onde o dedo foi solto
+    const touch = event.changedTouches[0];
+    
+    // Checa se o extintor foi solto dentro da área do incêndio
+    const isOverFireZone = isInside(touch.clientX, touch.clientY, fireZone);
+
+    if (isOverFireZone) {
+        // Simula o evento 'drop'
+        const tipoExtintor = extintor.getAttribute('data-tipo');
+        let correto = fasesEmbaralhadas[fase - 1].correto;
+
+        if (tipoExtintor === correto) {
+            moedas += 4;
+            mostrarInfo(tipoExtintor);
+        } else {
+            tentativas--;
+            alert("❌ Extintor errado! Tente novamente.");
+            if (tentativas <= 0) {
+                mostrarGameOver();
+            }
+            // Retorna o extintor para a posição original após a tentativa
+            extintor.style.position = '';
+            extintor.style.left = '';
+            extintor.style.top = '';
+        }
+        atualizarTela();
+    }
+    
+    // Limpa a variável para que a função não seja chamada novamente
+    currentDragElement = null;
+}
+
+// Função auxiliar para verificar se a coordenada está dentro de um elemento
+function isInside(x, y, element) {
+    const rect = element.getBoundingClientRect();
+    return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
+}
+// 🔹 Suporte a toque no celular
+document.querySelectorAll('.extintor').forEach(extintor => {
+    extintor.addEventListener('touchstart', (ev) => {
+        ev.preventDefault();
+        extintor.dataset.touching = "true";
+    });
+
+    extintor.addEventListener('touchmove', (ev) => {
+        if (extintor.dataset.touching !== "true") return;
+
+        const touch = ev.touches[0];
+        extintor.style.position = "absolute";
+        extintor.style.left = (touch.pageX - extintor.offsetWidth / 2) + "px";
+        extintor.style.top = (touch.pageY - extintor.offsetHeight / 2) + "px";
+        extintor.style.zIndex = "1000";
+    });
+
+    extintor.addEventListener('touchend', (ev) => {
+        extintor.dataset.touching = "false";
+
+        const fireZone = document.querySelector('.fire-zone-wrapper');
+        const fireRect = fireZone.getBoundingClientRect();
+        const extRect = extintor.getBoundingClientRect();
+
+        // Verifica se o extintor foi solto dentro da área do fogo
+        if (
+            extRect.left < fireRect.right &&
+            extRect.right > fireRect.left &&
+            extRect.top < fireRect.bottom &&
+            extRect.bottom > fireRect.top
+        ) {
+            // Simula um drop bem-sucedido
+            let tipo = extintor.getAttribute("data-tipo");
+            let correto = fasesEmbaralhadas[fase - 1].correto;
+
+            if (tipo === correto) {
+                moedas += 4;
+                mostrarInfo(tipo);
+            } else {
+                tentativas--;
+                alert("❌ Extintor errado! Tente novamente.");
+                if (tentativas <= 0) {
+                    mostrarGameOver();
+                }
+                atualizarTela();
+            }
+        }
+
+        // Resetar posição visual do extintor
+        extintor.style.position = "";
+        extintor.style.left = "";
+        extintor.style.top = "";
+        extintor.style.zIndex = "";
+    });
+});
+
 </script>
 </body>
 </html>

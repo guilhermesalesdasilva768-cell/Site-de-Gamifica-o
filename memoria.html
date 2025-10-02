@@ -10,8 +10,20 @@
             background: linear-gradient(to bottom right, #fdfbfb, #ebedee);
             text-align: center;
             padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            
+            /* CSS para desabilitar seleção de texto */
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
         }
-        h1 { color: #444; }
+        h1 {
+            color: #444;
+            margin-bottom: 20px;
+        }
         #startButton {
             padding: 10px 20px;
             font-size: 1rem;
@@ -20,30 +32,50 @@
             color: white;
             border: none;
             border-radius: 5px;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
         #startButton:hover {
             background-color: #0056b3;
         }
         #game-board {
-            display: grid;
-            grid-template-columns: repeat(4, 100px);
-            gap: 10px;
-            justify-content: center;
-            margin-top: 20px;
-        }
-        .card {
-            width: 100px;
-            height: 100px;
-            background: #ddd;
-            border-radius: 10px;
-            font-size: 2rem;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
+    gap: 10px;
+    justify-content: center;
+    margin: 20px auto;
+    max-width: 420px; /* evita que fique muito largo em telas grandes */
+}
+
+.card {
+    aspect-ratio: 1 / 1; /* mantém formato quadrado */
+    background: #ddd;
+    border-radius: 10px;
+    font-size: 2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+@media (max-width: 600px) {
+    #game-board {
+        grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+        max-width: 95vw;
+    }
+    .card {
+        font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 400px) {
+    #game-board {
+        grid-template-columns: repeat(auto-fit, minmax(50px, 1fr));
+    }
+    .card {
+        font-size: 1.2rem;
+    }
+}
         .matched {
             background: #9be7a7;
             pointer-events: none;
@@ -56,23 +88,42 @@
             margin-top: 15px;
             font-size: 1rem;
         }
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
     </style>
 </head>
 <body>
     <h1>🧠 Jogo da Memória</h1>
-    <button id="startButton">Começar</button>
-    <p>Complete o jogo para ganhar <strong>10 BIPs!</strong></p>
-    <div id="game-board"></div>
-    <div id="mensagem"></div>
-    <div id="info"></div>
-
+    <div class="container">
+        <p>Complete o jogo para ganhar <strong>10 BIPs!</strong></p>
+        <button id="startButton">Começar</button>
+        <div id="game-board"></div>
+        <div id="mensagem"></div>
+        <div id="info"></div>
+    </div>
     <script>
+        // Bloqueia o clique direito
+        document.addEventListener('contextmenu', function(event) {
+            event.preventDefault();
+            alert('Função de inspeção desabilitada!');
+        });
+
+        // Bloqueia combinações de teclas para captura de tela
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'PrintScreen' || event.keyCode === 44 || 
+                (event.ctrlKey && event.key === 'p') || (event.metaKey && event.key === 's')) {
+                event.preventDefault();
+                alert('Captura de tela desabilitada!');
+            }
+        });
+
         let usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado')) || { nome: "Usuário", avatar: "", bip: 0 };
         let rankingData = JSON.parse(localStorage.getItem('rankingData')) || [];
-
         const emojis = ['🍎', '🍌', '🍇', '🍉', '🍊', '🥝', '🍓', '🍍'];
         let cards = [...emojis, ...emojis].sort(() => 0.5 - Math.random());
-
         const board = document.getElementById('game-board');
         let firstCard = null;
         let secondCard = null;
@@ -80,15 +131,14 @@
         let matches = 0;
         let errors = 0;
         const maxErrors = 3;
-
         const mensagemDiv = document.getElementById('mensagem');
         const infoDiv = document.getElementById('info');
         const startButton = document.getElementById('startButton');
-
+        
         function displayInfo() {
             infoDiv.textContent = `Erros: ${errors} / ${maxErrors}`;
         }
-
+        
         function initGame() {
             cards = [...emojis, ...emojis].sort(() => 0.5 - Math.random());
             board.innerHTML = '';
@@ -99,7 +149,7 @@
             errors = 0;
             mensagemDiv.textContent = '';
             displayInfo();
-
+            
             cards.forEach((emoji, i) => {
                 const div = document.createElement('div');
                 div.classList.add('card');
@@ -107,36 +157,35 @@
                 div.dataset.index = i;
                 div.addEventListener('click', () => flipCard(div));
                 board.appendChild(div);
-
-                // Revela temporariamente
+                
                 setTimeout(() => {
                     div.textContent = emoji;
-                }, 100); // Pequeno delay para não ser instantâneo
-
+                }, 100);
+                
                 setTimeout(() => {
-                    div.textContent = ''; // Vira a carta novamente
-                }, 2000); // Tempo de revelação (ajuste conforme necessário)
+                    div.textContent = '';
+                }, 2000);
             });
-
-            // Desabilita o botão de começar após o início do jogo
+            
             startButton.disabled = true;
         }
-
+        
         function flipCard(card) {
             if (lock || card === firstCard || card.textContent || card.classList.contains('matched') || errors >= maxErrors || !startButton.disabled) return;
-
             card.textContent = card.dataset.emoji;
-
+            
             if (!firstCard) {
                 firstCard = card;
             } else {
                 secondCard = card;
                 lock = true;
+                
                 if (firstCard.dataset.emoji === secondCard.dataset.emoji) {
                     firstCard.classList.add('matched');
                     secondCard.classList.add('matched');
                     matches++;
                     resetCards();
+                    
                     if (matches === emojis.length) {
                         setTimeout(win, 500);
                     } else {
@@ -149,6 +198,7 @@
                         errors++;
                         displayInfo();
                         resetCards();
+                        
                         if (errors >= maxErrors) {
                             setTimeout(lose, 500);
                         }
@@ -156,35 +206,33 @@
                 }
             }
         }
-
+        
         function resetCards() {
             firstCard = null;
             secondCard = null;
             lock = false;
         }
-
+        
         function win() {
             mensagemDiv.textContent = "🎉 Parabéns! Você ganhou 10 BIPs!";
             usuarioLogado.bip += 10;
             updateRankingAndStorage();
-
-            // Redireciona para a aba de Diversão no dashboard após um breve delay (opcional)
+            
             setTimeout(() => {
                 window.location.href = 'dashboard.html#fun';
-            }, 1000); // Adicionei um pequeno delay de 1 segundo para o usuário ver a mensagem de vitória
+            }, 1000);
         }
-
+        
         function lose() {
             mensagemDiv.textContent = `❌ Game Over! Você atingiu o limite de ${maxErrors} erros.`;
-            usuarioLogado.bip = Math.max(0, usuarioLogado.bip - 3); // Desconta 3 BIPs ao perder
-            updateRankingAndStorage(); // Chama a função para atualizar o ranking com a pontuação final
-
-            // Redireciona para a aba de Diversão no dashboard após um breve delay
+            usuarioLogado.bip = Math.max(0, usuarioLogado.bip - 3);
+            updateRankingAndStorage();
+            
             setTimeout(() => {
                 window.location.href = 'dashboard.html#fun';
             }, 2000);
         }
-
+        
         function updateRankingAndStorage() {
             const idx = rankingData.findIndex(u => u.nome === usuarioLogado.nome);
             if (idx !== -1) {
@@ -199,12 +247,8 @@
             localStorage.setItem('usuarioLogado', JSON.stringify(usuarioLogado));
             localStorage.setItem('rankingData', JSON.stringify(rankingData.sort((a, b) => b.bip - a.bip)));
         }
-
-        // Adiciona o event listener para iniciar o jogo
+        
         startButton.addEventListener('click', initGame);
-
-        // O jogo não inicia automaticamente agora
-        // initGame();
     </script>
 </body>
 </html>

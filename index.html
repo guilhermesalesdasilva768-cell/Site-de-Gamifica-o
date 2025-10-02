@@ -340,13 +340,17 @@
                 return response.json();
             })
             .then(data => {
-                if (data.status === 'sucesso') {
-                    localStorage.setItem('usuarioLogado', JSON.stringify(data.usuario));
-                    window.location.href = 'dashboard.html';
-                } else {
-                    errorMessage.textContent = 'Erro no login: ' + data.mensagem;
-                    errorMessage.style.display = 'block';
-                }
+              if (data.status === 'sucesso') {
+    // 🔹 Salva apenas o ID do usuário logado
+    sessionStorage.setItem('userId', data.usuario.id);
+
+    // 🔹 Redireciona para o dashboard
+    window.location.href = 'dashboard.html';
+} else {
+    errorMessage.textContent = 'Erro no login: ' + data.mensagem;
+    errorMessage.style.display = 'block';
+}
+
             })
             .catch(error => {
                 console.error('Erro:', error);
