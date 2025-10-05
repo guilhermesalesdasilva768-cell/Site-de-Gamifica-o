@@ -148,9 +148,14 @@
     <p>Já tem uma conta? <a href="index.html">Entrar</a></p>
     <form id="cadastroForm">
       <input type="text" id="nome" placeholder="Nome para exibição" required />
+<<<<<<< HEAD
       <input type="text" id="matricula" placeholder="Matrícula" required />
+=======
+      <input type="text" id="matricula" placeholder="Matrícula da empresa" required />
+>>>>>>> 7a9fc83b0ecf29b5d1826a62d5897f81779dbc73
       <input type="password" id="senha" placeholder="Senha" required />
       <input type="password" id="confirmarSenha" placeholder="Confirmar senha" required />
+      <input type="hidden" id="tipoUsuario" value="colaborador" />
       <button class="btn" type="submit">Cadastrar</button>
     </form>
     <div id="mensagem"></div>
@@ -169,6 +174,7 @@
         const matricula = document.getElementById('matricula').value.trim();
         const senha = document.getElementById('senha').value;
         const confirmarSenha = document.getElementById('confirmarSenha').value;
+        const tipoUsuario = document.getElementById('tipoUsuario').value;
 
         mensagem.style.display = 'none';
         mensagem.className = '';
@@ -195,7 +201,11 @@
         }
 
         // Salvar usuário no localStorage
+<<<<<<< HEAD
         usuarios.push({ nome, matricula, senha });
+=======
+        usuarios.push({ nome, matricula, senha, tipoUsuario });
+>>>>>>> 7a9fc83b0ecf29b5d1826a62d5897f81779dbc73
         localStorage.setItem('usuarios', JSON.stringify(usuarios));
 
         // Mensagem de sucesso
