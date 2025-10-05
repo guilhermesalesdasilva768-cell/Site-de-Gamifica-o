@@ -7,7 +7,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js" defer></script>
     <style>
-        /* (Seu CSS permanece o mesmo) */
         :root {
             --dark-background: #101534;
             --deep-purple: #3A4A90;
@@ -220,7 +219,7 @@
             <h2>Entrar</h2>
             <div class="register">Novo por aqui? <a href="cadastro.html">Cadastre-se</a></div>
             <form id="loginFormPonto">
-                <input type="email" id="email" placeholder="Seu e-mail" required />
+                <input type="text" id="matricula" placeholder="Sua matrícula" required />
                 <input type="password" id="senha" placeholder="Sua senha" required />
                 <p id="errorMessage"></p>
                 <button type="submit">Login</button>
@@ -319,7 +318,7 @@
         document.getElementById('loginFormPonto').addEventListener('submit', function(event) {
             event.preventDefault();
 
-            const email = document.getElementById('email').value;
+            const matricula = document.getElementById('matricula').value;
             const senha = document.getElementById('senha').value;
             const errorMessage = document.getElementById('errorMessage');
             errorMessage.style.display = 'none';
@@ -329,7 +328,7 @@
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ email, senha })
+                body: JSON.stringify({ matricula, senha })
             })
             .then(response => {
                 if (!response.ok) {
@@ -340,21 +339,18 @@
                 return response.json();
             })
             .then(data => {
-<<<<<<< HEAD
-              if (data.status === 'sucesso') {
-=======
-            if (data.status === 'sucesso') {
->>>>>>> 7a9fc83b0ecf29b5d1826a62d5897f81779dbc73
-    // 🔹 Salva apenas o ID do usuário logado
-    sessionStorage.setItem('userId', data.usuario.id);
-
-    // 🔹 Redireciona para o dashboard
-    window.location.href = 'dashboard.html';
-} else {
-    errorMessage.textContent = 'Erro no login: ' + data.mensagem;
-    errorMessage.style.display = 'block';
-}
-
+                if (data.status === 'sucesso') {
+                    sessionStorage.setItem('userId', data.usuario.id);
+                    // Redireciona conforme tipoUsuario
+                    if (data.usuario.tipoUsuario === "gestor") {
+                        window.location.href = 'dashbordGestao.html';
+                    } else {
+                        window.location.href = 'dashboard.html';
+                    }
+                } else {
+                    errorMessage.textContent = 'Erro no login: ' + data.mensagem;
+                    errorMessage.style.display = 'block';
+                }
             })
             .catch(error => {
                 console.error('Erro:', error);
