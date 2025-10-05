@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Termos LGPD - Grow System</title>
+    <!-- Inclusão do Tailwind CSS para estilização rápida e responsiva -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Estilização para a fonte Inter */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Estilização da barra de rolagem para o conteúdo dos termos */
+        .terms-content::-webkit-scrollbar {
+            width: 8px;
+        }
+        .terms-content::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        .terms-content::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+        .terms-content::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        /* Efeito de transição para o modal */
+        #lgpd-modal {
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        #lgpd-modal.hidden {
+            visibility: hidden;
+            opacity: 0;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center h-screen">
+
+    <!-- Botão de exemplo para abrir o modal -->
+    <button id="open-modal-btn" class="bg-blue-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:bg-blue-700 transition-colors">
+        Abrir Termos de Uso (LGPD)
+    </button>
+
+    <!-- Modal/Janela Flutuante LGPD -->
+    <div id="lgpd-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 p-4 hidden">
+        <div id="modal-content" class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl flex flex-col max-h-[90vh]">
+            <!-- Cabeçalho do Modal -->
+            <header class="flex items-center justify-between p-6 border-b border-gray-200">
+                <h2 class="text-2xl font-bold text-gray-800">Política de Privacidade e Termos de Uso</h2>
+                <button id="close-modal-btn" class="text-gray-400 hover:text-gray-600 transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </header>
+
+            <!-- Conteúdo dos Termos (com rolagem) -->
+            <main class="flex-grow p-6 overflow-y-auto terms-content text-gray-600">
+                <p class="mb-4">Para a <strong>Grow System</strong>, a sua privacidade e a proteção dos seus dados são prioridades. Esta política descreve como coletamos, usamos e protegemos suas informações pessoais, em conformidade com a Lei Geral de Proteção de Dados (LGPD - Lei nº 13.709/18).</p>
+
+                <h3 class="text-lg font-bold text-gray-800 mt-6 mb-2">1. Dados Coletados</h3>
+                <p class="mb-4">Coletamos dados que você nos fornece diretamente, como nome, e-mail, cargo, e informações para seu 'Currículo Vivo' (formação, cursos, competências). Também coletamos dados gerados pelo seu uso da plataforma, como participação em desafios, pontuações, resgate de recompensas e métricas de engajamento.</p>
+
+                <h3 class="text-lg font-bold text-gray-800 mt-6 mb-2">2. Finalidade do Uso dos Dados</h3>
+                <p class="mb-4">Utilizamos seus dados para:</p>
+                <ul class="list-disc list-inside mb-4 space-y-2">
+                    <li>Personalizar sua experiência na plataforma e promover o engajamento.</li>
+                    <li>Permitir que a gestão de RH da sua empresa crie campanhas alinhadas aos objetivos de negócio.</li>
+                    <li>Gerenciar o programa de pontos e a loja de recompensas.</li>
+                    <li>Fornecer dashboards e relatórios sobre desenvolvimento para a gestão.</li>
+                    <li>Identificar talentos e oportunidades de crescimento profissional dentro da sua empresa.</li>
+                </ul>
+
+                <h3 class="text-lg font-bold text-gray-800 mt-6 mb-2">3. Compartilhamento de Dados</h3>
+                <p class="mb-4">Seus dados de desempenho e perfil são compartilhados internamente com a área de Gestão/RH da sua empresa para fins exclusivos de gestão de pessoas. Não compartilhamos seus dados pessoais com terceiros para fins de marketing ou outros fins não descritos nesta política.</p>
+
+                <h3 class="text-lg font-bold text-gray-800 mt-6 mb-2">4. Armazenamento e Segurança</h3>
+                <p class="mb-4">Seus dados são armazenados em infraestrutura de nuvem segura (AWS/Azure/GCP) com as mais altas medidas de segurança técnica e organizacional para protegê-los contra acesso não autorizado, alteração, divulgação ou destruição.</p>
+                
+                <h3 class="text-lg font-bold text-gray-800 mt-6 mb-2">5. Seus Direitos como Titular</h3>
+                <p class="mb-4">Como titular dos dados, você tem o direito de solicitar o acesso, correção, anonimização ou eliminação dos seus dados. Para exercer seus direitos, entre em contato com o departamento de RH da sua empresa, que é o controlador dos seus dados no contexto da plataforma.</p>
+
+                <h3 class="text-lg font-bold text-gray-800 mt-6 mb-2">6. Consentimento</h3>
+                <p class="font-semibold text-gray-900">Ao clicar no botão "Aceito e Continuar", você declara que leu, compreendeu e concorda com os termos desta Política de Privacidade e autoriza o tratamento dos seus dados pessoais para as finalidades aqui descritas.</p>
+            </main>
+
+            <!-- Rodapé com Botões de Ação -->
+            <footer class="flex justify-end items-center p-6 bg-gray-50 border-t border-gray-200 rounded-b-2xl space-x-4">
+                <button id="decline-btn" class="px-6 py-2.5 text-sm font-semibold text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors">Fechar</button>
+                <button id="accept-btn" class="px-6 py-2.5 text-sm font-semibold text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors shadow-sm">Aceito e Continuar</button>
+            </footer>
+        </div>
+    </div>
+
+    <script>
+        // Seleção dos elementos do DOM
+        const lgpdModal = document.getElementById('lgpd-modal');
+        const modalContent = document.getElementById('modal-content');
+        const openModalBtn = document.getElementById('open-modal-btn');
+        const closeModalBtn = document.getElementById('close-modal-btn');
+        const acceptBtn = document.getElementById('accept-btn');
+        const declineBtn = document.getElementById('decline-btn');
+
+        // Função para abrir o modal
+        const openModal = () => {
+            lgpdModal.classList.remove('hidden');
+            // Impede a rolagem do corpo da página quando o modal está aberto
+            document.body.style.overflow = 'hidden'; 
+        };
+
+        // Função para fechar o modal
+        const closeModal = () => {
+            lgpdModal.classList.add('hidden');
+            // Restaura a rolagem do corpo da página
+            document.body.style.overflow = 'auto'; 
+        };
+
+        // Event Listeners
+        openModalBtn.addEventListener('click', openModal);
+        closeModalBtn.addEventListener('click', closeModal);
+        declineBtn.addEventListener('click', closeModal);
+
+        acceptBtn.addEventListener('click', () => {
+            // Em uma aplicação real, aqui você salvaria o consentimento do usuário (ex: cookie, localStorage ou API)
+            console.log('Termos aceitos pelo usuário.');
+            alert('Obrigado por aceitar os termos!'); // Usando alert apenas para demonstração
+            closeModal();
+        });
+
+        // Fechar o modal ao clicar fora da área de conteúdo (no overlay)
+        lgpdModal.addEventListener('click', (event) => {
+            if (event.target === lgpdModal) {
+                closeModal();
+            }
+        });
+
+        // Fechar o modal ao pressionar a tecla 'Escape'
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && !lgpdModal.classList.contains('hidden')) {
+                closeModal();
+            }
+        });
+        
+        // Para demonstração, o modal pode ser aberto automaticamente ao carregar a página.
+        // Descomente a linha abaixo para esse comportamento.
+        // window.addEventListener('DOMContentLoaded', openModal);
+
+    </script>
+</body>
+</html>
