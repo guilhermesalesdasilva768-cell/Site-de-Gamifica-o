@@ -3,85 +3,122 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Cadastro - Sistema de Bater Pontos</title>
+  <title>Cadastro - Grow System</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --dark-background: #101534;
+      --deep-purple: #3A4A90;
+      --blue-glow: #59C9F5;
+      --bright-cyan: #4fffe8;
+      --white: #FFFFFF;
+      --dark-card-bg: rgba(58, 74, 144, 0.7);
+      --input-bg: #2d3b76;
+    }
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(to bottom, #ffffff, #b3e5fc);
-      color: black;
+      font-family: 'Inter', sans-serif;
+      background-color: var(--dark-background);
+      color: var(--white);
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
+      min-height: 100vh;
       margin: 0;
       overflow: hidden;
+      position: relative;
+      padding: 2rem;
     }
-
-    canvas {
+    canvas#background {
       position: fixed;
       top: 0;
       left: 0;
-      z-index: -1;
+      width: 100vw;
+      height: 100vh;
+      z-index: 0;
+      pointer-events: none;
     }
-
     .form-container {
-      background: white;
-      padding: 40px 30px;
-      border-radius: 20px;
-      box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+      background: var(--dark-card-bg);
+      padding: 2.5rem 2rem;
+      border-radius: 1rem;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
       max-width: 400px;
       width: 100%;
+      z-index: 1;
+      position: relative;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInSlideUp 0.8s ease-out forwards;
+      animation-delay: 0.5s;
     }
-
+    @keyframes fadeInSlideUp {
+      0% { opacity: 0; transform: translateY(20px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
     h2 {
       text-align: center;
       margin-bottom: 10px;
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--white);
+      text-shadow: 0 0 10px var(--blue-glow);
     }
-
     p {
       text-align: center;
       font-size: 14px;
       margin-bottom: 20px;
+      color: var(--bright-cyan);
+      font-weight: 600;
     }
-
     a {
-      color: #007bff;
+      color: var(--bright-cyan);
       text-decoration: none;
     }
-
+    a:hover {
+      text-decoration: underline;
+    }
     form input {
+      background-color: var(--input-bg);
+      border: 1px solid var(--deep-purple);
+      border-radius: 8px;
+      padding: 0.75rem;
+      color: var(--white);
       width: 100%;
-      padding: 12px;
-      margin: 10px 0;
-      border: 1px solid #ccc;
-      border-radius: 10px;
+      margin-bottom: 1rem;
       font-size: 1rem;
     }
-
+    form input::placeholder {
+      color: #9995a7;
+    }
+    form input:focus {
+      outline: none;
+      border-color: var(--bright-cyan);
+      box-shadow: 0 0 0 3px rgba(79, 255, 232, 0.3);
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
     .btn {
-      background-color: #ffd700;
-      color: black;
-      font-weight: bold;
+      background-color: var(--deep-purple);
+      color: var(--white);
+      font-weight: 600;
       border: none;
-      padding: 12px;
-      border-radius: 10px;
+      padding: 0.75rem;
+      border-radius: 8px;
       cursor: pointer;
       font-size: 1rem;
       width: 100%;
       margin-top: 10px;
+      transition: background-color 0.3s;
     }
-
     .btn:hover {
-      background-color: #e6c200;
+      background-color: #4A5B9C;
     }
-
     .login-link {
       margin-top: 15px;
       display: block;
       text-align: center;
       font-size: 14px;
+      color: var(--bright-cyan);
     }
-
     #mensagem {
       text-align: center;
       font-size: 16px;
@@ -90,13 +127,11 @@
       border-radius: 10px;
       display: none;
     }
-
     #mensagem.sucesso {
       background-color: #d4edda;
       color: #155724;
       border: 1px solid #c3e6cb;
     }
-
     #mensagem.erro {
       background-color: #f8d7da;
       color: #721c24;
@@ -111,16 +146,14 @@
   <div class="form-container">
     <h2>Cadastrar</h2>
     <p>Já tem uma conta? <a href="index.html">Entrar</a></p>
-
     <form id="cadastroForm">
-      <input type="text" id="nome" placeholder="Nome completo" required />
-      <input type="email" id="email" placeholder="E-mail" required />
-      <input type="text" id="usuario" placeholder="Usuário" required />
+      <input type="text" id="nome" placeholder="Nome para exibição" required />
+      <input type="text" id="matricula" placeholder="Matrícula da empresa" required />
       <input type="password" id="senha" placeholder="Senha" required />
       <input type="password" id="confirmarSenha" placeholder="Confirmar senha" required />
+      <input type="hidden" id="tipoUsuario" value="colaborador" />
       <button class="btn" type="submit">Cadastrar</button>
     </form>
-
     <div id="mensagem"></div>
   </div>
 
@@ -134,17 +167,17 @@
         event.preventDefault();
 
         const nome = document.getElementById('nome').value.trim();
-        const email = document.getElementById('email').value.trim();
-        const usuario = document.getElementById('usuario').value.trim();
+        const matricula = document.getElementById('matricula').value.trim();
         const senha = document.getElementById('senha').value;
         const confirmarSenha = document.getElementById('confirmarSenha').value;
+        const tipoUsuario = document.getElementById('tipoUsuario').value;
 
         mensagem.style.display = 'none';
         mensagem.className = '';
         mensagem.textContent = '';
 
         // Validação de campos obrigatórios
-        if (!nome || !email || !usuario || !senha || !confirmarSenha) {
+        if (!nome || !matricula || !senha || !confirmarSenha) {
           mostrarMensagem('Todos os campos são obrigatórios.', 'erro');
           return;
         }
@@ -155,23 +188,16 @@
           return;
         }
 
-        // Verificar se o e-mail já está cadastrado
+        // Verificar se a matrícula já está cadastrada
         let usuarios = JSON.parse(localStorage.getItem('usuarios') || '[]');
-        const emailJaExiste = usuarios.some(u => u.email === email);
-        if (emailJaExiste) {
-          mostrarMensagem('E-mail já cadastrado.', 'erro');
-          return;
-        }
-
-        // Verificar se o nome de usuário já existe
-        const usuarioJaExiste = usuarios.some(u => u.usuario === usuario);
-        if (usuarioJaExiste) {
-          mostrarMensagem('Usuário já existente.', 'erro');
+        const matriculaJaExiste = usuarios.some(u => u.matricula === matricula);
+        if (matriculaJaExiste) {
+          mostrarMensagem('Matrícula já cadastrada.', 'erro');
           return;
         }
 
         // Salvar usuário no localStorage
-        usuarios.push({ nome, email, usuario, senha });
+        usuarios.push({ nome, matricula, senha, tipoUsuario });
         localStorage.setItem('usuarios', JSON.stringify(usuarios));
 
         // Mensagem de sucesso
@@ -183,7 +209,6 @@
         }, 1500);
       });
 
-      // Função para exibir mensagens de sucesso ou erro
       function mostrarMensagem(texto, tipo) {
         mensagem.textContent = texto;
         mensagem.className = tipo === 'sucesso' ? 'sucesso' : 'erro';
@@ -191,70 +216,84 @@
       }
     });
 
-    // Fundo animado com formas geométricas neon
+    // Fundo animado compatível com a tela de login
     const canvas = document.getElementById('background');
     const ctx = canvas.getContext('2d');
+    let particles = [];
+    const numParticles = 80;
+    const maxDistance = 120;
 
     function resizeCanvas() {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
     }
 
-    window.addEventListener('resize', resizeCanvas);
-    resizeCanvas();
-
-    const coresNeon = ['#FF00FF', '#00FFFF', '#00FF00', '#FFFF00', '#FF4500'];
-
-    let shapes = [];
-    for (let i = 0; i < 50; i++) {
-      shapes.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        size: Math.random() * 30 + 20,
-        speedX: (Math.random() - 0.5) * 0.8,
-        speedY: (Math.random() - 0.5) * 0.8,
-        type: ['circle', 'square', 'triangle'][Math.floor(Math.random() * 3)],
-        color: coresNeon[Math.floor(Math.random() * coresNeon.length)]
-      });
-    }
-
-    function drawShapes() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      shapes.forEach(s => {
+    class Particle {
+      constructor() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.size = Math.random() * 2 + 1;
+        this.speedX = (Math.random() - 0.5) * 0.5;
+        this.speedY = (Math.random() - 0.5) * 0.5;
+        this.color = 'rgba(79, 255, 232, 0.8)';
+      }
+      update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+        if (this.x > canvas.width || this.x < 0) this.speedX *= -1;
+        if (this.y > canvas.height || this.y < 0) this.speedY *= -1;
+      }
+      draw() {
+        ctx.fillStyle = this.color;
         ctx.beginPath();
-        ctx.strokeStyle = s.color;
-        ctx.lineWidth = 2;
-        ctx.shadowColor = s.color;
-        ctx.shadowBlur = 15;
-        ctx.fillStyle = 'transparent';
-
-        if (s.type === 'circle') {
-          ctx.arc(s.x, s.y, s.size / 2, 0, Math.PI * 2);
-        } else if (s.type === 'square') {
-          ctx.rect(s.x - s.size/2, s.y - s.size/2, s.size, s.size);
-        } else if (s.type === 'triangle') {
-          ctx.moveTo(s.x, s.y - s.size/2);
-          ctx.lineTo(s.x - s.size/2, s.y + s.size/2);
-          ctx.lineTo(s.x + s.size/2, s.y + s.size/2);
-          ctx.closePath();
-        }
-
-        ctx.stroke();
-
-        s.x += s.speedX;
-        s.y += s.speedY;
-
-        if (s.x < 0) s.x = canvas.width;
-        if (s.x > canvas.width) s.x = 0;
-        if (s.y < 0) s.y = canvas.height;
-        if (s.y > canvas.height) s.y = 0;
-      });
-
-      requestAnimationFrame(drawShapes);
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
     }
 
-    drawShapes();
+    function createParticles() {
+      particles = [];
+      for (let i = 0; i < numParticles; i++) {
+        particles.push(new Particle());
+      }
+    }
+
+    function connectParticles() {
+      for (let a = 0; a < particles.length; a++) {
+        for (let b = a; b < particles.length; b++) {
+          const dx = particles[a].x - particles[b].x;
+          const dy = particles[a].y - particles[b].y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+          if (distance < maxDistance) {
+            ctx.beginPath();
+            ctx.strokeStyle = `rgba(79, 255, 232, ${1 - distance / maxDistance})`;
+            ctx.lineWidth = 0.5;
+            ctx.moveTo(particles[a].x, particles[a].y);
+            ctx.lineTo(particles[b].x, particles[b].y);
+            ctx.stroke();
+          }
+        }
+      }
+    }
+
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      connectParticles();
+      particles.forEach(particle => {
+        particle.update();
+        particle.draw();
+      });
+      requestAnimationFrame(animate);
+    }
+
+    resizeCanvas();
+    createParticles();
+    animate();
+
+    window.addEventListener('resize', () => {
+      resizeCanvas();
+      createParticles();
+    });
   </script>
 </body>
 </html>
