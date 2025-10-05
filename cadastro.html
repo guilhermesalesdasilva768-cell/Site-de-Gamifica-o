@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Cadastro - Grow System</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
   <style>
     :root {
       --dark-background: #101534;
@@ -137,6 +138,27 @@
       color: #721c24;
       border: 1px solid #f5c6cb;
     }
+    .terms-content::-webkit-scrollbar {
+        width: 8px;
+    }
+    .terms-content::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+    .terms-content::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 10px;
+    }
+    .terms-content::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
+    #lgpd-modal {
+        transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+    #lgpd-modal.hidden {
+        visibility: hidden;
+        opacity: 0;
+    }
   </style>
 </head>
 <body>
@@ -148,11 +170,7 @@
     <p>Já tem uma conta? <a href="index.html">Entrar</a></p>
     <form id="cadastroForm">
       <input type="text" id="nome" placeholder="Nome para exibição" required />
-<<<<<<< HEAD
-      <input type="text" id="matricula" placeholder="Matrícula" required />
-=======
       <input type="text" id="matricula" placeholder="Matrícula da empresa" required />
->>>>>>> 7a9fc83b0ecf29b5d1826a62d5897f81779dbc73
       <input type="password" id="senha" placeholder="Senha" required />
       <input type="password" id="confirmarSenha" placeholder="Confirmar senha" required />
       <input type="hidden" id="tipoUsuario" value="colaborador" />
@@ -161,11 +179,50 @@
     <div id="mensagem"></div>
   </div>
 
+  <!-- Modal LGPD integrado, agora com texto preto -->
+  <div id="lgpd-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 p-4 hidden">
+    <div id="modal-content" class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl flex flex-col max-h-[90vh]">
+      <header class="flex items-center justify-between p-6 border-b border-gray-200">
+        <h2 class="text-2xl font-bold text-gray-900">Política de Privacidade e Termos de Uso</h2>
+        <button id="close-modal-btn" class="text-gray-400 hover:text-gray-600 transition-colors">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </header>
+      <main class="flex-grow p-6 overflow-y-auto terms-content text-gray-900">
+        <p class="mb-4">Para a <strong>Grow System</strong>, a sua privacidade e a proteção dos seus dados são prioridades. Esta política descreve como coletamos, usamos e protegemos suas informações pessoais, em conformidade com a Lei Geral de Proteção de Dados (LGPD - Lei nº 13.709/18).</p>
+        <h3 class="text-lg font-bold text-gray-900 mt-6 mb-2">1. Dados Coletados</h3>
+        <p class="mb-4">Coletamos dados que você nos fornece diretamente, como nome, e-mail, cargo, e informações para seu 'Currículo Vivo' (formação, cursos, competências). Também coletamos dados gerados pelo seu uso da plataforma, como participação em desafios, pontuações, resgate de recompensas e métricas de engajamento.</p>
+        <h3 class="text-lg font-bold text-gray-900 mt-6 mb-2">2. Finalidade do Uso dos Dados</h3>
+        <p class="mb-4">Utilizamos seus dados para:</p>
+        <ul class="list-disc list-inside mb-4 space-y-2">
+          <li>Personalizar sua experiência na plataforma e promover o engajamento.</li>
+          <li>Permitir que a gestão de RH da sua empresa crie campanhas alinhadas aos objetivos de negócio.</li>
+          <li>Gerenciar o programa de pontos e a loja de recompensas.</li>
+          <li>Fornecer dashboards e relatórios sobre desenvolvimento para a gestão.</li>
+          <li>Identificar talentos e oportunidades de crescimento profissional dentro da sua empresa.</li>
+        </ul>
+        <h3 class="text-lg font-bold text-gray-900 mt-6 mb-2">3. Compartilhamento de Dados</h3>
+        <p class="mb-4">Seus dados de desempenho e perfil são compartilhados internamente com a área de Gestão/RH da sua empresa para fins exclusivos de gestão de pessoas. Não compartilhamos seus dados pessoais com terceiros para fins de marketing ou outros fins não descritos nesta política.</p>
+        <h3 class="text-lg font-bold text-gray-900 mt-6 mb-2">4. Armazenamento e Segurança</h3>
+        <p class="mb-4">Seus dados são armazenados em infraestrutura de nuvem segura (AWS/Azure/GCP) com as mais altas medidas de segurança técnica e organizacional para protegê-los contra acesso não autorizado, alteração, divulgação ou destruição.</p>
+        <h3 class="text-lg font-bold text-gray-900 mt-6 mb-2">5. Seus Direitos como Titular</h3>
+        <p class="mb-4">Como titular dos dados, você tem o direito de solicitar o acesso, correção, anonimização ou eliminação dos seus dados. Para exercer seus direitos, entre em contato com o departamento de RH da sua empresa, que é o controlador dos seus dados no contexto da plataforma.</p>
+        <h3 class="text-lg font-bold text-gray-900 mt-6 mb-2">6. Consentimento</h3>
+        <p class="font-semibold text-gray-900">Ao clicar no botão "Aceito e Continuar", você declara que leu, compreendeu e concorda com os termos desta Política de Privacidade e autoriza o tratamento dos seus dados pessoais para as finalidades aqui descritas.</p>
+      </main>
+      <footer class="flex justify-end items-center p-6 bg-gray-50 border-t border-gray-200 rounded-b-2xl space-x-4">
+        <button id="decline-btn" class="px-6 py-2.5 text-sm font-semibold text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors">Fechar</button>
+        <button id="accept-btn" class="px-6 py-2.5 text-sm font-semibold text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors shadow-sm">Aceito e Continuar</button>
+      </footer>
+    </div>
+  </div>
+
   <script>
-    // Sistema de cadastro
+    // Cadastro + Modal LGPD
     document.addEventListener("DOMContentLoaded", function () {
       const form = document.getElementById('cadastroForm');
       const mensagem = document.getElementById('mensagem');
+      let dadosForm = null;
 
       form.addEventListener('submit', function (event) {
         event.preventDefault();
@@ -180,19 +237,15 @@
         mensagem.className = '';
         mensagem.textContent = '';
 
-        // Validação de campos obrigatórios
         if (!nome || !matricula || !senha || !confirmarSenha) {
           mostrarMensagem('Todos os campos são obrigatórios.', 'erro');
           return;
         }
-
-        // Verificar se as senhas coincidem
         if (senha !== confirmarSenha) {
           mostrarMensagem('As senhas não coincidem.', 'erro');
           return;
         }
 
-        // Verificar se a matrícula já está cadastrada
         let usuarios = JSON.parse(localStorage.getItem('usuarios') || '[]');
         const matriculaJaExiste = usuarios.some(u => u.matricula === matricula);
         if (matriculaJaExiste) {
@@ -200,21 +253,55 @@
           return;
         }
 
-        // Salvar usuário no localStorage
-<<<<<<< HEAD
-        usuarios.push({ nome, matricula, senha });
-=======
-        usuarios.push({ nome, matricula, senha, tipoUsuario });
->>>>>>> 7a9fc83b0ecf29b5d1826a62d5897f81779dbc73
-        localStorage.setItem('usuarios', JSON.stringify(usuarios));
+        // Salva os dados para uso após aceite LGPD
+        dadosForm = { nome, matricula, senha, tipoUsuario };
 
-        // Mensagem de sucesso
-        mostrarMensagem('Cadastro realizado com sucesso!', 'sucesso');
+        // Mostra o modal LGPD
+        document.getElementById('lgpd-modal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+      });
 
-        // Redirecionar após 1.5 segundos
-        setTimeout(() => {
-          window.location.href = 'index.html';
-        }, 1500);
+      // Modal LGPD
+      const modal = document.getElementById('lgpd-modal');
+      const btnAceitar = document.getElementById('accept-btn');
+      const btnCancelar = document.getElementById('decline-btn');
+      const btnFechar = document.getElementById('close-modal-btn');
+
+      btnAceitar.addEventListener('click', function () {
+        if (dadosForm) {
+          let usuarios = JSON.parse(localStorage.getItem('usuarios') || '[]');
+          usuarios.push({ ...dadosForm, consentimento_lgpd: true });
+          localStorage.setItem('usuarios', JSON.stringify(usuarios));
+
+          mostrarMensagem('Cadastro realizado com sucesso!', 'sucesso');
+          dadosForm = null;
+
+          setTimeout(() => {
+            window.location.href = 'index.html';
+          }, 1500);
+        }
+        modal.classList.add('hidden');
+        document.body.style.overflow = 'auto';
+      });
+
+      btnCancelar.addEventListener('click', function () {
+        dadosForm = null;
+        modal.classList.add('hidden');
+        document.body.style.overflow = 'auto';
+      });
+
+      btnFechar.addEventListener('click', function () {
+        dadosForm = null;
+        modal.classList.add('hidden');
+        document.body.style.overflow = 'auto';
+      });
+
+      modal.addEventListener('click', function (event) {
+        if (event.target === modal) {
+          dadosForm = null;
+          modal.classList.add('hidden');
+          document.body.style.overflow = 'auto';
+        }
       });
 
       function mostrarMensagem(texto, tipo) {
