@@ -2637,7 +2637,10 @@ function loadUserData() {
     usernameElement.textContent = usuarioLogado.nome || "Usuário";
     userAvatarElement.src = usuarioLogado.avatar || "https://via.placeholder.com/60";
     userXpElement.textContent = `${usuarioLogado.moedas || 0} BIP`;
-    
+
+    // ATUALIZA também na home (linha abaixo é a mudança principal)
+    document.getElementById('nome-usuario-boasvindas').textContent = usuarioLogado.nome || "Usuário";
+
     // Atualiza os dados na seção "Início"
     userBipsHomeElement.textContent = usuarioLogado.moedas || 0;
     updateAvatarBorder(usuarioLogado.moedas || 0);
@@ -2882,7 +2885,7 @@ function getUserId() {
 }
 
 // 🔹 Início da página
-window.onload = function() {
+window.onload = async function() {
   const avatarUpload = document.getElementById("avatar-upload");
   const userAvatarElement = document.getElementById("user-avatar");
 
@@ -2928,32 +2931,18 @@ window.onload = function() {
       alert("Selecione uma imagem e certifique-se que está logado.");
     }
   });
+
+  // Buscar usuário logado e atualizar a interface
+  const userId = getUserId();
+  if (userId) {
+    await fetchUsuarioLogado(userId); // Busca dados do backend e preenche usuarioLogado
+    await fetchAndUpdateUserData();   // Atualiza moedas/pontos e chama loadUserData()
+  } else {
+    // Redireciona para login se não tiver ID salvo
+    window.location.href = "login.html";
+  }
 };
 
-const sidebar = document.querySelector('.sidebar');
-const sidebarToggle = document.getElementById('sidebar-toggle');
-const sidebarBackdrop = document.querySelector('.sidebar-backdrop');
-
-sidebarToggle.addEventListener('click', function() {
-    sidebar.classList.toggle('open');
-    sidebarBackdrop.style.display = sidebar.classList.contains('open') ? 'block' : 'none';
-    document.body.style.overflow = sidebar.classList.contains('open') ? 'hidden' : '';
-});
-sidebarBackdrop.addEventListener('click', function() {
-    sidebar.classList.remove('open');
-    sidebarBackdrop.style.display = 'none';
-    document.body.style.overflow = '';
-});
-// Fecha o menu ao clicar em algum link da sidebar (mobile)
-document.querySelectorAll('.sidebar-nav .nav-icon').forEach(function(el) {
-    el.addEventListener('click', function() {
-        if(window.innerWidth <= 900){
-            sidebar.classList.remove('open');
-            sidebarBackdrop.style.display = 'none';
-            document.body.style.overflow = '';
-        }
-    });
-});
 
 // === PERFIL PROFISSIONAL INTERATIVO ===
 // Requer que a section do perfil tenha id="profile-section"
