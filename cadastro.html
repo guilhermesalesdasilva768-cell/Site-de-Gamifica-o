@@ -246,13 +246,6 @@
           return;
         }
 
-        let usuarios = JSON.parse(localStorage.getItem('usuarios') || '[]');
-        const matriculaJaExiste = usuarios.some(u => u.matricula === matricula);
-        if (matriculaJaExiste) {
-          mostrarMensagem('Matrícula já cadastrada.', 'erro');
-          return;
-        }
-
         // Salva os dados para uso após aceite LGPD
         dadosForm = { nome, matricula, senha, tipoUsuario };
 
@@ -269,19 +262,35 @@
 
       btnAceitar.addEventListener('click', function () {
         if (dadosForm) {
-          let usuarios = JSON.parse(localStorage.getItem('usuarios') || '[]');
-          usuarios.push({ ...dadosForm, consentimento_lgpd: true });
-          localStorage.setItem('usuarios', JSON.stringify(usuarios));
+          // ENVIA para o backend!
+          fetch('https://meu-site4.onrender.com/api/cadastrar', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              nome: dadosForm.nome,
+              matricula: dadosForm.matricula,
+              senha: dadosForm.senha
+            })
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.status === 'sucesso') {
+              mostrarMensagem('Cadastro realizado com sucesso!', 'sucesso');
+              setTimeout(() => {
+                window.location.href = 'index.html';
+              }, 1500);
+            } else {
+              mostrarMensagem(data.mensagem, 'erro');
+            }
+          })
+          .catch(error => {
+            mostrarMensagem('Erro ao cadastrar usuário.', 'erro');
+          });
 
-          mostrarMensagem('Cadastro realizado com sucesso!', 'sucesso');
           dadosForm = null;
-
-          setTimeout(() => {
-            window.location.href = 'index.html';
-          }, 1500);
+          modal.classList.add('hidden');
+          document.body.style.overflow = 'auto';
         }
-        modal.classList.add('hidden');
-        document.body.style.overflow = 'auto';
       });
 
       btnCancelar.addEventListener('click', function () {
