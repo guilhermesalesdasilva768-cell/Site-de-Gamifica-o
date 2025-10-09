@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <title>Grow System - Dashboard</title>
     <style>
         :root {
@@ -1984,6 +1984,28 @@
   .sidebar-nav .nav-icon.active, .sidebar-nav .nav-icon:hover {
     border-left: 5px solid var(--medal-gold) !important;
     background: var(--sidebar-active) !important;
+  }
+}
+
+@media (max-width: 600px) {
+  html {
+    font-size: 13px; /* diminui o tamanho base da fonte */
+  }
+  .home-welcome-row,
+  .main-content,
+  .dashboard-card,
+  .fun-section,
+  .profile-section,
+  .ranking-section,
+  .loja-recompensas-section,
+  .quizzes-section {
+    padding: 8px 2px !important;
+  }
+  .home-welcome-title {
+    font-size: 1.1rem !important;
+  }
+  .home-row-card {
+    padding: 7px 5px 7px 5px !important;
   }
 }
 
