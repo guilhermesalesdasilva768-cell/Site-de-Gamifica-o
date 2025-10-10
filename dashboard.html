@@ -1994,7 +1994,7 @@ html, body {
     <i data-lucide="list-todo"></i>
     <span>Quizzes</span>
 </div>
-<div class="nav-icon" id="nav-gestao" onclick="showSection('gestao')" style="display:block;">
+<div class="nav-icon" id="nav-gestao" onclick="showSection('gestao')" style="display:none;">
   <i data-lucide="settings"></i>
   <span>Gestão</span>
 </div>
@@ -2639,6 +2639,13 @@ function loadUserData() {
         // Carrega o top 3 na home
         loadHomeRanking();
     });
+
+    // MOSTRA OU ESCONDE O MENU GESTÃO
+    if (usuarioLogado.tipoUsuario === "gestor") {
+        document.getElementById('nav-gestao').style.display = 'block'; // mostra para gestor
+    } else {
+        document.getElementById('nav-gestao').style.display = 'none';  // esconde para colaborador
+    }
 }
 
 function updateAvatarBorder(bips) {
