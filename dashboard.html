@@ -3567,6 +3567,23 @@ document.addEventListener("DOMContentLoaded", function() {
     });
   }
 });
+
+// Função de emergência que força a exibição
+function forcarExibicaoAbaGestao() {
+    setTimeout(() => {
+        const navGestor = document.getElementById('nav-gestao');
+        if (navGestor && usuarioLogado.tipoUsuario === 'gestor') {
+            navGestor.style.display = 'flex';
+            navGestor.style.visibility = 'visible';
+            navGestor.style.opacity = '1';
+            console.log("🚨 Forçado exibição da aba Gestão!");
+        }
+    }, 500);
+}
+
+// Chama em vários momentos para garantir
+document.addEventListener('DOMContentLoaded', forcarExibicaoAbaGestao);
+window.addEventListener('load', forcarExibicaoAbaGestao);
 </script>
 </body>
 </html>
