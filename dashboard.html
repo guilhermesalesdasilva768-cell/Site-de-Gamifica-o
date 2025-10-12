@@ -2538,12 +2538,6 @@ html, body {
     </div>
     <script>
 
-      <section class="gestao-section" id="gestao-section" style="display:none;">
-  <h2 class="section-title">Painel de Gestão</h2>
-  <p>Área exclusiva para gestores</p>
-  <!-- Adicione o conteúdo que você quiser aqui -->
-</section>
-
       // Function da Loja //
       function showLojaTab(tab) {
   document.querySelectorAll('.loja-tab-btn').forEach(btn => {
@@ -2559,12 +2553,11 @@ html, body {
 let rankingData = [];
 
 // Usuário logado (começa vazio, será carregado do backend)
-window.usuarioLogado = {
+let usuarioLogado = {
     id: null,
     nome: "Usuário",
     avatar: "https://via.placeholder.com/60",
-    moedas: 0,
-    tipoUsuario: null
+    moedas: 0
 };
 
 // 🔹 Buscar usuário logado no backend
@@ -2572,20 +2565,13 @@ async function fetchUsuarioLogado(id) {
     try {
         const res = await fetch(`https://meu-site4.onrender.com/api/usuario-logado/${id}`);
         const data = await res.json();
-        
         if (data.status === "sucesso") {
             usuarioLogado = data.usuario;
-            
-            console.log("✅ Dados do usuário carregados:");
-            console.log("   Nome:", usuarioLogado.nome);
-            console.log("   Tipo:", usuarioLogado.tipoUsuario);
-            console.log("   ID:", usuarioLogado.id);
-            
         } else {
-            console.warn("❌ Usuário não encontrado no backend.");
+            console.warn("Usuário não encontrado no backend.");
         }
     } catch (err) {
-        console.error("💥 Erro ao buscar usuário:", err);
+        console.error("Erro ao buscar usuário logado:", err);
     }
 }
 
@@ -2654,23 +2640,11 @@ function loadUserData() {
         loadHomeRanking();
     });
 
-    const navGestor = document.getElementById('nav-gestao');
-    
-    console.log("🔍 Atualizando visibilidade da aba Gestão...");
-    console.log("   Tipo do usuário:", usuarioLogado.tipoUsuario);
-    console.log("   Elemento encontrado:", navGestor ? "SIM" : "NÃO");
-    
-    if (navGestor) {
-        if (usuarioLogado.tipoUsuario === 'gestor') {
-            navGestor.style.display = 'flex';
-            console.log("✅ Aba GESTÃO EXIBIDA!");
-        } else {
-            navGestor.style.display = 'none';
-            console.log("❌ Aba GESTÃO ocultada (tipo: " + usuarioLogado.tipoUsuario + ")");
-        }
+    // MOSTRA OU ESCONDE O MENU GESTÃO
+    if (usuarioLogado.tipoUsuario === "gestor") {
+        document.getElementById('nav-gestao').style.display = 'block'; // mostra para gestor
     } else {
-        console.error("⚠️ ERRO CRÍTICO: elemento #nav-gestao NÃO EXISTE no HTML!");
-        console.log("💡 Procure no HTML por: <div ... id='nav-gestao'");
+        document.getElementById('nav-gestao').style.display = 'none';  // esconde para colaborador
     }
 }
 
