@@ -2615,78 +2615,63 @@ const userRankHomeElement = document.getElementById('user-rank-home');
 const homeRankingList = document.getElementById('home-ranking-list');
 
 function loadUserData() {
-    usernameElement.textContent = usuarioLogado.nome || "Usuário";
-    userAvatarElement.src = usuarioLogado.avatar || "https://via.placeholder.com/60";
-    userXpElement.textContent = `${usuarioLogado.moedas || 0} BIP`;
+      // Atualiza elementos do UI com segurança (verifica existência dos elementos antes)
+      const usernameElement = document.getElementById('username');
+      const userAvatarElement = document.getElementById('user-avatar');
+      const userXpElement = document.getElementById('user-xp');
 
-    // ATUALIZA também na home (linha abaixo é a mudança principal)
-    document.getElementById('nome-usuario-boasvindas').textContent = usuarioLogado.nome || "Usuário";
+      if (usernameElement) usernameElement.textContent = usuarioLogado.nome || "Usuário";
+      if (userAvatarElement) userAvatarElement.src = usuarioLogado.avatar || "https://via.placeholder.com/60";
+      if (userXpElement) userXpElement.textContent = `${usuarioLogado.moedas || 0} BIP`;
 
-    // Atualiza os dados na seção "Início"
-    userBipsHomeElement.textContent = usuarioLogado.moedas || 0;
-    updateAvatarBorder(usuarioLogado.moedas || 0);
+      const nomeBemVindo = document.getElementById('nome-usuario-boasvindas');
+      if (nomeBemVindo) nomeBemVindo.textContent = usuarioLogado.nome || "Usuário";
 
-    // Pega ranking global do backend para calcular posição do usuário
-    fetchRanking().then(() => {
-        rankingData.sort((a, b) => b.bip - a.bip);
-        const userRankIndex = rankingData.findIndex(user => user.id === usuarioLogado.id);
-        if (userRankIndex !== -1) {
-            userRankHomeElement.textContent = `#${userRankIndex + 1}`;
+      // elementos não obrigatórios: atualize apenas se existirem
+      const userBipsHomeElement = document.getElementById('user-bips-home');
+      const userRankHomeElement = document.getElementById('user-rank-home');
+      if (userBipsHomeElement) userBipsHomeElement.textContent = usuarioLogado.moedas || 0;
+      if (userRankHomeElement) userRankHomeElement.textContent = '--'; // será calculado abaixo
+
+      updateAvatarBorder(usuarioLogado.moedas || 0);
+
+      // Atualiza ranking e calcula posição do usuário (se houver id)
+      fetchRanking().then(() => {
+          rankingData.sort((a, b) => b.bip - a.bip);
+          const userRankIndex = rankingData.findIndex(user => user.id === usuarioLogado.id);
+          if (userRankIndex !== -1) {
+              if (userRankHomeElement) userRankHomeElement.textContent = `#${userRankIndex + 1}`;
+          } else {
+              if (userRankHomeElement) userRankHomeElement.textContent = '--';
+          }
+          loadHomeTop10();
+      });
+
+      // MOSTRA OU ESCONDE O MENU GESTÃO com checagem segura
+      const navGestao = document.getElementById('nav-gestao');
+      const tipo = (usuarioLogado && usuarioLogado.tipoUsuario) ? String(usuarioLogado.tipoUsuario).toLowerCase() : null;
+      if (navGestao) {
+        if (tipo === 'gestor') {
+          navGestao.style.display = 'block';
         } else {
-            userRankHomeElement.textContent = '--';
+          navGestao.style.display = 'none';
         }
+      }
+  }
 
-        // Carrega o top 3 na home
-        loadHomeRanking();
-    });
+  function updateAvatarBorder(bips) {
+      // Se não existir container, não faz nada
+      const avatarContainer = document.querySelector(".avatar-container") || document.getElementById("avatar-container");
+      if (!avatarContainer) return;
 
-    setTimeout(() => {
-        const navGestor = document.getElementById('nav-gestao');
-        
-        console.log("═══════════════════════════════════");
-        console.log("🔍 VERIFICANDO ABA GESTÃO");
-        console.log("═══════════════════════════════════");
-        console.log("Usuário:", usuarioLogado.nome);
-        console.log("Tipo recebido:", usuarioLogado.tipoUsuario);
-        console.log("Elemento #nav-gestao:", navGestor);
-        
-        if (!navGestor) {
-            console.error("❌ ERRO: Elemento #nav-gestao NÃO EXISTE!");
-            console.log("💡 Procure no HTML pela linha:");
-            console.log('   <div class="nav-icon" id="nav-gestao"');
-            return;
-        }
-        
-        if (usuarioLogado.tipoUsuario === 'gestor') {
-            navGestor.style.display = 'flex';
-            navGestor.style.visibility = 'visible';
-            navGestor.style.opacity = '1';
-            console.log("✅ ABA GESTÃO EXIBIDA!");
-            console.log("═══════════════════════════════════");
-        } else {
-            navGestor.style.display = 'none';
-            console.log("❌ Aba ocultada (tipo: " + usuarioLogado.tipoUsuario + ")");
-            console.log("═══════════════════════════════════");
-        }
-    }, 100);
-}
+      // limpa classes antigas
+      avatarContainer.className = "avatar-container";
 
-function updateAvatarBorder(bips) {
-    const avatarContainer = document.getElementById("avatar-container");
-    avatarContainer.className = "avatar"; // limpa classes antigas
-
-    if (bips >= 100) {
-        avatarContainer.classList.add("borda-lendaria");
-    } else if (bips >= 50) {
-        avatarContainer.classList.add("borda-ouro");
-    } else if (bips >= 20) {
-        avatarContainer.classList.add("borda-prata");
-    } else if (bips >= 5) {
-        avatarContainer.classList.add("borda-bronze");
-    } else {
-        avatarContainer.classList.add("borda-padrao");
-    }
-}
+      if (bips >= 200) avatarContainer.classList.add("borda-ouro");
+      else if (bips >= 100) avatarContainer.classList.add("borda-prata");
+      else if (bips >= 50) avatarContainer.classList.add("borda-bronze");
+      else avatarContainer.classList.add("borda-padrao");
+  }
 
 // --- Renderiza Top 10 no cartão da Home (buscando direto no backend) ---
 async function loadHomeTop10() {
@@ -3013,17 +2998,30 @@ window.onload = async function() {
     }
   });
 
-  const userId = getUserId();
-    if (userId) {
-        await fetchUsuarioLogado(userId);
-        await fetchAndUpdateUserData();
-        
-        // ⭐ ADICIONE ESTA LINHA AQUI:
-        loadUserData();
-    } else {
-        window.location.href = "login.html";
+  // Pega userId da URL ou sessionStorage
+    let userId = getUserId();
+    if (!userId) userId = sessionStorage.getItem('userId');
+
+    if (!userId) {
+      // Não encontrou userId — redirecionar para página de login (crie login.html se necessário)
+      window.location.href = "login.html";
+      return;
     }
-};
+
+    // Salva no sessionStorage (ajuda quando veio via ?user_id=)
+    sessionStorage.setItem('userId', userId);
+
+    // Busca dados do backend e atualiza UI
+    try {
+      await fetchUsuarioLogado(userId);
+      await fetchAndUpdateUserData();
+      await loadHomeTop10();
+      loadUserData(); // garante que a aba Gestao seja atualizada
+    } catch (err) {
+      console.error('Erro ao inicializar dashboard:', err);
+      // opcional: mostrar mensagem ao usuário
+    }
+  };
 
 // === PERFIL PROFISSIONAL INTERATIVO ===
 // Requer que a section do perfil tenha id="profile-section"
