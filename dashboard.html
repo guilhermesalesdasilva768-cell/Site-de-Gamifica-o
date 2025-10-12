@@ -2824,27 +2824,6 @@ async function updateRanking() {
         if (index === 1) row.classList.add('position-2');
         if (index === 2) row.classList.add('position-3');
 
-        let medal = '';
-        if (index === 0) {
-            medal = `<svg class="medal" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="12" cy="12" r="10" fill="#FFD700"/>
-                <circle cx="12" cy="12" r="8" fill="#FFEC8B"/>
-                <text x="12" y="15" text-anchor="middle" font-size="8" font-weight="bold" fill="#8B7500">1°</text>
-            </svg>`;
-        } else if (index === 1) {
-            medal = `<svg class="medal" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="12" cy="12" r="10" fill="#C0C0C0"/>
-                <circle cx="12" cy="12" r="8" fill="#E6E6E6"/>
-                <text x="12" y="15" text-anchor="middle" font-size="8" font-weight="bold" fill="#505050">2°</text>
-            </svg>`;
-        } else if (index === 2) {
-            medal = `<svg class="medal" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="12" cy="12" r="10" fill="#CD7F32"/>
-                <circle cx="12" cy="12" r="8" fill="#E6C39A"/>
-                <text x="12" y="15" text-anchor="middle" font-size="8" font-weight="bold" fill="#5E3A00">3°</text>
-            </svg>`;
-        }
-
         row.innerHTML = `
     <td>${index + 1} ${medal}</td>
     <td class="user-cell">
@@ -3534,29 +3513,6 @@ document.addEventListener('DOMContentLoaded', function () {
   lucide.createIcons(); // Ativa os ícones
 </script>
 <script>
-document.addEventListener("DOMContentLoaded", function() {
-  const sidebar = document.querySelector(".sidebar");
-  const backdrop = document.querySelector(".sidebar-backdrop");
-  const toggle = document.getElementById("sidebar-toggle");
-
-  // Se os elementos existirem
-  if (sidebar && backdrop && toggle) {
-    // Quando clicar no botão hambúrguer
-    toggle.addEventListener("click", () => {
-      const isOpen = sidebar.classList.toggle("open");
-      backdrop.style.display = isOpen ? "block" : "none";
-      document.body.style.overflow = isOpen ? "hidden" : ""; // trava scroll quando menu aberto
-    });
-
-    // Quando clicar fora do menu (no fundo escuro)
-    backdrop.addEventListener("click", () => {
-      sidebar.classList.remove("open");
-      backdrop.style.display = "none";
-      document.body.style.overflow = "";
-    });
-  }
-});
-
 </script>
 </body>
 </html>
