@@ -2640,12 +2640,35 @@ function loadUserData() {
         loadHomeRanking();
     });
 
-    // MOSTRA OU ESCONDE O MENU GESTÃO
-    if (usuarioLogado.tipoUsuario === "gestor") {
-        document.getElementById('nav-gestao').style.display = 'display'; // mostra para gestor
-    } else {
-        document.getElementById('nav-gestao').style.display = 'none';  // esconde para colaborador
-    }
+    setTimeout(() => {
+        const navGestor = document.getElementById('nav-gestao');
+        
+        console.log("═══════════════════════════════════");
+        console.log("🔍 VERIFICANDO ABA GESTÃO");
+        console.log("═══════════════════════════════════");
+        console.log("Usuário:", usuarioLogado.nome);
+        console.log("Tipo recebido:", usuarioLogado.tipoUsuario);
+        console.log("Elemento #nav-gestao:", navGestor);
+        
+        if (!navGestor) {
+            console.error("❌ ERRO: Elemento #nav-gestao NÃO EXISTE!");
+            console.log("💡 Procure no HTML pela linha:");
+            console.log('   <div class="nav-icon" id="nav-gestao"');
+            return;
+        }
+        
+        if (usuarioLogado.tipoUsuario === 'gestor') {
+            navGestor.style.display = 'flex';
+            navGestor.style.visibility = 'visible';
+            navGestor.style.opacity = '1';
+            console.log("✅ ABA GESTÃO EXIBIDA!");
+            console.log("═══════════════════════════════════");
+        } else {
+            navGestor.style.display = 'none';
+            console.log("❌ Aba ocultada (tipo: " + usuarioLogado.tipoUsuario + ")");
+            console.log("═══════════════════════════════════");
+        }
+    }, 100);
 }
 
 function updateAvatarBorder(bips) {
@@ -2992,9 +3015,11 @@ window.onload = async function() {
 
   const userId = getUserId();
     if (userId) {
-        await fetchUsuarioLogado(userId);     // Busca dados do backend
-        await fetchAndUpdateUserData();       // Atualiza moedas/pontos
-        atualizarVisibilidadeAbaGestor();     // ⭐ Garante que a aba seja atualizada
+        await fetchUsuarioLogado(userId);
+        await fetchAndUpdateUserData();
+        
+        // ⭐ ADICIONE ESTA LINHA AQUI:
+        loadUserData();
     } else {
         window.location.href = "login.html";
     }
