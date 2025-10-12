@@ -2565,11 +2565,23 @@ async function fetchUsuarioLogado(id) {
     try {
         const res = await fetch(`https://meu-site4.onrender.com/api/usuario-logado/${id}`);
         const data = await res.json();
-        if (data.status === "sucesso") {
-            usuarioLogado = data.usuario;
+       if (data.status === "sucesso") {
+    usuarioLogado = data.usuario;
+
+    // === Controle da aba Gestor ===
+    const secaoGestor = document.getElementById("secaoGestor"); // substitua pelo ID real da aba Gestor
+    if (secaoGestor) {
+        if (usuarioLogado.tipoUsuario === "gestor") {
+            secaoGestor.style.display = "block";
         } else {
-            console.warn("Usuário não encontrado no backend.");
+            secaoGestor.style.display = "none";
         }
+    }
+
+} else {
+    console.warn("Usuário não encontrado no backend.");
+}
+
     } catch (err) {
         console.error("Erro ao buscar usuário logado:", err);
     }
@@ -3544,6 +3556,70 @@ document.addEventListener("DOMContentLoaded", function() {
     });
   }
 });
+
+// public/js/show-gestao.js
+// Mostra/oculta o botão "Gestão" conforme tipoUsuario do usuário logado.
+// - Usa window.usuarioLogado se já existir.
+// - Se não existir, faz fetch /api/usuario-logado/:id usando user_id da query ou sessionStorage.
+// - Expõe window.updateGestaoVisibility() para permitir chamadas manuais.
+
+(function () {
+  async function fetchTipoUsuarioById(userId) {
+    try {
+      const res = await fetch(`/api/usuario-logado/${encodeURIComponent(userId)}`);
+      if (!res.ok) return null;
+      const data = await res.json();
+      return data && data.usuario && data.usuario.tipoUsuario ? data.usuario.tipoUsuario : null;
+    } catch (err) {
+      console.error('Erro ao buscar tipoUsuario:', err);
+      return null;
+    }
+  }
+
+  async function updateGestaoVisibility() {
+    const navGestao = document.getElementById('nav-gestao');
+    if (!navGestao) return;
+
+    // Esconde por padrão para evitar flash
+    navGestao.style.display = 'none';
+
+    try {
+      // Se existe objeto global já carregado use ele (mais rápido)
+      if (window.usuarioLogado && typeof window.usuarioLogado.tipoUsuario !== 'undefined') {
+        const tipo = window.usuarioLogado.tipoUsuario;
+        console.log('updateGestaoVisibility (from usuarioLogado):', tipo);
+        if (tipo === 'gestor') navGestao.style.display = '';
+        else navGestao.style.display = 'none';
+        return;
+      }
+
+      // Fallback: tenta obter userId e buscar no backend
+      const params = new URLSearchParams(window.location.search);
+      const userId = params.get('user_id') || sessionStorage.getItem('userId');
+      if (!userId) {
+        // sem id, mantém oculto
+        navGestao.style.display = 'none';
+        return;
+      }
+
+      const tipoFetch = await fetchTipoUsuarioById(userId);
+      console.log('updateGestaoVisibility (fetch):', tipoFetch);
+      if (tipoFetch === 'gestor') navGestao.style.display = '';
+      else navGestao.style.display = 'none';
+    } catch (err) {
+      console.error('updateGestaoVisibility erro:', err);
+      navGestao.style.display = 'none';
+    }
+  }
+
+  // Exponha para uso manual (p.ex. chamar depois de login)
+  window.updateGestaoVisibility = updateGestaoVisibility;
+
+  // Chame ao DOMContentLoaded (com pequeno delay para evitar race conditions)
+  document.addEventListener('DOMContentLoaded', function () {
+    setTimeout(updateGestaoVisibility, 50);
+  });
+})();
 </script>
 </body>
 </html>
