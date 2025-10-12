@@ -1894,65 +1894,6 @@
   }
 }
 
-/* ======= CORREÇÃO GERAL DE ZOOM E OVERFLOW ======= */
-html, body {
-  width: 100%;
-  max-width: 100%;
-  overflow-x: hidden !important;
-  zoom: 1 !important;
-  touch-action: pan-x pan-y !important; /* permite arrastar e zoom */
-}
-
-.main-content, section, .content, .container {
-  max-width: 100% !important;
-  overflow-x: hidden !important;
-  box-sizing: border-box;
-}
-
-/* Remove margens forçadas em mobile */
-@media (max-width: 900px) {
-  body, html {
-    margin: 0;
-    padding: 0;
-  }
-  .main-content {
-    margin-left: 0 !important;
-    padding: 80px 12px 32px 12px !important;
-  }
-}
-
-/* ==== CORREÇÃO FINAL DE ZOOM E CORTE ==== */
-html, body {
-  width: 100%;
-  max-width: 100%;
-  overflow-x: hidden !important;
-  overflow-y: auto !important;
-  margin: 0;
-  padding: 0;
-  touch-action: pan-x pan-y pinch-zoom !important;
-}
-
-.main-content, section, .content, .container {
-  width: 100% !important;
-  max-width: 100% !important;
-  overflow-x: hidden !important;
-  box-sizing: border-box;
-}
-
-@media (max-width: 900px) {
-  .main-content {
-    margin-left: 0 !important;
-    padding: 80px 14px 32px 14px !important;
-  }
-}
-
-/* Evita overflow causado por 100vw */
-*[style*="width:100vw"] {
-  width: 100% !important;
-}
-
-
-
    </style>
 </head>
 <body>
