@@ -1894,6 +1894,65 @@
   }
 }
 
+/* ======= CORREÇÃO GERAL DE ZOOM E OVERFLOW ======= */
+html, body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden !important;
+  zoom: 1 !important;
+  touch-action: pan-x pan-y !important; /* permite arrastar e zoom */
+}
+
+.main-content, section, .content, .container {
+  max-width: 100% !important;
+  overflow-x: hidden !important;
+  box-sizing: border-box;
+}
+
+/* Remove margens forçadas em mobile */
+@media (max-width: 900px) {
+  body, html {
+    margin: 0;
+    padding: 0;
+  }
+  .main-content {
+    margin-left: 0 !important;
+    padding: 80px 12px 32px 12px !important;
+  }
+}
+
+/* ==== CORREÇÃO FINAL DE ZOOM E CORTE ==== */
+html, body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  margin: 0;
+  padding: 0;
+  touch-action: pan-x pan-y pinch-zoom !important;
+}
+
+.main-content, section, .content, .container {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow-x: hidden !important;
+  box-sizing: border-box;
+}
+
+@media (max-width: 900px) {
+  .main-content {
+    margin-left: 0 !important;
+    padding: 80px 14px 32px 14px !important;
+  }
+}
+
+/* Evita overflow causado por 100vw */
+*[style*="width:100vw"] {
+  width: 100% !important;
+}
+
+
+
    </style>
 </head>
 <body>
@@ -2506,23 +2565,11 @@ async function fetchUsuarioLogado(id) {
     try {
         const res = await fetch(`https://meu-site4.onrender.com/api/usuario-logado/${id}`);
         const data = await res.json();
-       if (data.status === "sucesso") {
-    usuarioLogado = data.usuario;
-
-    // === Controle da aba Gestor ===
-    const secaoGestor = document.getElementById("secaoGestor"); // substitua pelo ID real da aba Gestor
-    if (secaoGestor) {
-        if (usuarioLogado.tipoUsuario === "gestor") {
-            secaoGestor.style.display = "block";
+        if (data.status === "sucesso") {
+            usuarioLogado = data.usuario;
         } else {
-            secaoGestor.style.display = "none";
+            console.warn("Usuário não encontrado no backend.");
         }
-    }
-
-} else {
-    console.warn("Usuário não encontrado no backend.");
-}
-
     } catch (err) {
         console.error("Erro ao buscar usuário logado:", err);
     }
@@ -2765,6 +2812,27 @@ async function updateRanking() {
         if (index === 1) row.classList.add('position-2');
         if (index === 2) row.classList.add('position-3');
 
+        let medal = '';
+        if (index === 0) {
+            medal = `<svg class="medal" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="10" fill="#FFD700"/>
+                <circle cx="12" cy="12" r="8" fill="#FFEC8B"/>
+                <text x="12" y="15" text-anchor="middle" font-size="8" font-weight="bold" fill="#8B7500">1°</text>
+            </svg>`;
+        } else if (index === 1) {
+            medal = `<svg class="medal" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="10" fill="#C0C0C0"/>
+                <circle cx="12" cy="12" r="8" fill="#E6E6E6"/>
+                <text x="12" y="15" text-anchor="middle" font-size="8" font-weight="bold" fill="#505050">2°</text>
+            </svg>`;
+        } else if (index === 2) {
+            medal = `<svg class="medal" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="10" fill="#CD7F32"/>
+                <circle cx="12" cy="12" r="8" fill="#E6C39A"/>
+                <text x="12" y="15" text-anchor="middle" font-size="8" font-weight="bold" fill="#5E3A00">3°</text>
+            </svg>`;
+        }
+
         row.innerHTML = `
     <td>${index + 1} ${medal}</td>
     <td class="user-cell">
@@ -2922,17 +2990,15 @@ window.onload = async function() {
     }
   });
 
-  // Buscar usuário logado e atualizar a interface
   const userId = getUserId();
-  if (userId) {
-    await fetchUsuarioLogado(userId); // Busca dados do backend e preenche usuarioLogado
-    await fetchAndUpdateUserData();   // Atualiza moedas/pontos e chama loadUserData()
-  } else {
-    // Redireciona para login se não tiver ID salvo
-    window.location.href = "login.html";
-  }
+    if (userId) {
+        await fetchUsuarioLogado(userId);     // Busca dados do backend
+        await fetchAndUpdateUserData();       // Atualiza moedas/pontos
+        atualizarVisibilidadeAbaGestor();     // ⭐ Garante que a aba seja atualizada
+    } else {
+        window.location.href = "login.html";
+    }
 };
-
 
 // === PERFIL PROFISSIONAL INTERATIVO ===
 // Requer que a section do perfil tenha id="profile-section"
@@ -3454,8 +3520,28 @@ document.addEventListener('DOMContentLoaded', function () {
   lucide.createIcons(); // Ativa os ícones
 </script>
 <script>
+document.addEventListener("DOMContentLoaded", function() {
+  const sidebar = document.querySelector(".sidebar");
+  const backdrop = document.querySelector(".sidebar-backdrop");
+  const toggle = document.getElementById("sidebar-toggle");
 
+  // Se os elementos existirem
+  if (sidebar && backdrop && toggle) {
+    // Quando clicar no botão hambúrguer
+    toggle.addEventListener("click", () => {
+      const isOpen = sidebar.classList.toggle("open");
+      backdrop.style.display = isOpen ? "block" : "none";
+      document.body.style.overflow = isOpen ? "hidden" : ""; // trava scroll quando menu aberto
+    });
 
+    // Quando clicar fora do menu (no fundo escuro)
+    backdrop.addEventListener("click", () => {
+      sidebar.classList.remove("open");
+      backdrop.style.display = "none";
+      document.body.style.overflow = "";
+    });
+  }
+});
 </script>
 </body>
 </html>
