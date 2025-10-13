@@ -2952,50 +2952,76 @@ function getUserId() {
 
 // 🔹 Início da página
 window.onload = async function() {
-  const avatarUpload = document.getElementById("avatar-upload");
+   const avatarUpload = document.getElementById("avatar-upload");
   const userAvatarElement = document.getElementById("user-avatar");
+
+  if (!avatarUpload || !userAvatarElement) return;
 
   // Ao clicar na imagem do avatar, abre o seletor de arquivos
   userAvatarElement.addEventListener("click", function() {
     avatarUpload.click();
   });
 
-  // Quando escolher uma imagem, faz upload
+  // Quando escolher uma imagem, faz upload (lendo como base64 e enviando JSON)
   avatarUpload.addEventListener("change", async function(event) {
     const file = event.target.files[0];
-    if (file && usuarioLogado.id) {
-      // Preview local imediato
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        userAvatarElement.src = e.target.result;
-      };
-      reader.readAsDataURL(file);
+    const usuarioId = sessionStorage.getItem('userId') || (window.usuarioLogado && window.usuarioLogado.id);
 
-      // Envia para backend
-      const formData = new FormData();
-      formData.append('avatar', file);
-      formData.append('usuario_id', usuarioLogado.id);
+    if (!file) {
+      alert("Selecione uma imagem.");
+      return;
+    }
+    if (!usuarioId) {
+      alert("ID do usuário não encontrado. Faça login antes de enviar a imagem.");
+      return;
+    }
 
+    // Preview local imediato
+    const previewReader = new FileReader();
+    previewReader.onload = function(e) {
+      userAvatarElement.src = e.target.result;
+    };
+    previewReader.readAsDataURL(file);
+
+    // Lê a imagem como base64 e envia ao backend em JSON
+    const reader = new FileReader();
+    reader.onload = async function(e) {
+      const avatarBase64 = e.target.result; // "data:image/png;base64,..."
       try {
         const res = await fetch('https://meu-site4.onrender.com/api/upload-avatar', {
           method: 'POST',
-          body: formData
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            usuario_id: usuarioId,
+            avatarBase64: avatarBase64
+          })
         });
-        const data = await res.json();
-        if (data.status === "sucesso" && data.avatarUrl) {
+
+        const data = await res.json().catch(() => ({}));
+
+        if (res.ok && data.status === 'sucesso' && data.avatarUrl) {
+          // Atualiza UI, objeto em memória e salva para persistência
           userAvatarElement.src = data.avatarUrl;
-          usuarioLogado.avatar = data.avatarUrl;
+          if (window.usuarioLogado) window.usuarioLogado.avatar = data.avatarUrl;
+          sessionStorage.setItem('userAvatar', data.avatarUrl);
           alert('Foto de perfil atualizada!');
         } else {
-          alert('Erro ao enviar imagem: ' + (data.mensagem || 'Erro desconhecido'));
+          // Reverte preview se o upload falhar
+          if (window.usuarioLogado && window.usuarioLogado.avatar) {
+            userAvatarElement.src = window.usuarioLogado.avatar;
+          } else {
+            userAvatarElement.src = 'https://via.placeholder.com/60';
+          }
+          const msg = data.mensagem || `Erro ao enviar imagem (status ${res.status})`;
+          alert(msg);
+          console.error('Resposta upload-avatar:', data);
         }
       } catch (err) {
-        alert('Erro ao fazer upload do avatar. Tente novamente.');
-        console.error(err);
+        console.error('Erro ao enviar avatar:', err);
+        alert('Erro ao enviar imagem. Verifique a conexão.');
       }
-    } else {
-      alert("Selecione uma imagem e certifique-se que está logado.");
-    }
+    };
+    reader.readAsDataURL(file);
   });
 
   // Pega userId da URL ou sessionStorage
