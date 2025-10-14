@@ -46,14 +46,45 @@
     overflow-y: auto;
 }
 
-        .sidebar .logo {
-    font-weight: bold;
-    font-size: 2rem;
-    padding: 36px 0 30px 0;
-    text-align: center;
+    /* ---- Novo estilo da área do logo (agora com avatar + nome) ---- */
+.sidebar .logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 18px 18px;
     color: var(--medal-gold);
     background: linear-gradient(90deg, #181c2f 60%, #2563eb22 100%);
     border-bottom: 1px solid var(--border-color);
+    box-sizing: border-box;
+    cursor: pointer;
+}
+.sidebar .logo .sidebar-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--medal-gold);
+    background: #e5e7eb;
+    display: block;
+}
+.sidebar .logo .logo-text {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+.sidebar .logo #sidebar-username {
+    font-weight: 800;
+    font-size: 1.05rem;
+    color: var(--medal-gold);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 130px;
+}
+.sidebar .logo .logo-sub {
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    margin-top: 2px;
 }
        .sidebar-nav {
     flex: 1;
@@ -1959,67 +1990,93 @@ html, body {
   <button id="sidebar-toggle" aria-label="Abrir menu" style="display:none;position:fixed;top:14px;left:16px;z-index:999;background:var(--sidebar-bg);border:none;padding:10px 13px;border-radius:7px;color:#fff;font-size:1.4rem;box-shadow:0 2px 12px #0004;">
     &#9776;
 </button>
-    <div class="sidebar">
-       <div class="logo">
-  <img src="assets/resources/growsemfundo.png" alt="Mascote Grow" style="height:38px;vertical-align:middle;">
-  <span style="margin-left:0px;">Grow System</span>
-</div>
-        <nav class="sidebar-nav">
-  
-            <div class="nav-icon active" onclick="showSection('home')">
-                <i data-lucide="home"></i>
-                <span>Inicio</span>
-            </div>
-            <div class="nav-icon" onclick="showSection('profile')">
-    <i data-lucide="user"></i>
-    <span>Meu Perfil</span>
-</div>
-            <div class="nav-icon" onclick="showSection('learn')">
-                <i data-lucide="book-open"></i>
-                <span>Saiba Mais</span>
-            </div>
-            <div class="nav-icon" onclick="showSection('ponto')">
-                <i data-lucide="clock"></i>
-                <span>Ponto</span>
-            </div>
-            <div class="nav-icon" onclick="showSection('ranking')">
-                <i data-lucide="trophy"></i>
-                <span>Ranking</span>
-            </div>
-            <div class="nav-icon" onclick="showSection('store')">
-    <i data-lucide="shopping-cart"></i>
-    <span>Loja</span>
-</div>
-<div class="nav-icon" onclick="showSection('quizzes')">
-    <i data-lucide="list-todo"></i>
-    <span>Quizzes</span>
-</div>
-<div class="nav-icon" id="nav-gestao" onclick="showSection('gestao')" style="display:none;">
+ <div class="sidebar">
+
+  <!-- Bloco do avatar -->
+  <div class="logo" 
+       style="
+         display: flex; 
+         flex-direction: column; 
+         align-items: center; 
+         justify-content: center; 
+         padding: 36px 0 26px 0; 
+         background: var(--sidebar-bg);
+         border-bottom: 1px solid var(--border-color);
+       ">
+    <label for="avatar-upload" 
+           class="avatar-lg" 
+           style="
+             width: 70px; 
+             height: 70px; 
+             border: 3px solid var(--medal-gold); 
+             border-radius: 50%; 
+             overflow: hidden; 
+             margin-bottom: 12px; 
+             cursor: pointer;">
+      <img id="user-avatar" 
+           src="https://via.placeholder.com/70" 
+           alt="Avatar" 
+           style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+    </label>
+
+    <!-- Input oculto -->
+    <input type="file" id="avatar-upload" accept="image/*" style="display: none;">
+
+    <h2 id="username" 
+        style="
+          font-size: 1.2rem; 
+          color: var(--text-primary); 
+          margin: 0; 
+          text-align: center;
+        ">
+      Usuário
+    </h2>
+  </div>
+
+  <!-- Menu lateral -->
+  <nav class="sidebar-nav">
+    <div class="nav-icon active" onclick="showSection('home')">
+      <i data-lucide="home"></i>
+      <span>Inicio</span>
+    </div>
+    <div class="nav-icon" onclick="showSection('profile')">
+      <i data-lucide="user"></i>
+      <span>Meu Perfil</span>
+    </div>
+    <div class="nav-icon" onclick="showSection('learn')">
+      <i data-lucide="book-open"></i>
+      <span>Saiba Mais</span>
+    </div>
+    <div class="nav-icon" onclick="showSection('ponto')">
+      <i data-lucide="clock"></i>
+      <span>Ponto</span>
+    </div>
+    <div class="nav-icon" onclick="showSection('ranking')">
+      <i data-lucide="trophy"></i>
+      <span>Ranking</span>
+    </div>
+    <div class="nav-icon" onclick="showSection('store')">
+      <i data-lucide="shopping-cart"></i>
+      <span>Loja</span>
+    </div>
+    <div class="nav-icon" onclick="showSection('quizzes')">
+      <i data-lucide="list-todo"></i>
+      <span>Quizzes</span>
+    </div>
+   <div class="nav-icon" id="nav-gestao" onclick="window.location.href='dashboardGestão.html'">
   <i data-lucide="settings"></i>
   <span>Gestão</span>
 </div>
+
+  </nav>
+
+</div> <!-- ✅ fecha a sidebar AQUI -->
+
         </nav>
     </div>
     <div class="sidebar-backdrop"></div>
     <div class="main-content">
-        <div class="topbar">
-            <div class="topbar-user">
-                <div class="avatar-lg">
-                    <img id="user-avatar" src="https://via.placeholder.com/60" alt="Avatar">
-                </div>
-                <div class="topbar-info">
-                    <h2 id="username">Usuário</h2>
-                    <div class="xp-badge">
-                        <svg class="gold-coin" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle;">
-                            <circle cx="12" cy="12" r="10" fill="#FFB74D"/>
-                            
-                        </svg>
-                        <span id="user-xp">0 BIP</span>
-                    </div>
-                </div>
-            </div>
-            <input type="file" id="avatar-upload" accept="image/*" style="display:none;">
-        </div>
+       
         <!-- SECTIONS -->
   <section class="home-section" id="home-section">
   <!-- Container principal -->
@@ -2033,8 +2090,9 @@ html, body {
           Complete desafios, aprenda com jogos e suba no ranking da sua equipe.
         </p>
         <div class="home-welcome-actions">
-          <a href="quizlgbt.html" class="home-btn-primary">Jogar Quiz de Segurança (+50)</a>
-          <a href="#" class="home-btn-secondary">Ir para Recompensas</a>
+          <a href="quizlgbt.html" class="home-btn-primary">Jogar Quiz LGBTQIA (+50)</a>
+         <a href="#" class="home-btn-secondary" onclick="showSection('store'); return false;">Ir para Recompensas</a>
+
         </div>
       </div>
       <div class="home-welcome-points">
@@ -2042,7 +2100,7 @@ html, body {
           <span>Saldo de Pontos</span>
           <span class="points-level">Nível <span id="user-nivel">1</span></span>
         </div>
-        <div class="points-value" id="user-saldo-pontos">0 <span class="pts-label">pts</span></div>
+        <div class="points-value" id="user-saldo-pontos">0 <span class="pts-label">bip</span></div>
         <div class="points-progress-text">
           Meta da Semana <span id="user-meta-porcento">0%</span>
         </div>
@@ -2575,7 +2633,7 @@ async function fetchUsuarioLogado(id) {
     }
 }
 
-// 🔹 Atualiza os dados do usuário logado puxando moedas do backend
+// 🔹 Atualiza os dados do usuário logado puxando moedas (BIP) do backend
 async function fetchAndUpdateUserData() {
     if (usuarioLogado.id) {
         try {
@@ -2584,15 +2642,83 @@ async function fetchAndUpdateUserData() {
 
             if (moedasData.status === 'sucesso' && moedasData.moedas !== undefined) {
                 usuarioLogado.moedas = moedasData.moedas;
+            } else if (moedasData.bip !== undefined) {
+                // Caso o backend retorne "bip" ao invés de "moedas"
+                usuarioLogado.moedas = moedasData.bip;
             } else {
                 console.error('Erro ao buscar moedas:', moedasData.mensagem);
             }
+
+            // 🔸 Atualiza visualmente o saldo de pontos (BIP)
+            updateSaldoBipUI();
+
         } catch (error) {
             console.error('Erro na requisição para atualizar dados do usuário:', error);
         }
     }
+
+    // 🔸 Atualiza o restante da interface do usuário
     loadUserData();
+
+    // 🔸 Mantém a atualização do ranking normalmente
+    await fetchRanking();
 }
+
+// 🔹 Atualiza o valor mostrado no cartão "Saldo de Pontos"
+function updateSaldoBipUI() {
+    const saldoEl = document.getElementById('user-saldo-pontos');
+    if (!saldoEl) return;
+
+    const valor = Number(usuarioLogado.moedas || 0);
+    saldoEl.innerHTML = `${valor} <span class="pts-label">BIP</span>`;
+}
+// 🔹 Define níveis e estilos
+const niveis = [
+  { nivel: 1, min: 0, max: 99, cor: "linear-gradient(45deg, #555, #999)", nome: "Iniciante" },
+  { nivel: 2, min: 100, max: 249, cor: "linear-gradient(45deg, #2196F3, #00BCD4)", nome: "Aprendiz" },
+  { nivel: 3, min: 250, max: 499, cor: "linear-gradient(45deg, #4CAF50, #8BC34A)", nome: "Intermediário" },
+  { nivel: 4, min: 500, max: 999, cor: "linear-gradient(45deg, #9C27B0, #E040FB)", nome: "Avançado" },
+  { nivel: 5, min: 1000, max: Infinity, cor: "linear-gradient(45deg, #FFD700, #FF8C00, #FF00FF)", nome: "Mestre" },
+];
+
+// 🔹 Atualiza o valor mostrado no cartão "Saldo de Pontos"
+function updateSaldoBipUI() {
+  const saldoEl = document.getElementById('user-saldo-pontos');
+  if (!saldoEl) return;
+
+  const valor = Number(usuarioLogado.moedas || 0);
+  saldoEl.innerHTML = `${valor} <span class="pts-label">BIP</span>`;
+
+  // Atualiza nível e borda conforme o saldo
+  updateNivelEBorda(valor);
+}
+
+// 🔹 Atualiza o nível e a borda do avatar com base nos BIPs
+function updateNivelEBorda(valor) {
+  const nivelAtual = niveis.find(n => valor >= n.min && valor <= n.max) || niveis[0];
+  const avatarImg = document.getElementById('user-avatar');
+  const nivelSpan = document.getElementById('user-nivel');
+
+  if (nivelSpan) nivelSpan.textContent = nivelAtual.nivel;
+
+  if (avatarImg) {
+    avatarImg.style.border = "3px solid transparent";
+    avatarImg.style.borderImage = `${nivelAtual.cor} 1`;
+    avatarImg.style.borderImageSlice = 1;
+    avatarImg.style.boxShadow = `0 0 20px rgba(255,255,255,0.2)`;
+    avatarImg.style.animation = "borderRotate 4s linear infinite";
+    avatarImg.title = nivelAtual.nome;
+  }
+}
+
+const style = document.createElement('style');
+style.textContent = `
+@keyframes borderRotate {
+  0% { filter: hue-rotate(0deg); }
+  100% { filter: hue-rotate(360deg); }
+}
+`;
+document.head.appendChild(style);
 
 // 🔹 Busca ranking completo no backend
 async function fetchRanking() {
@@ -2604,6 +2730,8 @@ async function fetchRanking() {
         rankingData = [];
     }
 }
+
+
 
 const usernameElement = document.getElementById('username');
 const userAvatarElement = document.getElementById('user-avatar');
@@ -2957,72 +3085,13 @@ window.onload = async function() {
 
   if (!avatarUpload || !userAvatarElement) return;
 
-  // Configurações
-  const MAX_WIDTH = 800;      // largura máxima para compressão
-  const QUALITY = 0.7;        // qualidade JPEG inicial (0.0 - 1.0)
-  const MAX_BYTES = 5 * 1024 * 1024; // limite em bytes (5 MB)
+  // Ao clicar na imagem do avatar, abre o seletor de arquivos
+  userAvatarElement.addEventListener("click", function() {
+    avatarUpload.click();
+  });
 
-  // Cliquear no avatar abre o seletor de arquivo
-  userAvatarElement.addEventListener("click", () => avatarUpload.click());
-
-  // calcula tamanho aproximado de um dataURL base64 (bytes)
-  function dataURLByteSize(dataURL) {
-    const base64 = (dataURL.split(',')[1] || '');
-    return Math.ceil((base64.length * 3) / 4);
-  }
-
-  // compressão a partir de um DataURL (já lido)
-  function compressFromDataURL(dataURL, maxWidth, quality) {
-    return new Promise((resolve, reject) => {
-      const img = new Image();
-      img.onload = () => {
-        const scale = Math.min(1, maxWidth / img.width);
-        const canvas = document.createElement('canvas');
-        canvas.width = Math.round(img.width * scale);
-        canvas.height = Math.round(img.height * scale);
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        const compressed = canvas.toDataURL('image/jpeg', quality);
-        resolve(compressed);
-      };
-      img.onerror = () => reject(new Error('Erro ao carregar imagem para compressão'));
-      img.src = dataURL;
-    });
-  }
-
-  // envia base64 em JSON ao backend
-  async function sendAvatarBase64(usuarioId, avatarBase64) {
-    try {
-      const res = await fetch('https://meu-site4.onrender.com/api/upload-avatar', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ usuario_id: usuarioId, avatarBase64 })
-      });
-      const data = await res.json().catch(() => ({}));
-      if (res.ok && data.status === 'sucesso' && data.avatarUrl) {
-        userAvatarElement.src = data.avatarUrl;
-        if (window.usuarioLogado) window.usuarioLogado.avatar = data.avatarUrl;
-        sessionStorage.setItem('userAvatar', data.avatarUrl);
-        alert('Foto de perfil atualizada!');
-      } else {
-        const msg = data.mensagem || `Erro ao enviar imagem (status ${res.status})`;
-        throw new Error(msg);
-      }
-    } catch (err) {
-      console.error('Erro ao enviar avatar:', err);
-      alert(err.message || 'Erro ao enviar imagem. Verifique a conexão.');
-      // reverte preview para avatar salvo ou placeholder
-      if (window.usuarioLogado && window.usuarioLogado.avatar) {
-        userAvatarElement.src = window.usuarioLogado.avatar;
-      } else {
-        userAvatarElement.src = 'https://via.placeholder.com/60';
-      }
-      throw err;
-    }
-  }
-
-  // Listener: lê o arquivo UMA vez, faz preview, comprime e envia
-  avatarUpload.addEventListener("change", function (event) {
+  // Quando escolher uma imagem, faz upload (lendo como base64 e enviando JSON)
+  avatarUpload.addEventListener("change", async function(event) {
     const file = event.target.files[0];
     const usuarioId = sessionStorage.getItem('userId') || (window.usuarioLogado && window.usuarioLogado.id);
 
@@ -3035,49 +3104,52 @@ window.onload = async function() {
       return;
     }
 
-    const fr = new FileReader();
-    fr.onerror = () => {
-      alert('Erro ao ler arquivo.');
+    // Preview local imediato
+    const previewReader = new FileReader();
+    previewReader.onload = function(e) {
+      userAvatarElement.src = e.target.result;
     };
-    fr.onload = async (e) => {
-      const dataUrlOriginal = e.target.result;
+    previewReader.readAsDataURL(file);
 
-      // Preview imediato (mostra arquivo original enquanto processa)
-      userAvatarElement.src = dataUrlOriginal;
-
+    // Lê a imagem como base64 e envia ao backend em JSON
+    const reader = new FileReader();
+    reader.onload = async function(e) {
+      const avatarBase64 = e.target.result; // "data:image/png;base64,..."
       try {
-        // Primeiro nível de compressão
-        let compressed = await compressFromDataURL(dataUrlOriginal, MAX_WIDTH, QUALITY);
-        let size = dataURLByteSize(compressed);
+        const res = await fetch('https://meu-site4.onrender.com/api/upload-avatar', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            usuario_id: usuarioId,
+            avatarBase64: avatarBase64
+          })
+        });
 
-        // Se ainda for grande, aplica compressão adicional automaticamente
-        if (size > MAX_BYTES) {
-          // tenta reduzir qualidade e largura
-          const altQuality = 0.5;
-          const altWidth = Math.min(600, MAX_WIDTH);
-          compressed = await compressFromDataURL(dataUrlOriginal, altWidth, altQuality);
-          size = dataURLByteSize(compressed);
-        }
+        const data = await res.json().catch(() => ({}));
 
-        if (size > MAX_BYTES) {
-          alert('A imagem ainda está muito grande após compressão. Escolha outra imagem menor.');
-          // reverte preview
+        if (res.ok && data.status === 'sucesso' && data.avatarUrl) {
+          // Atualiza UI, objeto em memória e salva para persistência
+          userAvatarElement.src = data.avatarUrl;
+          if (window.usuarioLogado) window.usuarioLogado.avatar = data.avatarUrl;
+          sessionStorage.setItem('userAvatar', data.avatarUrl);
+          alert('Foto de perfil atualizada!');
+        } else {
+          // Reverte preview se o upload falhar
           if (window.usuarioLogado && window.usuarioLogado.avatar) {
             userAvatarElement.src = window.usuarioLogado.avatar;
           } else {
             userAvatarElement.src = 'https://via.placeholder.com/60';
           }
-          return;
+          const msg = data.mensagem || `Erro ao enviar imagem (status ${res.status})`;
+          alert(msg);
+          console.error('Resposta upload-avatar:', data);
         }
-
-        // envia para o backend
-        await sendAvatarBase64(usuarioId, compressed);
       } catch (err) {
-        console.error('Erro no processamento do avatar:', err);
-        // (msg já mostrada no sendAvatarBase64)
+        console.error('Erro ao enviar avatar:', err);
+        alert('Erro ao enviar imagem. Verifique a conexão.');
       }
     };
-    fr.readAsDataURL(file); // leitura única
+    reader.readAsDataURL(file);
   });
 
   // Pega userId da URL ou sessionStorage
