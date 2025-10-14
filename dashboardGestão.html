@@ -270,21 +270,23 @@
     <section class="gestao-section active" id="metricas-section">
       <div class="cardbox-row">
         <div class="cardbox">
-          <div class="cardbox-title">Participação</div>
-          <div class="cardbox-value">68%</div>
-          <div class="cardbox-bar"><div class="cardbox-bar-inner" style="width:68%"></div></div>
+  <div class="cardbox-title">Participação</div>
+<div id="participacao-value" class="cardbox-value">--</div>
+<div class="cardbox-bar"><div id="participacao-bar-inner" class="cardbox-bar-inner" style="width:0%"></div></div>
           <div class="cardbox-desc">Nos últimos 30 dias</div>
         </div>
         <div class="cardbox">
-          <div class="cardbox-title">Pontos Distribuídos</div>
-          <div class="cardbox-value">84.250</div>
-          <div class="cardbox-bar"><div class="cardbox-bar-inner" style="width:92%"></div></div>
+<div class="cardbox-title">Pontos Distribuídos</div>
+<div id="pontos-distribuidos-value" class="cardbox-value">--</div>
+<div class="cardbox-bar"><div id="pontos-bar-inner" class="cardbox-bar-inner" style="width:0%"></div></div>
+
           <div class="cardbox-desc">Total acumulado</div>
         </div>
         <div class="cardbox">
-          <div class="cardbox-title">Jogos por Colaborador</div>
-          <div class="cardbox-value">3,2</div>
-          <div class="cardbox-bar"><div class="cardbox-bar-inner" style="width:32%"></div></div>
+<div class="cardbox-title">Jogos por Colaborador</div>
+<div id="jogos-por-colaborador-value" class="cardbox-value">--</div>
+<div class="cardbox-bar"><div id="jogos-bar-inner" class="cardbox-bar-inner" style="width:0%"></div></div>
+
           <div class="cardbox-desc">Média geral</div>
         </div>
       </div>
@@ -388,11 +390,12 @@
           <button class="gestao-btn" style="margin-top:7px;width:100%;">Enviar</button>
         </div>
       </div>
-      <div style="display:flex;gap:12px;margin-top:16px;">
-        <button class="gestao-btn green">Criar Quiz</button>
-        <button class="gestao-btn">Gerenciar Recompensas</button>
-        <button class="gestao-btn">Enviar Notificação</button>
-      </div>
+    <div style="display:flex;gap:12px;margin-top:16px;">
+  <button id="btn-criar-quiz" class="gestao-btn green">Criar Quiz</button>
+  <button id="btn-gerenciar-recompensas" class="gestao-btn">Gerenciar Recompensas</button>
+  <button id="btn-enviar-notificacao" class="gestao-btn">Enviar Notificação</button>
+</div>
+
     </section>
 
     <!-- Configurações do Sistema -->
@@ -492,6 +495,598 @@
         if (e.key === "Enter") filtrarTalentos();
       };
     };
+
+    contents=
+(function () {
+  // Dashboard Gestão - integração com backend (server.js)
+  // Coloque este arquivo em: public/js/dashboardGestao.js
+  // Ele consome endpoints:
+  // GET /api/ranking
+  // GET /api/usuario-logado/:id
+  // GET /api/pontos/:id
+
+  const SELECTORS = {
+    talentosTableBody: '#talentos-table-body',
+    talentosFiltro: '#talentos-filtro',
+    talentosFiltroBtn: '#talentos-filtro-btn',
+    participacaoValue: '#participacao-value',
+    participacaoBar: '#participacao-bar-inner',
+    pontosDistribuidosValue: '#pontos-distribuidos-value',
+    pontosBar: '#pontos-bar-inner',
+    jogosValue: '#jogos-por-colaborador-value',
+    jogosBar: '#jogos-bar-inner'
+  };
+
+  // ---------- Utilitários ----------
+  const $ = sel => document.querySelector(sel);
+  const $$ = sel => Array.from(document.querySelectorAll(sel));
+  const storageKey = {
+    quizzes: 'grow_quizzes_v1',
+    rewards: 'grow_rewards_v1'
+  };
+
+  function safeAvatar(url) {
+    if (!url) return 'https://via.placeholder.com/80';
+    return url;
+  }
+  function formatNumber(n) {
+    return new Intl.NumberFormat('pt-BR').format(n);
+  }
+  function download(filename, text) {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([text], { type: 'text/csv;charset=utf-8;' }));
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  }
+  function showAlert(msg) {
+    alert(msg);
+  }
+
+  // ---------- Seletores (conforme IDs adicionados no HTML) ----------
+  const btnExport = $('#btn-exportar');
+  const btnNovaCampanha = $('#btn-nova-campanha');
+  const talentosTableBody = $('#talentos-table-body');
+  const talentosFiltro = $('#talentos-filtro');
+  const talentosFiltroBtn = $('#talentos-filtro-btn');
+
+  const metrics = {
+    participacaoValue: $('#participacao-value'),
+    participacaoBar: $('#participacao-bar-inner'),
+    pontosValue: $('#pontos-distribuidos-value'),
+    pontosBar: $('#pontos-bar-inner'),
+    jogosValue: $('#jogos-por-colaborador-value'),
+    jogosBar: $('#jogos-bar-inner')
+  };
+
+  const btnCriarQuiz = $('#btn-criar-quiz');
+  const btnGerenciarRecompensas = $('#btn-gerenciar-recompensas');
+  const btnEnviarNotificacao = $('#btn-enviar-notificacao');
+
+  // ---------- Dados locais (fallback) ----------
+  function loadLocalRewards() {
+    try {
+      return JSON.parse(localStorage.getItem(storageKey.rewards) || '[]');
+    } catch { return []; }
+  }
+  function saveLocalRewards(arr) {
+    localStorage.setItem(storageKey.rewards, JSON.stringify(arr || []));
+  }
+  function loadLocalQuizzes() {
+    try {
+      return JSON.parse(localStorage.getItem(storageKey.quizzes) || '[]');
+    } catch { return []; }
+  }
+  function saveLocalQuizzes(arr) {
+    localStorage.setItem(storageKey.quizzes, JSON.stringify(arr || []));
+  }
+
+  // ---------- Backend fetch helpers ----------
+  async function fetchRanking() {
+    try {
+      const res = await fetch('/api/ranking');
+      if (!res.ok) throw new Error('Falha ao buscar ranking');
+      const data = await res.json();
+      // backend retorna array de rows (id, nome, avatar, bip)
+      // normalizar campos
+      return data.map(d => ({
+        id: d.id,
+        nome: d.nome,
+        avatar: d.avatar,
+        bip: Number(d.bip || 0),
+        tipoUsuario: d.tipoUsuario || 'colaborador',
+        matricula: d.matricula || ''
+      }));
+    } catch (err) {
+      console.warn('Erro fetchRanking:', err);
+      return []; // fallback vazio
+    }
+  }
+
+  async function fetchUsuario(id) {
+    try {
+      const res = await fetch(`/api/usuario-logado/${id}`);
+      if (!res.ok) throw new Error('Usuário não encontrado');
+      const payload = await res.json();
+      return payload.usuario || null;
+    } catch (err) {
+      console.warn('Erro fetchUsuario', err);
+      return null;
+    }
+  }
+
+  async function fetchPontos(usuarioId) {
+    try {
+      const res = await fetch(`/api/pontos/${usuarioId}`);
+      if (!res.ok) throw new Error('Falha ao buscar pontos');
+      const payload = await res.json();
+      return payload.pontos || [];
+    } catch (err) {
+      console.warn('Erro fetchPontos', err);
+      return [];
+    }
+  }
+
+  // ---------- Render talentos (colaboradores) ----------
+  function renderTalentos(usuarios) {
+    if (!talentosTableBody) return;
+    talentosTableBody.innerHTML = '';
+    if (!usuarios || usuarios.length === 0) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td colspan="3" style="color:#b3b9c5;padding:12px">Nenhum colaborador encontrado.</td>`;
+      talentosTableBody.appendChild(tr);
+      return;
+    }
+    usuarios.forEach(u => {
+      const tr = document.createElement('tr');
+      tr.style.verticalAlign = 'middle';
+      tr.innerHTML = `
+        <td style="display:flex;align-items:center;gap:10px;padding:8px 6px;">
+          <img src="${safeAvatar(u.avatar)}" alt="${u.nome}" style="width:42px;height:42px;border-radius:8px;object-fit:cover;border:2px solid rgba(255,255,255,0.06)">
+          <div>
+            <div style="font-weight:700">${u.nome}</div>
+            <div style="font-size:.9rem;color:#b3b9c5">${u.tipoUsuario || 'colaborador'}</div>
+          </div>
+        </td>
+        <td style="padding:8px 6px;color:#b3b9c5">BIPs: <strong style="color:#FFD700">${u.bip ?? 0}</strong></td>
+        <td style="padding:8px 6px;text-align:right">
+          <button class="gestao-btn ver-perfil-btn" data-id="${u.id}">Ver perfil</button>
+        </td>
+      `;
+      talentosTableBody.appendChild(tr);
+    });
+
+    // listeners
+    $$('.ver-perfil-btn').forEach(btn => {
+      btn.addEventListener('click', ev => {
+        const id = ev.currentTarget.getAttribute('data-id');
+        if (id) verPerfil(id);
+      });
+    });
+  }
+
+  // ---------- Filtrar talentos (local) ----------
+  function filtrarTalentos(usuarios) {
+    const valor = (talentosFiltro?.value || '').trim().toLowerCase();
+    if (!valor) {
+      renderTalentos(usuarios);
+      return;
+    }
+    const filtrados = usuarios.filter(u =>
+      (u.nome || '').toLowerCase().includes(valor) ||
+      (u.tipoUsuario || '').toLowerCase().includes(valor) ||
+      (u.matricula || '').toLowerCase().includes(valor)
+    );
+    renderTalentos(filtrados);
+  }
+
+  // ---------- Modal verPerfil ----------
+  async function verPerfil(usuarioId) {
+    const usuario = await fetchUsuario(usuarioId);
+    if (!usuario) {
+      showAlert('Erro ao carregar usuário.');
+      return;
+    }
+    const pontos = await fetchPontos(usuarioId);
+    const modalBg = document.createElement('div');
+    modalBg.className = 'perfil-modal-bg';
+    modalBg.style.zIndex = 9999;
+    const pontosListHtml = pontos.length === 0
+      ? '<div style="color:#b3b9c5">Nenhum ponto registrado.</div>'
+      : `<ul style="padding-left:16px;color:#b3b9c5;margin-top:6px;">${pontos.slice(0,10).map(p => `<li>${p.data} ${p.hora} — +${p.moedas || 5} BIPs</li>`).join('')}</ul>`;
+    modalBg.innerHTML = `
+      <div class="perfil-modal" role="dialog" aria-modal="true">
+        <button class="perfil-modal-close" aria-label="Fechar">×</button>
+        <div style="display:flex;gap:14px;align-items:center;margin-bottom:10px;">
+          <img src="${safeAvatar(usuario.avatar)}" alt="${usuario.nome}" style="width:84px;height:84px;border-radius:12px;object-fit:cover;border:2px solid rgba(255,255,255,0.06)">
+          <div>
+            <div style="font-size:1.17rem;font-weight:800;color:#FFD700">${usuario.nome}</div>
+            <div style="color:#b3b9c5">${usuario.tipoUsuario || 'colaborador'}</div>
+            <div style="margin-top:6px;color:#e2e8f0">BIPs: <strong style="color:#43e68b">${usuario.bip ?? 0}</strong></div>
+          </div>
+        </div>
+        <div style="margin-top:8px;">
+          <div style="font-weight:700;color:#FFD700;margin-bottom:6px;">Últimos pontos</div>
+          ${pontosListHtml}
+        </div>
+      </div>
+    `;
+    modalBg.querySelector('.perfil-modal-close').addEventListener('click', () => modalBg.remove());
+    modalBg.addEventListener('click', e => { if (e.target === modalBg) modalBg.remove(); });
+    document.body.appendChild(modalBg);
+  }
+
+  // ---------- Atualizar métricas ----------
+  function atualizarMetricas(usuarios) {
+    const totalUsuarios = usuarios.length;
+    const totalComBip = usuarios.filter(u => (u.bip ?? 0) > 0).length;
+    const totalBips = usuarios.reduce((s, u) => s + (Number(u.bip) || 0), 0);
+    const participacaoPerc = totalUsuarios === 0 ? 0 : Math.round((totalComBip / totalUsuarios) * 100);
+    const jogosPorColaborador = totalUsuarios === 0 ? 0 : (totalBips / 5) / totalUsuarios;
+
+    if (metrics.participacaoValue) metrics.participacaoValue.textContent = `${participacaoPerc}%`;
+    if (metrics.pontosValue) metrics.pontosValue.textContent = `${formatNumber(totalBips)}`;
+    if (metrics.jogosValue) metrics.jogosValue.textContent = `${(Math.round(jogosPorColaborador * 10) / 10).toFixed(1)}`;
+
+    if (metrics.participacaoBar) metrics.participacaoBar.style.width = `${Math.min(participacaoPerc, 100)}%`;
+    if (metrics.pontosBar) {
+      const meta = Math.max(10000, totalBips);
+      const pct = Math.round((totalBips / meta) * 100);
+      metrics.pontosBar.style.width = `${Math.min(pct, 100)}%`;
+    }
+    if (metrics.jogosBar) {
+      const pct = Math.min(Math.round(jogosPorColaborador * 10), 100);
+      metrics.jogosBar.style.width = `${pct}%`;
+    }
+  }
+
+  // ---------- Exportar relatórios (CSV) ----------
+  async function exportarRelatorioCSV() {
+    const usuarios = await fetchRanking();
+    if (!usuarios || usuarios.length === 0) {
+      showAlert('Nenhum dado disponível para exportar.');
+      return;
+    }
+    const headers = ['id','nome','matricula','tipoUsuario','bip','avatar'];
+    const rows = usuarios.map(u => headers.map(h => `"${String(u[h] ?? '').replace(/"/g,'""')}"`).join(','));
+    const csv = [headers.join(','), ...rows].join('\n');
+    download(`relatorio_ranking_${new Date().toISOString().slice(0,19).replace(/[:T]/g,'-')}.csv`, csv);
+  }
+
+  // ---------- Modal Criar Quiz ----------
+  function abrirModalCriarQuiz() {
+    const existing = document.getElementById('modal-criar-quiz');
+    if (existing) return; // já aberto
+
+    const modalBg = document.createElement('div');
+    modalBg.className = 'perfil-modal-bg';
+    modalBg.id = 'modal-criar-quiz';
+    modalBg.style.zIndex = 9999;
+
+    const quizzes = loadLocalQuizzes();
+
+    modalBg.innerHTML = `
+      <div class="perfil-modal" role="dialog" aria-modal="true" style="min-width:420px;">
+        <button class="perfil-modal-close" aria-label="Fechar">×</button>
+        <div style="font-weight:800;color:#FFD700;font-size:1.15rem;margin-bottom:8px;">Criar novo Quiz</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <input id="quiz-titulo" class="gestao-btn" placeholder="Título do quiz">
+          <textarea id="quiz-perguntas" class="gestao-btn" placeholder="Escreva as perguntas separadas por linha (pergunta|opcaoA|opcaoB|opcaoC|indiceCorreta)"></textarea>
+          <div style="display:flex;gap:8px;">
+            <button id="quiz-salvar" class="gestao-btn green">Salvar Quiz</button>
+            <button id="quiz-salvar-backend" class="gestao-btn">Salvar no backend (se disponível)</button>
+            <button id="quiz-fechar" class="gestao-btn">Fechar</button>
+          </div>
+          <div style="margin-top:8px;color:#b3b9c5;font-size:.95rem;">
+            Formato perguntas (ex.): <br>
+            Como usar o EPI?|Sim|Não|Talvez|0
+          </div>
+          <div style="margin-top:12px;">
+            <div style="font-weight:700;color:#FFD700;margin-bottom:6px;">Quizzes Salvos</div>
+            <div id="quiz-list" style="max-height:180px;overflow:auto;"></div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // eventos
+    modalBg.querySelector('.perfil-modal-close').addEventListener('click', () => modalBg.remove());
+    modalBg.addEventListener('click', e => { if (e.target === modalBg) modalBg.remove(); });
+    document.body.appendChild(modalBg);
+
+    function renderQuizList() {
+      const div = modalBg.querySelector('#quiz-list');
+      div.innerHTML = '';
+      const list = loadLocalQuizzes();
+      if (list.length === 0) { div.innerHTML = `<div style="color:#b3b9c5">Nenhum quiz salvo.</div>`; return; }
+      list.forEach((q, idx) => {
+        const el = document.createElement('div');
+        el.style = 'background:#232b40;padding:10px;border-radius:8px;margin-bottom:8px;';
+        el.innerHTML = `
+          <div style="font-weight:700;color:#FFD700">${q.titulo}</div>
+          <div style="color:#b3b9c5;font-size:.95rem;margin-top:6px;">${q.perguntas.length} perguntas</div>
+          <div style="margin-top:8px;text-align:right;">
+            <button class="gestao-btn quiz-preview" data-idx="${idx}">Preview</button>
+            <button class="gestao-btn quiz-delete" data-idx="${idx}">Excluir</button>
+          </div>
+        `;
+        div.appendChild(el);
+      });
+      // listeners
+      $$('.quiz-preview').forEach(b => b.addEventListener('click', e => {
+        const i = Number(e.currentTarget.dataset.idx);
+        abrirModalPreviewQuiz(i);
+      }));
+      $$('.quiz-delete').forEach(b => b.addEventListener('click', e => {
+        const i = Number(e.currentTarget.dataset.idx);
+        const arr = loadLocalQuizzes(); arr.splice(i,1); saveLocalQuizzes(arr); renderQuizList();
+      }));
+    }
+
+    // salvar local
+    modalBg.querySelector('#quiz-salvar').addEventListener('click', () => {
+      const titulo = modalBg.querySelector('#quiz-titulo').value.trim();
+      const perguntasRaw = modalBg.querySelector('#quiz-perguntas').value.trim();
+      if (!titulo || !perguntasRaw) { showAlert('Preencha título e perguntas'); return; }
+      const perguntas = perguntasRaw.split('\n').map(line => {
+        const parts = line.split('|').map(p => p.trim());
+        return {
+          texto: parts[0] || '',
+          opcoes: [parts[1]||'', parts[2]||'', parts[3]||''].filter(Boolean),
+          correta: Number(parts[4] || 0)
+        };
+      }).filter(p => p.texto);
+      const arr = loadLocalQuizzes();
+      arr.push({ titulo, perguntas, criadoEm: new Date().toISOString() });
+      saveLocalQuizzes(arr);
+      renderQuizList();
+      showAlert('Quiz salvo localmente.');
+    });
+
+    // tentar salvar no backend (se existir endpoint)
+    modalBg.querySelector('#quiz-salvar-backend').addEventListener('click', async () => {
+      const titulo = modalBg.querySelector('#quiz-titulo').value.trim();
+      const perguntasRaw = modalBg.querySelector('#quiz-perguntas').value.trim();
+      if (!titulo || !perguntasRaw) { showAlert('Preencha título e perguntas'); return; }
+      const perguntas = perguntasRaw.split('\n').map(line => {
+        const parts = line.split('|').map(p => p.trim());
+        return { texto: parts[0] || '', opcoes: [parts[1]||'', parts[2]||'', parts[3]||''].filter(Boolean), correta: Number(parts[4] || 0) };
+      }).filter(p => p.texto);
+      try {
+        const res = await fetch('/api/campaign', {
+          method: 'POST',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({ tipo: 'quiz', titulo, perguntas })
+        });
+        if (!res.ok) throw new Error('Erro no servidor');
+        showAlert('Quiz salvo no backend com sucesso.');
+        modalBg.remove();
+      } catch (err) {
+        console.warn('Erro salvar backend quiz', err);
+        showAlert('Não foi possível salvar no backend. Quiz salvo localmente como fallback.');
+        const arr = loadLocalQuizzes();
+        arr.push({ titulo, perguntas, criadoEm: new Date().toISOString() });
+        saveLocalQuizzes(arr);
+        renderQuizList();
+      }
+    });
+
+    modalBg.querySelector('#quiz-fechar').addEventListener('click', () => modalBg.remove());
+
+    renderQuizList();
+  }
+
+  // preview de quiz
+  function abrirModalPreviewQuiz(idx) {
+    const quizzes = loadLocalQuizzes();
+    const q = quizzes[idx];
+    if (!q) { showAlert('Quiz não encontrado'); return; }
+    const modalBg = document.createElement('div');
+    modalBg.className = 'perfil-modal-bg';
+    modalBg.style.zIndex = 9999;
+    modalBg.innerHTML = `
+      <div class="perfil-modal" style="min-width:420px;">
+        <button class="perfil-modal-close">×</button>
+        <div style="font-weight:800;color:#FFD700;font-size:1.12rem;margin-bottom:8px;">Preview: ${q.titulo}</div>
+        <div style="max-height:400px;overflow:auto;">
+          ${q.perguntas.map((p,i) => `<div style="padding:8px;background:#232b40;border-radius:8px;margin-bottom:8px;"><b>Q${i+1}:</b> ${p.texto}<div style="color:#b3b9c5;margin-top:6px;">${p.opcoes.map((o,j)=>`<div>${String.fromCharCode(65+j)}. ${o}</div>`).join('')}</div></div>`).join('')}
+        </div>
+      </div>
+    `;
+    modalBg.querySelector('.perfil-modal-close').addEventListener('click', () => modalBg.remove());
+    modalBg.addEventListener('click', (e) => { if (e.target === modalBg) modalBg.remove(); });
+    document.body.appendChild(modalBg);
+  }
+
+  // ---------- Gerenciar Recompensas ----------
+  function abrirModalGerenciarRecompensas() {
+    const existing = document.getElementById('modal-recompensas');
+    if (existing) return;
+    const modalBg = document.createElement('div');
+    modalBg.className = 'perfil-modal-bg';
+    modalBg.id = 'modal-recompensas';
+    modalBg.style.zIndex = 9999;
+
+    const rewards = loadLocalRewards();
+
+    modalBg.innerHTML = `
+      <div class="perfil-modal" style="min-width:480px;">
+        <button class="perfil-modal-close" aria-label="Fechar">×</button>
+        <div style="font-weight:800;color:#FFD700;font-size:1.12rem;margin-bottom:8px;">Estoque de Recompensas</div>
+        <div style="display:flex;gap:8px;margin-bottom:8px;">
+          <input id="reward-nome" class="gestao-btn" placeholder="Nome da recompensa">
+          <input id="reward-qtd" class="gestao-btn" placeholder="Qtd" type="number" min="0" style="width:90px;">
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:12px;">
+          <button id="reward-add" class="gestao-btn green">Adicionar / Atualizar</button>
+          <button id="reward-sync-backend" class="gestao-btn">Salvar no backend (se houver)</button>
+        </div>
+        <div id="reward-list" style="max-height:260px;overflow:auto;"></div>
+      </div>
+    `;
+
+    modalBg.querySelector('.perfil-modal-close').addEventListener('click', () => modalBg.remove());
+    modalBg.addEventListener('click', e => { if (e.target === modalBg) modalBg.remove(); });
+    document.body.appendChild(modalBg);
+
+    function renderList() {
+      const rl = modalBg.querySelector('#reward-list');
+      const arr = loadLocalRewards();
+      rl.innerHTML = '';
+      if (arr.length === 0) { rl.innerHTML = `<div style="color:#b3b9c5">Nenhuma recompensa.</div>`; return; }
+      arr.forEach((r, idx) => {
+        const el = document.createElement('div');
+        el.style = 'display:flex;justify-content:space-between;align-items:center;background:#232b40;padding:10px;border-radius:8px;margin-bottom:8px;';
+        el.innerHTML = `<div><b style="color:#FFD700">${r.nome}</b><div style="color:#b3b9c5">${r.qtd} unidades</div></div>
+                        <div style="display:flex;gap:8px;">
+                          <button class="gestao-btn reward-decrease" data-idx="${idx}">-</button>
+                          <button class="gestao-btn reward-increase" data-idx="${idx}">+</button>
+                          <button class="gestao-btn reward-delete" data-idx="${idx}">Excluir</button>
+                        </div>`;
+        rl.appendChild(el);
+      });
+      // listeners
+      $$('.reward-increase').forEach(b => b.addEventListener('click', e => {
+        const i = Number(e.currentTarget.dataset.idx);
+        const arr = loadLocalRewards(); arr[i].qtd = Number(arr[i].qtd)+1; saveLocalRewards(arr); renderList();
+      }));
+      $$('.reward-decrease').forEach(b => b.addEventListener('click', e => {
+        const i = Number(e.currentTarget.dataset.idx);
+        const arr = loadLocalRewards(); arr[i].qtd = Math.max(0, Number(arr[i].qtd)-1); saveLocalRewards(arr); renderList();
+      }));
+      $$('.reward-delete').forEach(b => b.addEventListener('click', e => {
+        const i = Number(e.currentTarget.dataset.idx);
+        const arr = loadLocalRewards(); arr.splice(i,1); saveLocalRewards(arr); renderList();
+      }));
+    }
+
+    // adicionar
+    modalBg.querySelector('#reward-add').addEventListener('click', () => {
+      const nome = modalBg.querySelector('#reward-nome').value.trim();
+      const qtd = Number(modalBg.querySelector('#reward-qtd').value || 0);
+      if (!nome) { showAlert('Informe o nome da recompensa'); return; }
+      const arr = loadLocalRewards();
+      const found = arr.find(r => r.nome.toLowerCase() === nome.toLowerCase());
+      if (found) { found.qtd = qtd; } else { arr.push({ nome, qtd }); }
+      saveLocalRewards(arr);
+      renderList();
+    });
+
+    // sync backend
+    modalBg.querySelector('#reward-sync-backend').addEventListener('click', async () => {
+      const arr = loadLocalRewards();
+      try {
+        const res = await fetch('/api/rewards', {
+          method: 'POST',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({ rewards: arr })
+        });
+        if (!res.ok) throw new Error('Erro ao salvar rewards no backend');
+        showAlert('Recompensas sincronizadas com backend.');
+        modalBg.remove();
+      } catch (err) {
+        console.warn('Erro sync rewards backend', err);
+        showAlert('Não foi possível sincronizar com backend. Dados permanecem no localStorage.');
+      }
+    });
+
+    renderList();
+  }
+
+  // ---------- Enviar Notificação ----------
+  function abrirModalEnviarNotificacao() {
+    const existing = document.getElementById('modal-notify');
+    if (existing) return;
+    const modalBg = document.createElement('div');
+    modalBg.className = 'perfil-modal-bg';
+    modalBg.id = 'modal-notify';
+    modalBg.style.zIndex = 9999;
+
+    modalBg.innerHTML = `
+      <div class="perfil-modal" style="min-width:420px;">
+        <button class="perfil-modal-close">×</button>
+        <div style="font-weight:800;color:#FFD700;font-size:1.12rem;margin-bottom:8px;">Enviar Notificação</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <input id="notify-title" class="gestao-btn" placeholder="Título">
+          <textarea id="notify-body" class="gestao-btn" placeholder="Mensagem"></textarea>
+          <div style="display:flex;gap:8px;">
+            <button id="notify-send" class="gestao-btn green">Enviar</button>
+            <button id="notify-send-backend" class="gestao-btn">Enviar via backend</button>
+            <button id="notify-close" class="gestao-btn">Fechar</button>
+          </div>
+        </div>
+      </div>
+    `;
+    modalBg.querySelector('.perfil-modal-close').addEventListener('click', () => modalBg.remove());
+    modalBg.addEventListener('click', e => { if (e.target === modalBg) modalBg.remove(); });
+    document.body.appendChild(modalBg);
+
+    modalBg.querySelector('#notify-send').addEventListener('click', () => {
+      const t = modalBg.querySelector('#notify-title').value.trim();
+      const b = modalBg.querySelector('#notify-body').value.trim();
+      if (!t || !b) { showAlert('Preencha título e mensagem'); return; }
+      // Simulação local: criar uma notificação no console e salvar em localStorage (ou outra lógica)
+      console.log('Notificação enviada (local):', { titulo: t, body: b, enviadoEm: new Date().toISOString() });
+      showAlert('Notificação enviada localmente (simulada).');
+      modalBg.remove();
+    });
+
+    modalBg.querySelector('#notify-send-backend').addEventListener('click', async () => {
+      const t = modalBg.querySelector('#notify-title').value.trim();
+      const b = modalBg.querySelector('#notify-body').value.trim();
+      if (!t || !b) { showAlert('Preencha título e mensagem'); return; }
+      try {
+        const res = await fetch('/api/notify', {
+          method: 'POST',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({ titulo: t, body: b })
+        });
+        if (!res.ok) throw new Error('Erro enviar pelo backend');
+        showAlert('Notificação enviada pelo backend.');
+        modalBg.remove();
+      } catch (err) {
+        console.warn('Erro enviar notificação backend', err);
+        showAlert('Não foi possível enviar via backend. Notificação simulada localmente.');
+      }
+    });
+
+    modalBg.querySelector('#notify-close').addEventListener('click', () => modalBg.remove());
+  }
+
+  // ---------- Inicialização ----------
+  async function init() {
+    // Bind botões header
+    if (btnExport) btnExport.addEventListener('click', exportarRelatorioCSV);
+    if (btnNovaCampanha) btnNovaCampanha.addEventListener('click', () => {
+      // Abre modal simples para nova campanha (reusar criar quiz como draft)
+      abrirModalCriarQuiz();
+    });
+
+    if (btnCriarQuiz) btnCriarQuiz.addEventListener('click', abrirModalCriarQuiz);
+    if (btnGerenciarRecompensas) btnGerenciarRecompensas.addEventListener('click', abrirModalGerenciarRecompensas);
+    if (btnEnviarNotificacao) btnEnviarNotificacao.addEventListener('click', abrirModalEnviarNotificacao);
+
+    // Busca ranking do backend e renderiza
+    const usuarios = await fetchRanking();
+    renderTalentos(usuarios);
+    atualizarMetricas(usuarios);
+
+    // filtro
+    if (talentosFiltroBtn) talentosFiltroBtn.addEventListener('click', () => filtrarTalentos(usuarios));
+    if (talentosFiltro) talentosFiltro.addEventListener('keydown', (e) => { if (e.key === 'Enter') filtrarTalentos(usuarios); });
+
+    // se não houver rewards no localStorage, cria um preset
+    if (loadLocalRewards().length === 0) {
+      saveLocalRewards([{ nome: 'Voucher Loja X', qtd: 18 }, { nome: 'Day Off', qtd: 14 }, { nome: 'Camiseta', qtd: 22 }]);
+    }
+  }
+
+  // Run
+  document.addEventListener('DOMContentLoaded', init);
+
+})();
   </script>
+  
 </body>
 </html>
