@@ -3725,6 +3725,16 @@ function forcarExibicaoAbaGestao() {
         }
     }, 500);
 }
+<!-- Adicione isso antes do fechamento do body -->
+<!-- VLibras Plugin -->
+<div vw class="enabled">
+  <div vw-access-button class="active"></div>
+  <div vw-plugin-wrapper>
+    <div class="vw-plugin-top-wrapper"></div>
+  </div>
+</div>
+
+<script>
 (function() {
   var s = document.createElement('script');
   s.src = 'https://vlibras.gov.br/app/vlibras-plugin.js';
@@ -3736,9 +3746,11 @@ function forcarExibicaoAbaGestao() {
   };
   document.head.appendChild(s);
 })();
+
 // Chama em vários momentos para garantir
 document.addEventListener('DOMContentLoaded', forcarExibicaoAbaGestao);
 window.addEventListener('load', forcarExibicaoAbaGestao);
 </script>
+
 </body>
 </html>
